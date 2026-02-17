@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { gsap } from 'gsap';
@@ -10,7 +9,7 @@ const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Services', to: '/services' },
   { label: 'Work', to: '/works' },
-  { label: 'Contact', to: '/contact' }, // create later
+  { label: 'Contact', to: '/contact' },
 ];
 
 function Navbar() {
@@ -43,11 +42,14 @@ function Navbar() {
   }, []);
 
   return (
-    <nav className="navbar fixed top-0 left-0 w-full z-50 py-5">
-      <div className="container-custom flex items-center justify-between">
-        <Link to="/" className="nav-item text-2xl md:text-3xl font-bold tracking-tight">
-          <span className="gradient-text">SECOND</span>
-          <span className="text-white">WAVE</span>
+    <nav className="navbar fixed top-0 left-0 w-full z-50 py-4 h-20">
+      <div className="container-custom flex items-center justify-between h-full">
+        <Link to="/" className="nav-item flex items-center">
+          <img
+            src="/logo.png"
+            alt="SecondWave logo"
+            className="h-10 md:h-12 w-auto object-contain"
+          />
         </Link>
 
         <div className="hidden md:flex items-center gap-10 text-sm uppercase tracking-[0.2em]">
@@ -106,4 +108,3 @@ function Navbar() {
 }
 
 export default Navbar;
-

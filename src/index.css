@@ -118,3 +118,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, #14F195, #9945FF);
 }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}

@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { TextPlugin } from 'gsap/TextPlugin';
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+gsap.registerPlugin(ScrollTrigger);
+
 import Hero3D from '../components/Hero3D';
 import { 
   FiArrowRight, FiCamera, FiTrendingUp, FiCode, FiMonitor, 
@@ -15,6 +17,7 @@ gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin);
 
 function Home() {
   const heroRef = useRef(null);
+  const waveRef = useRef(null);
   const servicesRef = useRef(null);
   const brandingRef = useRef(null);
   const seoRef = useRef(null);
@@ -30,6 +33,22 @@ function Home() {
   const marqueeRef = useRef(null);
   const horizontalTextRef = useRef(null);
 
+  useEffect(() => {
+    if (!waveRef.current) return;
+  
+    gsap.to(waveRef.current, {
+      xPercent: -60,
+      ease: "none",
+      scrollTrigger: {
+        trigger: waveRef.current,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true, // ← this links movement to scroll speed
+      },
+    });
+  }, []);
+  
+  
   useEffect(() => {
     // Make sure ScrollTrigger refreshes after everything is loaded
     setTimeout(() => {
@@ -535,20 +554,26 @@ function Home() {
       </section>
 
       {/* Horizontal Text Marquee - Using CSS Animation */}
-      <div className="relative py-12 overflow-hidden bg-gradient-to-r from-[#9945FF]/10 to-[#14F195]/10 border-y border-white/5">
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0A0A0A] to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#0A0A0A] to-transparent z-10" />
-        <div className="flex whitespace-nowrap animate-marquee">
-          {[...horizontalTextItems, ...horizontalTextItems, ...horizontalTextItems].map((item, index) => (
-            <div
-              key={index}
-              className="mx-8 text-4xl md:text-5xl font-bold text-white/20 hover:text-white/40 transition-colors cursor-default"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
+{/* Horizontal Text — Scroll Driven */}
+<div className="relative py-12 overflow-hidden ">
+
+  <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0A0A0A] to-transparent z-10" />
+  <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#0A0A0A] to-transparent z-10" />
+
+  <div className="whitespace-nowrap">
+    <div
+      ref={waveRef}
+      className="flex font-extrabold tracking-widest text-white/10 text-[18vw]"
+    >
+      <span className="mr-24">SECONDWAVE</span>
+      <span className="mr-24">SECONDWAVE</span>
+      <span className="mr-24">SECONDWAVE</span>
+    </div>
+  </div>
+
+</div>
+
+
 
       {/* Text Reveal Section */}
       <section ref={textRef} className="section-padding">
