@@ -30,8 +30,8 @@ function Navbar() {
 
     gsap.to('.navbar', {
       backdropFilter: 'blur(14px)',
-      background: 'rgba(10,10,11,0.9)',
-      borderBottom: '1px solid rgba(153,69,255,0.25)',
+      background: 'rgba(255,255,255,0.9)',
+      borderBottom: '1px solid rgba(0,0,0,0.1)',
       scrollTrigger: {
         trigger: 'body',
         start: 'top -40px',
@@ -42,11 +42,11 @@ function Navbar() {
   }, []);
 
   return (
-    <nav className="navbar fixed top-0 left-0 w-full z-50 py-4 h-20">
+    <nav className="navbar fixed top-0 left-0 w-full z-50 py-4 h-20 bg-white/80 backdrop-blur-md">
       <div className="container-custom flex items-center justify-between h-full">
         <Link to="/" className="nav-item flex items-center">
           <img
-            src="/logo.png"
+            src="/lg.png"
             alt="SecondWave logo"
             className="h-10 md:h-12 w-auto object-contain"
           />
@@ -58,8 +58,8 @@ function Navbar() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `nav-item text-white/60 hover:text-[#9FE870] transition-colors duration-300 ${
-                  isActive ? 'text-[#9FE870]' : ''
+                `nav-item text-gray-700 hover:text-gray-900 transition-colors duration-300 ${
+                  isActive ? 'text-gray-900 font-bold' : ''
                 }`
               }
             >
@@ -70,7 +70,7 @@ function Navbar() {
 
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="nav-item md:hidden text-white/70 hover:text-[#9FE870] transition-colors"
+          className="nav-item md:hidden text-gray-700 hover:text-gray-900 transition-colors"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -88,14 +88,14 @@ function Navbar() {
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full glass-morphism border-t border-white/10">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-lg">
           <div className="container-custom py-6 flex flex-col gap-4">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-lg text-white/70 hover:text-[#9FE870] transition-colors"
+                className="text-lg text-gray-700 hover:text-gray-900 transition-colors"
               >
                 {item.label}
               </NavLink>

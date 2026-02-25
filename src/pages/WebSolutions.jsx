@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { FaCode, FaMobile, FaShoppingCart, FaCogs } from 'react-icons/fa';
+import { FiZap } from 'react-icons/fi';
 
 function WebSolutions() {
   useEffect(() => {
@@ -38,26 +40,34 @@ function WebSolutions() {
   ];
 
   return (
-    <div className="pt-24 pb-20 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl md:text-6xl font-bold text-center mb-8">
-          Web <span className="text-gradient">Solutions</span>
-        </h1>
-        
-        <p className="text-xl text-gray-300 text-center max-w-3xl mx-auto mb-16">
-          Cutting-edge websites and web applications that are dynamic, user-friendly, 
-          and optimized for performance and conversions.
-        </p>
+    <div className="pt-32 pb-20 bg-white">
+      <div className="container-custom">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-gray-100 border border-gray-200 rounded-full text-xs text-gray-700">
+            <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
+            Web Solutions
+            <FiZap className="text-gray-800" />
+          </div>
+          <h1 className="text-6xl md:text-7xl font-black text-gray-900 mb-4">
+            Web <span className="text-gray-800">Solutions</span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Cutting-edge websites and web applications that are dynamic, user-friendly, 
+            and optimized for performance and conversions.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {services.map((service, index) => (
-            <div key={index} className="web-section glass-effect p-8 rounded-2xl">
-              <div className="text-4xl text-purple-400 mb-4">{service.icon}</div>
-              <h3 className="text-2xl font-semibold mb-3">{service.title}</h3>
-              <p className="text-gray-400 mb-4">{service.description}</p>
+            <div key={index} className="web-section p-8 bg-white border border-gray-200 rounded-2xl hover:border-gray-800 transition-all group">
+              <div className="text-4xl text-gray-800 mb-4 w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                {service.icon}
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
+              <p className="text-gray-600 mb-4">{service.description}</p>
               <div className="flex flex-wrap gap-2">
                 {service.tech.map((t, i) => (
-                  <span key={i} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
+                  <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">
                     {t}
                   </span>
                 ))}
@@ -66,18 +76,18 @@ function WebSolutions() {
           ))}
         </div>
 
-        <div className="web-section glass-effect p-8 rounded-2xl">
-          <h2 className="text-3xl font-bold mb-6">Development Process</h2>
+        <div className="web-section p-8 bg-gray-50 border border-gray-200 rounded-2xl">
+          <h2 className="text-3xl font-black text-gray-900 mb-6">Development Process</h2>
           <div className="space-y-4">
             {['Planning & Strategy', 'Design & Prototype', 'Development', 'Testing & Launch'].map((phase, index) => (
               <div key={index} className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-bold">
+                <div className="w-10 h-10 bg-gray-200 text-gray-800 rounded-full flex items-center justify-center font-bold">
                   {index + 1}
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold">{phase}</h4>
-                  <div className="h-2 bg-gray-700 rounded-full mt-2">
-                    <div className="h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style={{ width: `${(index + 1) * 25}%` }}></div>
+                  <h4 className="font-semibold text-gray-900">{phase}</h4>
+                  <div className="h-2 bg-gray-200 rounded-full mt-2">
+                    <div className="h-2 bg-gray-800 rounded-full" style={{ width: `${(index + 1) * 25}%` }}></div>
                   </div>
                 </div>
               </div>

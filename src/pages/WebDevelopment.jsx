@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FiArrowRight, FiCode, FiSmartphone, FiShoppingCart, FiZap } from 'react-icons/fi';
@@ -31,14 +32,17 @@ function WebDevelopment() {
   }, []);
 
   return (
-    <div ref={pageRef} className="pt-32 pb-20">
+    <div ref={pageRef} className="pt-32 pb-20 bg-white">
       <div className="container-custom">
         <div className="text-center mb-20">
-          <h1 className="text-6xl md:text-7xl font-bold mb-6">
-            <span className="gradient-text">Website Development</span>
-          </h1>
-          <p className="text-2xl text-gray-300 mb-4">Dynamic, User Friendly</p>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-gray-100 border border-gray-200 rounded-full text-xs text-gray-700">
+            <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
+            Web Development
+            <FiZap className="text-gray-800" />
+          </div>
+          <h1 className="text-6xl md:text-7xl font-black text-gray-900 mb-4">Website Development</h1>
+          <p className="text-2xl text-gray-700 mb-4 font-medium">Dynamic, User Friendly</p>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Build powerful, responsive websites that convert visitors into customers
           </p>
         </div>
@@ -50,19 +54,21 @@ function WebDevelopment() {
             { icon: <FiSmartphone />, title: 'Responsive Design', desc: 'Perfect on all devices' },
             { icon: <FiZap />, title: 'Performance', desc: 'Lightning fast load times' }
           ].map((item, index) => (
-            <div key={index} className="web-section glass-morphism p-6 rounded-2xl text-center">
-              <div className="text-4xl text-[#9945FF] mb-4">{item.icon}</div>
-              <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-              <p className="text-gray-400 text-sm">{item.desc}</p>
+            <div key={index} className="web-section p-8 bg-white border border-gray-200 rounded-2xl hover:border-gray-800 transition-all text-center group">
+              <div className="text-4xl text-gray-800 mb-4 w-16 h-16 mx-auto bg-gray-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                {item.icon}
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+              <p className="text-gray-600 text-sm">{item.desc}</p>
             </div>
           ))}
         </div>
 
-        <div className="web-section glass-morphism p-12 rounded-3xl mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Our Tech Stack</h2>
+        <div className="web-section p-12 bg-gray-50 border border-gray-200 rounded-3xl mb-20">
+          <h2 className="text-3xl md:text-4xl font-black text-gray-900 text-center mb-12">Our Tech Stack</h2>
           <div className="flex flex-wrap justify-center gap-4">
             {['React', 'Next.js', 'Node.js', 'MongoDB', 'Vue.js', 'Laravel', 'WordPress', 'Shopify'].map((tech, index) => (
-              <span key={index} className="px-6 py-3 bg-white/5 rounded-full text-lg border border-white/10">
+              <span key={index} className="px-6 py-3 bg-white border border-gray-200 rounded-full text-lg text-gray-700 hover:border-gray-800 transition-all">
                 {tech}
               </span>
             ))}
@@ -70,11 +76,11 @@ function WebDevelopment() {
         </div>
 
         <div className="web-section text-center">
-          <h3 className="text-3xl font-bold mb-6">Ready to Build Something Amazing?</h3>
-          <a href="/contact" className="inline-flex items-center gap-3 px-8 py-4 gradient-bg rounded-full font-semibold hover-glow group">
+          <h3 className="text-3xl font-black text-gray-900 mb-6">Ready to Build Something Amazing?</h3>
+          <Link to="/contact" className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-gray-800 transition-all group">
             <span>Start Your Project</span>
             <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-          </a>
+          </Link>
         </div>
       </div>
     </div>
