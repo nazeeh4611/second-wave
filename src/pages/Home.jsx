@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
@@ -24,39 +24,55 @@ function Home() {
   const clientsMarqueeRef = useRef(null);
   const splineRef = useRef(null);
   const mobileSliderRef = useRef(null);
+  const containerRef = useRef(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeSection, setActiveSection] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const onSplineLoad = (spline) => {
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+  }, []);
+
+  const onSplineLoad = useCallback((spline) => {
     splineRef.current = spline;
-  };
+  }, []);
 
   useEffect(() => {
     if (!waveRef.current) return;
-    gsap.to(waveRef.current, {
-      xPercent: -60,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: waveRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
-      },
+    const ctx = gsap.context(() => {
+      gsap.to(waveRef.current, {
+        xPercent: -60,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: waveRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 0.5,
+        },
+      });
     });
-  }, []);
-
-  // Auto-slide for trusted clients
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 8);
-    }, 3000);
-    return () => clearInterval(interval);
+    return () => ctx.revert();
   }, []);
 
   useEffect(() => {
-    setTimeout(() => ScrollTrigger.refresh(), 600);
-
+    if (isLoading) return;
+    
     const ctx = gsap.context(() => {
       gsap.set('.hero-char', { y: 120, opacity: 0, rotationX: -90 });
       gsap.to('.hero-char', {
@@ -99,105 +115,101 @@ function Home() {
         { scaleY: 1, duration: 1, delay: 2, ease: 'power2.out' }
       );
 
-      gsap.fromTo(
-        '.reveal-text .text-block',
-        { y: '110%', opacity: 0, skewY: 5 },
-        {
-          y: '0%',
-          opacity: 1,
-          skewY: 0,
-          duration: 1.15,
-          stagger: 0.15,
-          ease: 'power4.out',
-          scrollTrigger: {
-            trigger: textRef.current,
-            start: 'top 78%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.fromTo(
-        '.counter-box',
-        { scale: 0.8, opacity: 0, y: 26 },
-        {
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          duration: 0.85,
-          stagger: 0.1,
-          ease: 'back.out(1.4)',
-          scrollTrigger: {
-            trigger: textRef.current,
-            start: 'top 74%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.to('body', {
-        backgroundColor: '#ffffff',
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: 'top center',
-          end: 'bottom center',
-          scrub: true,
-        },
-      });
-
-      const servicesTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: 'top 82%',
-          toggleActions: 'play none none reverse',
-        },
-      });
-      servicesTl
-        .fromTo(
-          '.services-heading',
-          { y: 60, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out' }
+      if (!isMobile) {
+        gsap.fromTo(
+          '.reveal-text .text-block',
+          { y: '110%', opacity: 0, skewY: 5 },
+          {
+            y: '0%',
+            opacity: 1,
+            skewY: 0,
+            duration: 1.15,
+            stagger: 0.15,
+            ease: 'power4.out',
+            scrollTrigger: {
+              trigger: textRef.current,
+              start: 'top 78%',
+              toggleActions: 'play none none reverse',
+            },
+          }
         );
 
-      gsap.fromTo(
-        '.stat-item',
-        { y: 60, opacity: 0, scale: 0.85, rotateX: 8 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          rotateX: 0,
-          duration: 0.9,
-          stagger: 0.12,
-          ease: 'back.out(1.6)',
-          scrollTrigger: {
-            trigger: statsRef.current,
-            start: 'top 82%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+        gsap.fromTo(
+          '.counter-box',
+          { scale: 0.8, opacity: 0, y: 26 },
+          {
+            scale: 1,
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            stagger: 0.1,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: textRef.current,
+              start: 'top 74%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
 
-      document.querySelectorAll('[data-count]').forEach(el => {
-        const target = parseInt(el.getAttribute('data-count') || '0', 10);
-        const suffix = el.getAttribute('data-suffix') || '';
-        const obj = { val: 0 };
-        ScrollTrigger.create({
-          trigger: el,
-          start: 'top 88%',
-          once: true,
-          onEnter: () => {
-            gsap.to(obj, {
-              val: target,
-              duration: 2.4,
-              ease: 'power2.out',
-              onUpdate: () => {
-                el.textContent = Math.round(obj.val).toString() + suffix;
-              },
-            });
-          },
+        gsap.fromTo(
+          '.stat-item',
+          { y: 60, opacity: 0, scale: 0.85, rotateX: 8 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            rotateX: 0,
+            duration: 0.9,
+            stagger: 0.12,
+            ease: 'back.out(1.6)',
+            scrollTrigger: {
+              trigger: statsRef.current,
+              start: 'top 82%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+
+        gsap.fromTo(
+          '.cta-content',
+          { y: 50, opacity: 0, scale: 0.94, filter: 'blur(10px)' },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px)',
+            duration: 1.05,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: ctaRef.current,
+              start: 'top 78%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+
+        document.querySelectorAll('[data-count]').forEach(el => {
+          const target = parseInt(el.getAttribute('data-count') || '0', 10);
+          const suffix = el.getAttribute('data-suffix') || '';
+          const obj = { val: 0 };
+          ScrollTrigger.create({
+            trigger: el,
+            start: 'top 88%',
+            once: true,
+            onEnter: () => {
+              gsap.to(obj, {
+                val: target,
+                duration: 2.4,
+                ease: 'power2.out',
+                onUpdate: () => {
+                  el.textContent = Math.round(obj.val).toString() + suffix;
+                },
+              });
+            },
+          });
         });
-      });
+      }
 
       if (marqueeRef.current) {
         gsap.to(marqueeRef.current, { x: '-50%', duration: 22, repeat: -1, ease: 'none' });
@@ -221,24 +233,6 @@ function Home() {
         });
       }
 
-      gsap.fromTo(
-        '.cta-content',
-        { y: 50, opacity: 0, scale: 0.94, filter: 'blur(10px)' },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          filter: 'blur(0px)',
-          duration: 1.05,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: ctaRef.current,
-            start: 'top 78%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
       gsap.utils.toArray('.parallax-img').forEach(img => {
         gsap.to(img, {
           yPercent: -14,
@@ -248,7 +242,7 @@ function Home() {
             trigger: img.closest('section') || img,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: true,
+            scrub: 0.5,
           },
         });
       });
@@ -265,7 +259,7 @@ function Home() {
         });
       });
 
-      if (heroRef.current) {
+      if (heroRef.current && !isMobile) {
         gsap.to(heroRef.current, {
           yPercent: -4,
           duration: 2,
@@ -274,17 +268,115 @@ function Home() {
           yoyo: true,
         });
       }
-    });
+    }, containerRef);
 
     return () => {
       ctx.revert();
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
+  }, [isLoading, isMobile]);
+
+  const handleScroll = useCallback(() => {
+    if (mobileSliderRef.current) {
+      const scrollLeft = mobileSliderRef.current.scrollLeft;
+      const width = mobileSliderRef.current.offsetWidth;
+      const index = Math.round(scrollLeft / width);
+      if (index !== activeSection) {
+        setActiveSection(index);
+      }
+    }
+  }, [activeSection]);
+
+  const scrollToSlide = useCallback((index) => {
+    if (mobileSliderRef.current) {
+      mobileSliderRef.current.scrollTo({
+        left: index * mobileSliderRef.current.offsetWidth,
+        behavior: 'smooth'
+      });
+      setActiveSection(index);
+    }
   }, []);
 
-  const heroChars = ['S', 'e', 'c', 'o', 'n', 'd', '\u00A0', 'W', 'a', 'v', 'e', '.'];
+  const handleMouseDown = useCallback((e) => {
+    if (!mobileSliderRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - mobileSliderRef.current.offsetLeft;
+    scrollLeft.current = mobileSliderRef.current.scrollLeft;
+    mobileSliderRef.current.style.cursor = 'grabbing';
+    mobileSliderRef.current.style.scrollSnapType = 'none';
+  }, []);
 
-  const services = [
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging.current || !mobileSliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - mobileSliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    mobileSliderRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    if (!mobileSliderRef.current) return;
+    isDragging.current = false;
+    mobileSliderRef.current.style.cursor = 'grab';
+    mobileSliderRef.current.style.scrollSnapType = 'x mandatory';
+    
+    const index = Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth);
+    scrollToSlide(index);
+  }, [scrollToSlide]);
+
+  const handleTouchStart = useCallback((e) => {
+    if (!mobileSliderRef.current) return;
+    isDragging.current = true;
+    startX.current = e.touches[0].pageX - mobileSliderRef.current.offsetLeft;
+    scrollLeft.current = mobileSliderRef.current.scrollLeft;
+    mobileSliderRef.current.style.scrollSnapType = 'none';
+  }, []);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging.current || !mobileSliderRef.current) return;
+    e.preventDefault();
+    const x = e.touches[0].pageX - mobileSliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    mobileSliderRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!mobileSliderRef.current) return;
+    isDragging.current = false;
+    mobileSliderRef.current.style.scrollSnapType = 'x mandatory';
+    
+    const index = Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth);
+    scrollToSlide(index);
+  }, [scrollToSlide]);
+
+  useEffect(() => {
+    const slider = mobileSliderRef.current;
+    if (!slider) return;
+
+    slider.addEventListener('scroll', handleScroll, { passive: true });
+    slider.addEventListener('mousedown', handleMouseDown);
+    slider.addEventListener('mousemove', handleMouseMove);
+    slider.addEventListener('mouseup', handleMouseUp);
+    slider.addEventListener('mouseleave', handleMouseUp);
+    slider.addEventListener('touchstart', handleTouchStart, { passive: false });
+    slider.addEventListener('touchmove', handleTouchMove, { passive: false });
+    slider.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      slider.removeEventListener('scroll', handleScroll);
+      slider.removeEventListener('mousedown', handleMouseDown);
+      slider.removeEventListener('mousemove', handleMouseMove);
+      slider.removeEventListener('mouseup', handleMouseUp);
+      slider.removeEventListener('mouseleave', handleMouseUp);
+      slider.removeEventListener('touchstart', handleTouchStart);
+      slider.removeEventListener('touchmove', handleTouchMove);
+      slider.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleScroll, handleMouseDown, handleMouseMove, handleMouseUp, handleTouchStart, handleTouchMove, handleTouchEnd]);
+
+  const heroChars = useMemo(() => ['S', 'e', 'c', 'o', 'n', 'd', '\u00A0', 'W', 'a', 'v', 'e', '.'], []);
+
+  const services = useMemo(() => [
     { icon: <FiCamera />, title: 'Branding', tagline: 'Eye catchy', description: 'Create unforgettable brand identities that captivate your audience and leave lasting impressions.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Logo Design', 'Brand Strategy', 'Visual Identity', 'Brand Guidelines'] },
     { icon: <FiTrendingUp />, title: 'SEO', tagline: 'On top', description: 'Dominate search engine rankings with our data-driven SEO strategies.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Keyword Research', 'On-Page SEO', 'Technical SEO', 'Link Building'] },
     { icon: <FiCode />, title: 'Website Dev', tagline: 'Dynamic, User Friendly', description: 'Build powerful, responsive websites that convert visitors into customers.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Custom Development', 'E-commerce', 'CMS Integration', 'Responsive Design'] },
@@ -293,9 +385,9 @@ function Home() {
     { icon: <FiStar />, title: 'Creative', tagline: 'Strategy, growth', description: 'Innovative creative solutions that drive brand growth and capture attention.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Creative Direction', 'Content Creation', 'Campaign Strategy', 'Storytelling'] },
     { icon: <FiFilm />, title: 'Production', tagline: 'Sound, Camera, Action', description: 'Professional video and audio production that brings your vision to life.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Video Production', 'Sound Design', 'Photography', 'Post-Production'] },
     { icon: <FiUsers />, title: 'Digital PR', tagline: 'We can get anyone', description: 'Strategic PR campaigns that build relationships with media and influencers.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Media Relations', 'Influencer Outreach', 'Crisis Management', 'Brand Reputation'] },
-  ];
+  ], []);
 
-  const sectionSlides = [
+  const sectionSlides = useMemo(() => [
     {
       id: 'branding',
       title: 'BRAND IDENTITY',
@@ -311,7 +403,7 @@ function Home() {
       badge1: { value: '300+', label: 'Brands Created' },
       badge2: { value: '★★★★★', label: 'Rated' },
       link: '/branding',
-      linkText: 'Discover our branding process →'
+      linkText: 'Discover our branding process'
     },
     {
       id: 'seo',
@@ -331,7 +423,7 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '#1', label: 'Rankings' },
       link: '/seo',
-      linkText: 'Explore SEO strategies →'
+      linkText: 'Explore SEO strategies'
     },
     {
       id: 'web',
@@ -348,7 +440,7 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '99ms', label: 'Load Time' },
       link: '/web-development',
-      linkText: 'View our development work →'
+      linkText: 'View our development work'
     },
     {
       id: 'performance',
@@ -359,7 +451,7 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '380%', label: 'Avg ROI' },
       link: '/performance-marketing',
-      linkText: 'Boost your campaigns →'
+      linkText: 'Boost your campaigns'
     },
     {
       id: 'social',
@@ -379,7 +471,7 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '2M+', label: 'Followers' },
       link: '/social-media-marketing',
-      linkText: 'Grow your community →'
+      linkText: 'Grow your community'
     },
     {
       id: 'creative',
@@ -395,7 +487,7 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '∞', label: 'Creativity' },
       link: '/creative',
-      linkText: 'Explore creative work →'
+      linkText: 'Explore creative work'
     },
     {
       id: 'production',
@@ -411,7 +503,7 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '4K', label: 'Ultra HD' },
       link: '/production',
-      linkText: 'See our production work →'
+      linkText: 'See our production work'
     },
     {
       id: 'pr',
@@ -422,40 +514,29 @@ function Home() {
       image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '50+', label: 'Publications' },
       link: '/digital-pr',
-      linkText: 'Get featured →'
+      linkText: 'Get featured'
     },
-  ];
+  ], []);
 
-  const clients = ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Spotify', 'Adobe', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Tesla', 'SpaceX', 'Uber', 'Airbnb', 'Shopify', 'Slack'];
+  const clients = useMemo(() => ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Spotify', 'Adobe', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Tesla', 'SpaceX', 'Uber', 'Airbnb', 'Shopify', 'Slack'], []);
 
-  const stats = [
+  const stats = useMemo(() => [
     { count: 500, suffix: '+', label: 'Projects Completed', icon: <FiAward /> },
     { count: 200, suffix: '+', label: 'Happy Clients', icon: <FiHeart /> },
     { count: 50, suffix: '+', label: 'Awards Won', icon: <FiStar /> },
     { count: 10, suffix: '+', label: 'Years Experience', icon: <FiTarget /> },
-  ];
+  ], []);
 
-  const handleScroll = () => {
-    if (mobileSliderRef.current) {
-      const scrollLeft = mobileSliderRef.current.scrollLeft;
-      const width = mobileSliderRef.current.offsetWidth;
-      const index = Math.round(scrollLeft / width);
-      setActiveSection(index);
-    }
-  };
-
-  const scrollToSlide = (index) => {
-    if (mobileSliderRef.current) {
-      mobileSliderRef.current.scrollTo({
-        left: index * mobileSliderRef.current.offsetWidth,
-        behavior: 'smooth'
-      });
-      setActiveSection(index);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="relative overflow-x-hidden bg-white pt-20">
+    <div ref={containerRef} className="relative overflow-x-hidden bg-white pt-20">
       <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Spline
@@ -467,7 +548,7 @@ function Home() {
         
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/10 z-10 pointer-events-none" />
         <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
-          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-gray-100 border border-gray-200 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-700 backdrop-blur-md cursor-hover">
+          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-gray-100 border border-gray-200 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-700 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
             Award-Winning Digital Agency
             <FiZap className="text-gray-800" />
@@ -478,7 +559,7 @@ function Home() {
               {heroChars.map((char, i) => (
                 <span
                   key={i}
-                  className={`hero-char inline-block text-gray-900`}
+                  className="hero-char inline-block text-gray-900"
                   style={{ display: 'inline-block' }}
                 >
                   {char}
@@ -515,7 +596,7 @@ function Home() {
               ['200+', 'Clients'],
               ['10+', 'Years'],
             ].map(([num, label], i) => (
-              <div key={i} className="hero-stat text-center cursor-hover">
+              <div key={i} className="hero-stat text-center">
                 <div className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900">{num}</div>
                 <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5">{label}</div>
               </div>
@@ -529,7 +610,7 @@ function Home() {
         </div>
       </section>
 
-      <div className="relative py-6 sm:py-10 overflow-hidden bg-white">
+      <div className="relative py-6 sm:py-10 overflow-hidden bg-white will-change-transform">
         <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
         <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
         <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
@@ -568,7 +649,7 @@ function Home() {
             ].map((item, i) => (
               <div
                 key={i}
-                className="counter-box text-center p-2.5 sm:p-4 md:p-5 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl hover:border-gray-300 transition-colors cursor-default"
+                className="counter-box text-center p-2.5 sm:p-4 md:p-5 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl hover:border-gray-300 transition-colors"
               >
                 <div className="text-base sm:text-2xl md:text-3xl font-black text-gray-900">{item.val}</div>
                 <div className="text-[9px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{item.label}</div>
@@ -592,13 +673,12 @@ function Home() {
             </p>
           </div>
           
-          {/* Mobile Horizontal Scroll - Services */}
           <div className="lg:hidden">
             <div className="relative">
               <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
               
-              <div className="flex overflow-x-auto gap-4 pb-6 -mx-4 px-4 scroll-smooth" 
+              <div className="flex overflow-x-auto gap-4 pb-6 -mx-4 px-4 scroll-smooth scrollbar-hide" 
                    style={{ WebkitOverflowScrolling: 'touch' }}>
                 {services.map((service, index) => (
                   <div
@@ -649,7 +729,6 @@ function Home() {
             </div>
           </div>
 
-          {/* Desktop Grid - Services */}
           <div className="hidden lg:grid grid-cols-2 xl:grid-cols-4 gap-6">
             {services.map((service, index) => (
               <div
@@ -689,9 +768,7 @@ function Home() {
         </div>
       </section>
 
-      {/* Mobile Horizontal Slider for All Service Sections */}
       <div className="lg:hidden">
-        {/* Section Navigation Dots */}
         <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
           {sectionSlides.map((_, index) => (
             <button
@@ -705,17 +782,16 @@ function Home() {
           ))}
         </div>
 
-        {/* Horizontal Scrollable Sections */}
         <div
           ref={mobileSliderRef}
-          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
             height: 'calc(100vh - 80px)',
+            scrollBehavior: 'smooth',
           }}
-          onScroll={handleScroll}
         >
           {sectionSlides.map((slide, index) => (
             <div
@@ -723,24 +799,20 @@ function Home() {
               className="flex-shrink-0 w-screen snap-start overflow-y-auto"
               style={{ height: 'calc(100vh - 80px)' }}
             >
-              <div className="min-h-full bg-white py-8 px-4">
-                {/* Section Title */}
+              <div className="min-h-full bg-white py-8 px-4 will-change-transform">
                 <span className="inline-block text-[10px] font-bold tracking-[0.3em] text-gray-800 uppercase mb-3">
                   {slide.title}
                 </span>
 
-                {/* Heading */}
                 <h2 className="font-black mb-4 leading-tight text-gray-900 text-3xl">
                   <span className="text-gray-800">{slide.heading.split(' ')[0]}</span>{' '}
                   {slide.heading.split(' ').slice(1).join(' ')}
                 </h2>
 
-                {/* Description */}
                 <p className="text-gray-600 mb-6 leading-relaxed text-sm">
                   {slide.description}
                 </p>
 
-                {/* SEO Stats Bars */}
                 {slide.stats && (
                   <div className="space-y-4 mb-6">
                     {slide.stats.map((stat, i) => (
@@ -760,7 +832,6 @@ function Home() {
                   </div>
                 )}
 
-                {/* Web Features */}
                 {slide.features && (
                   <ul className="space-y-3 mb-6">
                     {slide.features.map((feature, i) => (
@@ -774,8 +845,7 @@ function Home() {
                   </ul>
                 )}
 
-                {/* Items Grid/Cards */}
-                {slide.items && (
+                {slide.items && !Array.isArray(slide.items[0]) && (
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     {slide.items.map((item, i) => (
                       <div key={i} className="p-3 bg-white border border-gray-200 rounded-lg">
@@ -787,7 +857,6 @@ function Home() {
                   </div>
                 )}
 
-                {/* Stats Grid */}
                 {slide.items && slide.items[0] && Array.isArray(slide.items[0]) && (
                   <div className="grid grid-cols-3 gap-2 mb-6">
                     {slide.items.map(([val, label], i) => (
@@ -799,7 +868,6 @@ function Home() {
                   </div>
                 )}
 
-                {/* Tech Tags */}
                 {slide.tech && (
                   <div className="flex flex-wrap gap-2 mb-6">
                     {slide.tech.map((tech, i) => (
@@ -813,7 +881,6 @@ function Home() {
                   </div>
                 )}
 
-                {/* Social Media Grid */}
                 {slide.social && (
                   <div className="grid grid-cols-4 gap-2 mb-6">
                     {slide.social.map(([emoji, name], i) => (
@@ -825,18 +892,17 @@ function Home() {
                   </div>
                 )}
 
-                {/* Image with Badges */}
                 <div className="relative mb-6">
                   <div className="aspect-[4/3] rounded-xl overflow-hidden ring-1 ring-gray-200">
                     <img
                       src={slide.image}
                       alt={slide.heading}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent" />
                   </div>
                   
-                  {/* Badge 1 */}
                   {slide.badge1 && (
                     <div className="absolute -bottom-3 -left-3 p-2.5 bg-white border border-gray-200 rounded-xl shadow-lg">
                       <div className="text-sm font-black text-gray-900">{slide.badge1.value}</div>
@@ -844,7 +910,6 @@ function Home() {
                     </div>
                   )}
                   
-                  {/* Badge 2 */}
                   {slide.badge2 && (
                     <div className="absolute -top-2 -right-2 p-2 bg-white border border-gray-200 rounded-xl">
                       <div className="text-xs font-black text-gray-800">{slide.badge2.value}</div>
@@ -853,7 +918,6 @@ function Home() {
                   )}
                 </div>
 
-                {/* Link */}
                 <Link
                   to={slide.link}
                   className="inline-flex items-center gap-2 text-gray-800 hover:gap-4 transition-all font-semibold text-sm group"
@@ -862,7 +926,6 @@ function Home() {
                   <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                {/* Slide Indicator */}
                 <div className="flex justify-center gap-1.5 mt-8">
                   {sectionSlides.map((_, i) => (
                     <div
@@ -879,7 +942,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Desktop Version - Render Sections Normally */}
       <div className="hidden lg:block">
         {sectionSlides.map((slide, index) => (
           <section
@@ -890,18 +952,17 @@ function Home() {
           >
             <div className="container-custom relative">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 sm:gap-10 md:gap-14 items-center">
-                {/* Image - alternates sides */}
                 <div className={`relative order-2 lg:order-${index % 2 === 0 ? '2' : '1'}`}>
                   <div className="aspect-[4/3] sm:aspect-square rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200">
                     <img
                       src={slide.image}
                       alt={slide.title}
                       className="parallax-img w-full h-full object-cover scale-110"
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent" />
                   </div>
                   
-                  {/* Floating badges */}
                   {slide.badge1 && (
                     <div className={`floating-badge absolute ${
                       index % 2 === 0 ? '-bottom-3 -left-3 sm:-bottom-5 sm:-left-5' : '-bottom-3 -right-2 sm:-bottom-5 sm:-right-5'
@@ -926,7 +987,6 @@ function Home() {
                   } w-32 sm:w-44 h-32 sm:h-44 bg-gray-200 rounded-full blur-3xl animate-pulse`} />
                 </div>
 
-                {/* Content */}
                 <div className={`order-1 lg:order-${index % 2 === 0 ? '1' : '2'}`}>
                   <span className="inline-block text-[9px] sm:text-[10px] md:text-xs font-bold tracking-[0.3em] text-gray-800 uppercase mb-2 sm:mb-3">
                     {slide.title}
@@ -938,7 +998,6 @@ function Home() {
                     {slide.description}
                   </p>
 
-                  {/* SEO specific bars */}
                   {slide.stats && (
                     <div className="space-y-2.5 sm:space-y-3.5 md:space-y-4 mb-5 sm:mb-6 md:mb-7">
                       {slide.stats.map((stat, i) => (
@@ -958,7 +1017,6 @@ function Home() {
                     </div>
                   )}
 
-                  {/* Web features specific */}
                   {slide.features && (
                     <ul className="space-y-1.5 sm:space-y-2.5 md:space-y-3 mb-4 sm:mb-5 md:mb-6">
                       {slide.features.map((feature, i) => (
@@ -972,7 +1030,6 @@ function Home() {
                     </ul>
                   )}
 
-                  {/* Items Grid */}
                   {slide.items && !Array.isArray(slide.items[0]) && (
                     <div className="grid grid-cols-2 gap-3 md:gap-4 mb-5 md:mb-7">
                       {slide.items.map((item, i) => (
@@ -988,7 +1045,6 @@ function Home() {
                     </div>
                   )}
 
-                  {/* Stats Grid */}
                   {slide.items && slide.items[0] && Array.isArray(slide.items[0]) && (
                     <div className="grid grid-cols-3 gap-3 md:gap-4 mb-5 md:mb-7">
                       {slide.items.map(([val, label], i) => (
@@ -1000,7 +1056,6 @@ function Home() {
                     </div>
                   )}
 
-                  {/* Tech Tags */}
                   {slide.tech && (
                     <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
                       {slide.tech.map((tech, i) => (
@@ -1014,7 +1069,6 @@ function Home() {
                     </div>
                   )}
 
-                  {/* Social Media Grid */}
                   {slide.social && (
                     <div className="grid grid-cols-4 gap-2 mb-4 md:mb-6">
                       {slide.social.map(([emoji, name], i) => (
@@ -1043,7 +1097,6 @@ function Home() {
         ))}
       </div>
 
-      {/* Auto-sliding Trusted Clients Section */}
       <section className="py-9 sm:py-12 md:py-14 overflow-hidden bg-white">
         <div className="text-center mb-6 sm:mb-8 px-4">
           <h2 className="font-black text-gray-900" style={{ fontSize: 'clamp(1.4rem, 4.2vw, 2.4rem)' }}>
@@ -1059,12 +1112,12 @@ function Home() {
           <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
           <div 
             ref={clientsMarqueeRef}
-            className="flex whitespace-nowrap animate-marquee"
+            className="flex whitespace-nowrap animate-marquee will-change-transform"
           >
             {[...clients, ...clients, ...clients].map((client, index) => (
               <div
                 key={index}
-                className="mx-4 sm:mx-6 text-xs sm:text-base md:text-xl font-black text-gray-200 hover:text-gray-400 transition-colors cursor-pointer flex-shrink-0"
+                className="mx-4 sm:mx-6 text-xs sm:text-base md:text-xl font-black text-gray-200 hover:text-gray-400 transition-colors flex-shrink-0"
               >
                 {client}
               </div>
@@ -1076,12 +1129,12 @@ function Home() {
           <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
           <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
           <div 
-            className="flex whitespace-nowrap animate-marquee-reverse"
+            className="flex whitespace-nowrap animate-marquee-reverse will-change-transform"
           >
             {[...clients, ...clients, ...clients].map((client, index) => (
               <div
                 key={index}
-                className="mx-4 sm:mx-6 text-[10px] sm:text-xs md:text-sm font-bold text-gray-300 hover:text-gray-500 transition-colors cursor-pointer flex-shrink-0"
+                className="mx-4 sm:mx-6 text-[10px] sm:text-xs md:text-sm font-bold text-gray-300 hover:text-gray-500 transition-colors flex-shrink-0"
               >
                 {client}
               </div>
@@ -1101,7 +1154,7 @@ function Home() {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="stat-item text-center p-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-xl sm:rounded-2xl md:rounded-3xl hover:border-gray-800 transition-all group relative overflow-hidden cursor-default"
+                className="stat-item text-center p-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-xl sm:rounded-2xl md:rounded-3xl hover:border-gray-800 transition-all group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-100/0 to-gray-100/0 group-hover:from-gray-100 group-hover:to-gray-100 transition-all duration-500" />
                 <div className="text-lg sm:text-xl md:text-2xl text-gray-800 mb-2 sm:mb-3 flex justify-center group-hover:scale-125 transition-transform duration-300 relative z-10">
@@ -1181,6 +1234,15 @@ function Home() {
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
+        }
+        .cursor-grab {
+          cursor: grab;
+        }
+        .cursor-grabbing {
+          cursor: grabbing;
+        }
+        .will-change-transform {
+          will-change: transform;
         }
       `}</style>
     </div>

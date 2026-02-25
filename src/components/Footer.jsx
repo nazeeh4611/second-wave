@@ -7,13 +7,18 @@ function Footer() {
     <footer className="relative border-t border-white/10 pt-20 pb-10">
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          <div>
-            <h3 className="text-2xl font-bold mb-6">
-              <span className="gradient-text">Second</span>Wave.
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Riding the digital wave to transform your brand into an unforgettable experience.
-            </p>
+        <div>
+  <Link to="/" className="nav-item flex items-center -mt-2 mb-4">
+    <img
+      src="/logo.png"
+      alt="SecondWave logo"
+      className="h-9 md:h-10 w-auto object-contain"
+    />
+  </Link>
+
+  <p className="text-gray-400 mb-6">
+    Riding the digital wave to transform your brand into an unforgettable experience.
+  </p>
             <div className="flex gap-4">
               {[FiFacebook, FiTwitter, FiInstagram, FiLinkedin, FiYoutube].map((Icon, index) => (
                 <a
