@@ -18,7 +18,6 @@ import DigitalPR from './pages/DigitalPR';
 import Contact from './pages/Contact'; // add
 import Admin from './pages/Admin';
 import ScrollToTop from './components/ScrollToTop';
-import CustomCursor from './components/CustomCursor';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -48,7 +47,6 @@ function App() {
 
   return (
     <Router>
-      <CustomCursor />
       <ScrollToTop />
       <div className="relative bg-[#0A0A0A]">
         <Navbar />

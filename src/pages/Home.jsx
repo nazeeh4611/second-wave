@@ -29,8 +29,7 @@ function Home() {
   const textRef = useRef(null);
   const marqueeRef = useRef(null);
   const marqueeRef2 = useRef(null);
-  const cursorRef = useRef(null);
-  const cursorDotRef = useRef(null);
+  // Removed cursorRef and cursorDotRef
   const splineRef = useRef(null);
 
   const onSplineLoad = (spline) => {
@@ -51,117 +50,7 @@ function Home() {
     });
   }, []);
 
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    const dot = cursorDotRef.current;
-    if (!cursor || !dot || window.innerWidth < 768) return;
-
-    const moveCursor = (e) => {
-      gsap.to(cursor, { 
-        x: e.clientX - 20, 
-        y: e.clientY - 20, 
-        duration: 0.35, 
-        ease: 'power3.out',
-        overwrite: 'auto'
-      });
-      gsap.to(dot, { 
-        x: e.clientX - 4, 
-        y: e.clientY - 4, 
-        duration: 0.09,
-        overwrite: 'auto'
-      });
-    };
-    
-    const onEnterLink = () => {
-      gsap.to(cursor, { 
-        scale: 2.6, 
-        borderColor: '#14F195', 
-        backgroundColor: 'rgba(20, 241, 149, 0.1)',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-      gsap.to(dot, { 
-        scale: 1.5, 
-        backgroundColor: '#14F195',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-    };
-    
-    const onLeaveLink = () => {
-      gsap.to(cursor, { 
-        scale: 1, 
-        borderColor: '#9945FF', 
-        backgroundColor: 'transparent',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-      gsap.to(dot, { 
-        scale: 1, 
-        backgroundColor: '#14F195',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-    };
-    
-    const onEnterCard = () => {
-      gsap.to(cursor, { 
-        scale: 3.1, 
-        backgroundColor: 'rgba(153,69,255,0.2)',
-        borderColor: '#14F195',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-      gsap.to(dot, { 
-        scale: 0.5, 
-        backgroundColor: '#14F195',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-    };
-    
-    const onLeaveCard = () => {
-      gsap.to(cursor, { 
-        scale: 1, 
-        backgroundColor: 'transparent',
-        borderColor: '#9945FF',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-      gsap.to(dot, { 
-        scale: 1, 
-        backgroundColor: '#14F195',
-        duration: 0.25,
-        overwrite: 'auto'
-      });
-    };
-
-    window.addEventListener('mousemove', moveCursor);
-    
-    const links = document.querySelectorAll('a, button, .cursor-hover');
-    links.forEach(el => {
-      el.addEventListener('mouseenter', onEnterLink);
-      el.addEventListener('mouseleave', onLeaveLink);
-    });
-    
-    const cards = document.querySelectorAll('.service-card, .anim-card, .stat-item, .counter-box, .platform-tag, .plat-item, .media-badge');
-    cards.forEach(el => {
-      el.addEventListener('mouseenter', onEnterCard);
-      el.addEventListener('mouseleave', onLeaveCard);
-    });
-
-    return () => {
-      window.removeEventListener('mousemove', moveCursor);
-      links.forEach(el => {
-        el.removeEventListener('mouseenter', onEnterLink);
-        el.removeEventListener('mouseleave', onLeaveLink);
-      });
-      cards.forEach(el => {
-        el.removeEventListener('mouseenter', onEnterCard);
-        el.removeEventListener('mouseleave', onLeaveCard);
-      });
-    };
-  }, []);
+  // Removed cursor useEffect entirely
 
   useEffect(() => {
     setTimeout(() => ScrollTrigger.refresh(), 600);
@@ -598,16 +487,7 @@ function Home() {
 
   return (
     <div className="relative overflow-x-hidden">
-      <div
-        ref={cursorRef}
-        className="hidden md:block fixed top-0 left-0 w-10 h-10 border-2 border-[#9945FF] rounded-full pointer-events-none z-[9999] mix-blend-difference"
-        style={{ transform: 'translate(-200px,-200px)' }}
-      />
-      <div
-        ref={cursorDotRef}
-        className="hidden md:block fixed top-0 left-0 w-2 h-2 bg-[#14F195] rounded-full pointer-events-none z-[9999] mix-blend-difference"
-        style={{ transform: 'translate(-200px,-200px)' }}
-      />
+      {/* Removed cursor and cursorDot divs */}
 
       <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-[#020208]">
         <div className="absolute inset-0 z-0">
