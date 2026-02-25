@@ -146,3 +146,13 @@
 .anim-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+
+/* Add to your global CSS file */
+.spline-watermark svg {
+  background: transparent !important;
+}
+
+.spline-scene {
+  background: transparent !important;
+}

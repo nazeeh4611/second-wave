@@ -4,298 +4,13 @@ import { gsap } from 'gsap';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { TextPlugin } from 'gsap/TextPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import * as THREE from 'three';
+import Spline from '@splinetool/react-spline';
 import {
   FiArrowRight, FiCamera, FiTrendingUp, FiCode, FiMonitor,
   FiHeart, FiStar, FiFilm, FiUsers, FiTarget, FiAward, FiZap, FiGlobe
 } from 'react-icons/fi';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin);
-
-function Wave3D() {
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const W = containerRef.current.clientWidth;
-    const H = containerRef.current.clientHeight;
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020208);
-    scene.fog = new THREE.FogExp2(0x020208, 0.035);
-
-    const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 1000);
-    camera.position.set(0, 6, 18);
-    camera.lookAt(0, 0, 0);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(W, H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
-    containerRef.current.appendChild(renderer.domElement);
-
-    const ambientLight = new THREE.AmbientLight(0x111122, 1.5);
-    scene.add(ambientLight);
-
-    const purpleLight = new THREE.PointLight(0x9945ff, 8, 30);
-    purpleLight.position.set(-6, 5, 4);
-    scene.add(purpleLight);
-
-    const greenLight = new THREE.PointLight(0x14f195, 6, 30);
-    greenLight.position.set(6, 5, 4);
-    scene.add(greenLight);
-
-    const blueLight = new THREE.PointLight(0x3355ff, 4, 40);
-    blueLight.position.set(0, 8, -8);
-    scene.add(blueLight);
-
-    const SEGS_X = 120;
-    const SEGS_Z = 80;
-    const PLANE_W = 40;
-    const PLANE_D = 30;
-
-    const waveGeo = new THREE.PlaneGeometry(PLANE_W, PLANE_D, SEGS_X, SEGS_Z);
-    waveGeo.rotateX(-Math.PI / 2);
-
-    const basePositions = new Float32Array(waveGeo.attributes.position.array);
-
-    const waveMat = new THREE.MeshStandardMaterial({
-      color: 0x0a1628,
-      emissive: new THREE.Color(0x050d1a),
-      metalness: 0.3,
-      roughness: 0.4,
-      side: THREE.DoubleSide,
-      wireframe: false,
-    });
-
-    const waveMesh = new THREE.Mesh(waveGeo, waveMat);
-    waveMesh.position.y = -2;
-    scene.add(waveMesh);
-
-    const wireGeo = new THREE.PlaneGeometry(PLANE_W, PLANE_D, SEGS_X, SEGS_Z);
-    wireGeo.rotateX(-Math.PI / 2);
-
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0x9945ff,
-      transparent: true,
-      opacity: 0.08,
-      wireframe: true,
-    });
-
-    const wireMesh = new THREE.Mesh(wireGeo, wireMat);
-    wireMesh.position.y = -1.97;
-    scene.add(wireMesh);
-
-    const glowGeo = new THREE.PlaneGeometry(PLANE_W, PLANE_D, SEGS_X, SEGS_Z);
-    glowGeo.rotateX(-Math.PI / 2);
-
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0x14f195,
-      transparent: true,
-      opacity: 0.04,
-      wireframe: true,
-    });
-
-    const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-    glowMesh.position.y = -1.94;
-    scene.add(glowMesh);
-
-    const foamCount = 3000;
-    const foamGeo = new THREE.BufferGeometry();
-    const foamPos = new Float32Array(foamCount * 3);
-    const foamData = [];
-
-    for (let i = 0; i < foamCount; i++) {
-      const x = (Math.random() - 0.5) * PLANE_W;
-      const z = (Math.random() - 0.5) * PLANE_D;
-      foamPos[i * 3] = x;
-      foamPos[i * 3 + 1] = 0;
-      foamPos[i * 3 + 2] = z;
-      foamData.push({ x, z, phase: Math.random() * Math.PI * 2 });
-    }
-
-    foamGeo.setAttribute('position', new THREE.BufferAttribute(foamPos, 3));
-
-    const foamMat = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.06,
-      transparent: true,
-      opacity: 0.25,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true,
-    });
-
-    const foam = new THREE.Points(foamGeo, foamMat);
-    foam.position.y = -2;
-    scene.add(foam);
-
-    const sparkCount = 1200;
-    const sparkGeo = new THREE.BufferGeometry();
-    const sparkPos = new Float32Array(sparkCount * 3);
-    const sparkCol = new Float32Array(sparkCount * 3);
-    const sparkData = [];
-
-    for (let i = 0; i < sparkCount; i++) {
-      const x = (Math.random() - 0.5) * PLANE_W;
-      const z = (Math.random() - 0.5) * PLANE_D;
-      sparkPos[i * 3] = x;
-      sparkPos[i * 3 + 1] = 0;
-      sparkPos[i * 3 + 2] = z;
-
-      const isPurple = Math.random() > 0.5;
-      sparkCol[i * 3] = isPurple ? 0.6 : 0.08;
-      sparkCol[i * 3 + 1] = isPurple ? 0.27 : 0.95;
-      sparkCol[i * 3 + 2] = isPurple ? 1.0 : 0.6;
-
-      sparkData.push({ x, z, phase: Math.random() * Math.PI * 2, speed: 0.8 + Math.random() * 1.2 });
-    }
-
-    sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPos, 3));
-    sparkGeo.setAttribute('color', new THREE.BufferAttribute(sparkCol, 3));
-
-    const sparkMat = new THREE.PointsMaterial({
-      size: 0.1,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.6,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true,
-    });
-
-    const sparks = new THREE.Points(sparkGeo, sparkMat);
-    sparks.position.y = -2;
-    scene.add(sparks);
-
-    const horizonCount = 800;
-    const horizonGeo = new THREE.BufferGeometry();
-    const horizonPos = new Float32Array(horizonCount * 3);
-
-    for (let i = 0; i < horizonCount; i++) {
-      horizonPos[i * 3] = (Math.random() - 0.5) * 60;
-      horizonPos[i * 3 + 1] = Math.random() * 10 - 1;
-      horizonPos[i * 3 + 2] = (Math.random() - 0.5) * 60;
-    }
-
-    horizonGeo.setAttribute('position', new THREE.BufferAttribute(horizonPos, 3));
-
-    const horizonMat = new THREE.PointsMaterial({
-      color: 0x9945ff,
-      size: 0.04,
-      transparent: true,
-      opacity: 0.3,
-      blending: THREE.AdditiveBlending,
-    });
-
-    const horizonParticles = new THREE.Points(horizonGeo, horizonMat);
-    scene.add(horizonParticles);
-
-    gsap.to(purpleLight.position, { x: 6, y: 8, z: 6, duration: 7, repeat: -1, yoyo: true, ease: 'sine.inOut' });
-    gsap.to(greenLight.position, { x: -6, y: 6, z: 3, duration: 9, repeat: -1, yoyo: true, ease: 'sine.inOut' });
-    gsap.to(blueLight.position, { x: 4, y: 10, z: -10, duration: 11, repeat: -1, yoyo: true, ease: 'sine.inOut' });
-
-    gsap.to(wireMat, { opacity: 0.14, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut' });
-    gsap.to(glowMat, { opacity: 0.09, duration: 4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1 });
-
-    const waveHeight = (x, z, t) => {
-      const w1 = Math.sin(x * 0.4 + t * 1.2) * 0.9;
-      const w2 = Math.sin(z * 0.5 + t * 0.9) * 0.7;
-      const w3 = Math.sin((x + z) * 0.3 + t * 1.5) * 0.5;
-      const w4 = Math.cos(x * 0.2 - z * 0.3 + t * 0.7) * 0.6;
-      const w5 = Math.sin(x * 0.8 - t * 2.0) * 0.25;
-      const w6 = Math.cos(z * 0.6 + t * 1.1) * 0.3;
-      return w1 + w2 + w3 + w4 + w5 + w6;
-    };
-
-    let time = 0;
-    let animId;
-
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      time += 0.012;
-
-      const positions = waveGeo.attributes.position.array;
-      const wirePositions = wireGeo.attributes.position.array;
-      const glowPositions = glowGeo.attributes.position.array;
-
-      for (let i = 0; i <= SEGS_Z; i++) {
-        for (let j = 0; j <= SEGS_X; j++) {
-          const idx = (i * (SEGS_X + 1) + j) * 3;
-          const bx = basePositions[idx];
-          const bz = basePositions[idx + 2];
-          const h = waveHeight(bx, bz, time);
-          positions[idx + 1] = h;
-          wirePositions[idx + 1] = h + 0.03;
-          glowPositions[idx + 1] = h + 0.06;
-        }
-      }
-
-      waveGeo.attributes.position.needsUpdate = true;
-      waveGeo.computeVertexNormals();
-      wireGeo.attributes.position.needsUpdate = true;
-      glowGeo.attributes.position.needsUpdate = true;
-
-      const foamPositions = foamGeo.attributes.position.array;
-      for (let i = 0; i < foamCount; i++) {
-        const d = foamData[i];
-        const h = waveHeight(d.x, d.z, time) + 0.15;
-        foamPositions[i * 3 + 1] = h;
-      }
-      foamGeo.attributes.position.needsUpdate = true;
-
-      const sparkPositions = sparkGeo.attributes.position.array;
-      for (let i = 0; i < sparkCount; i++) {
-        const d = sparkData[i];
-        const h = waveHeight(d.x, d.z, time) + Math.sin(time * d.speed + d.phase) * 0.2 + 0.2;
-        sparkPositions[i * 3 + 1] = h;
-      }
-      sparkGeo.attributes.position.needsUpdate = true;
-
-      camera.position.x = Math.sin(time * 0.08) * 1.5;
-      camera.position.y = 6 + Math.sin(time * 0.12) * 0.4;
-      camera.lookAt(0, 0, 0);
-
-      horizonParticles.rotation.y = time * 0.015;
-
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    const handleResize = () => {
-      if (!containerRef.current) return;
-      const w = containerRef.current.clientWidth;
-      const h = containerRef.current.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', handleResize);
-      if (containerRef.current && renderer.domElement) {
-        containerRef.current.removeChild(renderer.domElement);
-      }
-      renderer.dispose();
-      waveGeo.dispose();
-      wireGeo.dispose();
-      glowGeo.dispose();
-      waveMat.dispose();
-      wireMat.dispose();
-      glowMat.dispose();
-      foamGeo.dispose();
-      foamMat.dispose();
-      sparkGeo.dispose();
-      sparkMat.dispose();
-    };
-  }, []);
-
-  return <div ref={containerRef} className="absolute inset-0 -z-10" />;
-}
 
 function Home() {
   const heroRef = useRef(null);
@@ -316,6 +31,11 @@ function Home() {
   const marqueeRef2 = useRef(null);
   const cursorRef = useRef(null);
   const cursorDotRef = useRef(null);
+  const splineRef = useRef(null);
+
+  const onSplineLoad = (spline) => {
+    splineRef.current = spline;
+  };
 
   useEffect(() => {
     if (!waveRef.current) return;
@@ -337,26 +57,109 @@ function Home() {
     if (!cursor || !dot || window.innerWidth < 768) return;
 
     const moveCursor = (e) => {
-      gsap.to(cursor, { x: e.clientX - 20, y: e.clientY - 20, duration: 0.35, ease: 'power3.out' });
-      gsap.to(dot, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.09 });
+      gsap.to(cursor, { 
+        x: e.clientX - 20, 
+        y: e.clientY - 20, 
+        duration: 0.35, 
+        ease: 'power3.out',
+        overwrite: 'auto'
+      });
+      gsap.to(dot, { 
+        x: e.clientX - 4, 
+        y: e.clientY - 4, 
+        duration: 0.09,
+        overwrite: 'auto'
+      });
     };
-    const onEnterLink = () => gsap.to(cursor, { scale: 2.6, borderColor: '#14F195', duration: 0.25 });
-    const onLeaveLink = () => gsap.to(cursor, { scale: 1, borderColor: '#9945FF', duration: 0.25 });
-    const onEnterCard = () => gsap.to(cursor, { scale: 3.1, backgroundColor: 'rgba(153,69,255,0.2)', duration: 0.25 });
-    const onLeaveCard = () => gsap.to(cursor, { scale: 1, backgroundColor: 'transparent', duration: 0.25 });
+    
+    const onEnterLink = () => {
+      gsap.to(cursor, { 
+        scale: 2.6, 
+        borderColor: '#14F195', 
+        backgroundColor: 'rgba(20, 241, 149, 0.1)',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+      gsap.to(dot, { 
+        scale: 1.5, 
+        backgroundColor: '#14F195',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+    };
+    
+    const onLeaveLink = () => {
+      gsap.to(cursor, { 
+        scale: 1, 
+        borderColor: '#9945FF', 
+        backgroundColor: 'transparent',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+      gsap.to(dot, { 
+        scale: 1, 
+        backgroundColor: '#14F195',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+    };
+    
+    const onEnterCard = () => {
+      gsap.to(cursor, { 
+        scale: 3.1, 
+        backgroundColor: 'rgba(153,69,255,0.2)',
+        borderColor: '#14F195',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+      gsap.to(dot, { 
+        scale: 0.5, 
+        backgroundColor: '#14F195',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+    };
+    
+    const onLeaveCard = () => {
+      gsap.to(cursor, { 
+        scale: 1, 
+        backgroundColor: 'transparent',
+        borderColor: '#9945FF',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+      gsap.to(dot, { 
+        scale: 1, 
+        backgroundColor: '#14F195',
+        duration: 0.25,
+        overwrite: 'auto'
+      });
+    };
 
     window.addEventListener('mousemove', moveCursor);
-    document.querySelectorAll('a, button').forEach(el => {
+    
+    const links = document.querySelectorAll('a, button, .cursor-hover');
+    links.forEach(el => {
       el.addEventListener('mouseenter', onEnterLink);
       el.addEventListener('mouseleave', onLeaveLink);
     });
-    document.querySelectorAll('.service-card, .anim-card, .stat-item').forEach(el => {
+    
+    const cards = document.querySelectorAll('.service-card, .anim-card, .stat-item, .counter-box, .platform-tag, .plat-item, .media-badge');
+    cards.forEach(el => {
       el.addEventListener('mouseenter', onEnterCard);
       el.addEventListener('mouseleave', onLeaveCard);
     });
 
     return () => {
       window.removeEventListener('mousemove', moveCursor);
+      links.forEach(el => {
+        el.removeEventListener('mouseenter', onEnterLink);
+        el.removeEventListener('mouseleave', onLeaveLink);
+      });
+      cards.forEach(el => {
+        el.removeEventListener('mouseenter', onEnterCard);
+        el.removeEventListener('mouseleave', onLeaveCard);
+      });
     };
   }, []);
 
@@ -511,6 +314,7 @@ function Home() {
               duration: 0.35,
               ease: 'power1.out',
               transformPerspective: 900,
+              overwrite: 'auto',
             });
           });
           card.addEventListener('mouseleave', () => {
@@ -519,6 +323,7 @@ function Home() {
               rotationY: 0,
               duration: 0.55,
               ease: 'power2.out',
+              overwrite: 'auto',
             });
           });
         });
@@ -795,23 +600,30 @@ function Home() {
     <div className="relative overflow-x-hidden">
       <div
         ref={cursorRef}
-        className="hidden md:block fixed top-0 left-0 w-10 h-10 border-2 border-[#9945FF] rounded-full pointer-events-none z-[9999]"
+        className="hidden md:block fixed top-0 left-0 w-10 h-10 border-2 border-[#9945FF] rounded-full pointer-events-none z-[9999] mix-blend-difference"
         style={{ transform: 'translate(-200px,-200px)' }}
       />
       <div
         ref={cursorDotRef}
-        className="hidden md:block fixed top-0 left-0 w-2 h-2 bg-[#14F195] rounded-full pointer-events-none z-[9999]"
+        className="hidden md:block fixed top-0 left-0 w-2 h-2 bg-[#14F195] rounded-full pointer-events-none z-[9999] mix-blend-difference"
         style={{ transform: 'translate(-200px,-200px)' }}
       />
 
-      <section ref={heroRef} className="relative min-h-[82vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <Wave3D />
-        <div className="hero-spot absolute -bottom-10 left-1/2 -translate-x-1/2 w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_50%_0%,rgba(153,69,255,0.5),transparent)] opacity-60 blur-3xl pointer-events-none z-0" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#020208] pointer-events-none z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020208]/50 via-transparent to-[#020208]/50 pointer-events-none z-10" />
+      <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-[#020208]">
+        <div className="absolute inset-0 z-0">
+          <Spline
+        scene="https://prod.spline.design/JYTycjS8XA5lO3kB/scene.splinecode" 
+        onLoad={onSplineLoad}
+            className="w-full h-full"
+          />
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#020208] z-10 pointer-events-none" />
+        
+        <div className="hero-spot absolute -bottom-10 left-1/2 -translate-x-1/2 w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_50%_0%,rgba(153,69,255,0.3),transparent)] opacity-40 blur-3xl pointer-events-none z-20" />
 
-        <div className="relative z-20 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
-          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white/5 border border-[#9945FF]/40 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-300 backdrop-blur-md">
+        <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
+          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white/5 border border-[#9945FF]/40 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-300 backdrop-blur-md cursor-hover">
             <span className="w-2 h-2 rounded-full bg-[#14F195] animate-pulse" />
             Award-Winning Digital Agency
             <FiZap className="text-[#14F195]" />
@@ -831,7 +643,7 @@ function Home() {
             </h1>
           </div>
 
-          <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-400 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed">
+          <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
             Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
           </p>
 
@@ -859,16 +671,16 @@ function Home() {
               ['200+', 'Clients'],
               ['10+', 'Years'],
             ].map(([num, label], i) => (
-              <div key={i} className="hero-stat text-center">
+              <div key={i} className="hero-stat text-center cursor-hover">
                 <div className="text-lg sm:text-2xl md:text-3xl font-black gradient-text">{num}</div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5">{label}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-gray-400 mt-0.5">{label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 sm:gap-2">
-          <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 tracking-[0.3em] uppercase">Scroll</span>
+        <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2">
+          <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-400 tracking-[0.3em] uppercase">SCROLL</span>
           <div className="scroll-line w-px h-10 sm:h-12 md:h-14 bg-gradient-to-b from-[#9945FF] to-transparent" />
         </div>
       </section>
