@@ -283,6 +283,7 @@ function Home() {
       const index = Math.round(scrollLeft / width);
       if (index !== activeSection) {
         setActiveSection(index);
+        setCurrentSlide(index);
       }
     }
   }, [activeSection]);
@@ -294,6 +295,7 @@ function Home() {
         behavior: 'smooth'
       });
       setActiveSection(index);
+      setCurrentSlide(index);
     }
   }, []);
 
@@ -389,6 +391,23 @@ function Home() {
 
   const sectionSlides = useMemo(() => [
     {
+      id: 'production',
+      title: 'VIDEO PRODUCTION',
+      heading: 'Production Excellence',
+      description: 'Professional video and audio production that brings your vision to life. Cinematic quality that captivates and communicates your message powerfully.',
+      items: [
+        { title: 'Video Production', desc: 'Commercials & brand films' },
+        { title: 'Sound Design', desc: 'Audio & mixing' },
+        { title: 'Post-Production', desc: 'Editing & VFX' },
+        { title: 'Photography', desc: 'Product & lifestyle' },
+      ],
+      image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+      badge1: { value: '4K', label: 'Ultra HD' },
+      badge2: { value: 'Dolby', label: 'Audio' },
+      link: '/production',
+      linkText: 'See our production work'
+    },
+    {
       id: 'branding',
       title: 'BRAND IDENTITY',
       heading: 'Branding That Sticks',
@@ -399,7 +418,7 @@ function Home() {
         { title: 'Brand Voice', desc: 'Tone & personality' },
         { title: 'Brand Experience', desc: 'Touchpoints & journey' },
       ],
-      image: 'https://images.unsplash.com/photo-1634942537034-2531766767d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+      image: 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       badge1: { value: '300+', label: 'Brands Created' },
       badge2: { value: '★★★★★', label: 'Rated' },
       link: '/branding',
@@ -488,22 +507,6 @@ function Home() {
       badge1: { value: '∞', label: 'Creativity' },
       link: '/creative',
       linkText: 'Explore creative work'
-    },
-    {
-      id: 'production',
-      title: 'FILM & AUDIO',
-      heading: 'Production Excellence',
-      description: 'Professional video and audio production that brings your vision to life. Cinematic quality that captivates and communicates your message powerfully.',
-      items: [
-        { title: 'Video Production', desc: 'Commercials & brand films' },
-        { title: 'Sound Design', desc: 'Audio & mixing' },
-        { title: 'Post-Production', desc: 'Editing & VFX' },
-        { title: 'Photography', desc: 'Product & lifestyle' },
-      ],
-      image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '4K', label: 'Ultra HD' },
-      link: '/production',
-      linkText: 'See our production work'
     },
     {
       id: 'pr',
@@ -796,137 +799,143 @@ function Home() {
           {sectionSlides.map((slide, index) => (
             <div
               key={slide.id}
-              className="flex-shrink-0 w-screen snap-start overflow-y-auto"
-              style={{ height: 'calc(100vh - 80px)' }}
+              className="flex-shrink-0 w-screen snap-start overflow-y-auto hide-scrollbar"
+              style={{ 
+                height: 'calc(100vh - 80px)',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
             >
-              <div className="min-h-full bg-white py-8 px-4 will-change-transform">
-                <span className="inline-block text-[10px] font-bold tracking-[0.3em] text-gray-800 uppercase mb-3">
+              <div className="min-h-full bg-white py-6 px-4 flex flex-col">
+                <span className="inline-block text-[10px] font-bold tracking-[0.3em] text-gray-800 uppercase mb-2 flex-shrink-0">
                   {slide.title}
                 </span>
 
-                <h2 className="font-black mb-4 leading-tight text-gray-900 text-3xl">
+                <h2 className="font-black mb-2 leading-tight text-gray-900 text-2xl flex-shrink-0">
                   <span className="text-gray-800">{slide.heading.split(' ')[0]}</span>{' '}
                   {slide.heading.split(' ').slice(1).join(' ')}
                 </h2>
 
-                <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                <p className="text-gray-600 mb-3 leading-relaxed text-xs flex-shrink-0">
                   {slide.description}
                 </p>
 
-                {slide.stats && (
-                  <div className="space-y-4 mb-6">
-                    {slide.stats.map((stat, i) => (
-                      <div key={i}>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-gray-700 font-medium">{stat.label}</span>
-                          <span className="text-gray-900 font-black">{stat.pct}%</span>
+                <div className="flex-1 overflow-y-auto hide-scrollbar pr-1" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+                  {slide.stats && (
+                    <div className="space-y-3 mb-4">
+                      {slide.stats.map((stat, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-700 font-medium">{stat.label}</span>
+                            <span className="text-gray-900 font-black">{stat.pct}%</span>
+                          </div>
+                          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gray-800"
+                              style={{ width: `${stat.pct}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gray-800"
-                            style={{ width: `${stat.pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
 
-                {slide.features && (
-                  <ul className="space-y-3 mb-6">
-                    {slide.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2 text-xs">
-                        <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                          <span className="w-1.5 h-1.5 rounded-full bg-gray-800" />
+                  {slide.features && (
+                    <ul className="space-y-2 mb-4">
+                      {slide.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-2 text-xs">
+                          <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gray-800" />
+                          </span>
+                          <span className="text-gray-700">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {slide.items && !Array.isArray(slide.items[0]) && (
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {slide.items.map((item, i) => (
+                        <div key={i} className="p-2.5 bg-white border border-gray-200 rounded-lg">
+                          <div className="w-1 h-1 rounded-full bg-gray-800 mb-1.5" />
+                          <h4 className="font-bold text-xs text-gray-900 mb-0.5">{item.title}</h4>
+                          <p className="text-[10px] text-gray-600">{item.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {slide.items && slide.items[0] && Array.isArray(slide.items[0]) && (
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {slide.items.map(([val, label], i) => (
+                        <div key={i} className="text-center p-2 bg-white border border-gray-200 rounded-lg">
+                          <div className="text-base font-black text-gray-900">{val}</div>
+                          <p className="text-[9px] text-gray-600">{label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {slide.tech && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {slide.tech.slice(0, 6).map((tech, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-1 bg-gray-100 rounded-full text-[10px] border border-gray-200 text-gray-700"
+                        >
+                          {tech}
                         </span>
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {slide.items && !Array.isArray(slide.items[0]) && (
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    {slide.items.map((item, i) => (
-                      <div key={i} className="p-3 bg-white border border-gray-200 rounded-lg">
-                        <div className="w-1 h-1 rounded-full bg-gray-800 mb-2" />
-                        <h4 className="font-bold text-xs text-gray-900 mb-0.5">{item.title}</h4>
-                        <p className="text-[10px] text-gray-600">{item.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {slide.items && slide.items[0] && Array.isArray(slide.items[0]) && (
-                  <div className="grid grid-cols-3 gap-2 mb-6">
-                    {slide.items.map(([val, label], i) => (
-                      <div key={i} className="text-center p-3 bg-white border border-gray-200 rounded-lg">
-                        <div className="text-lg font-black text-gray-900">{val}</div>
-                        <p className="text-[10px] text-gray-600">{label}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {slide.tech && (
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {slide.tech.map((tech, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1.5 bg-gray-100 rounded-full text-xs border border-gray-200 text-gray-700"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {slide.social && (
-                  <div className="grid grid-cols-4 gap-2 mb-6">
-                    {slide.social.map(([emoji, name], i) => (
-                      <div key={i} className="text-center p-2 bg-gray-100 rounded-lg border border-gray-200">
-                        <div className="text-2xl mb-1">{emoji}</div>
-                        <span className="text-[10px] font-medium text-gray-700">{name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="relative mb-6">
-                  <div className="aspect-[4/3] rounded-xl overflow-hidden ring-1 ring-gray-200">
-                    <img
-                      src={slide.image}
-                      alt={slide.heading}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent" />
-                  </div>
-                  
-                  {slide.badge1 && (
-                    <div className="absolute -bottom-3 -left-3 p-2.5 bg-white border border-gray-200 rounded-xl shadow-lg">
-                      <div className="text-sm font-black text-gray-900">{slide.badge1.value}</div>
-                      <div className="text-[8px] text-gray-600">{slide.badge1.label}</div>
+                      ))}
                     </div>
                   )}
-                  
-                  {slide.badge2 && (
-                    <div className="absolute -top-2 -right-2 p-2 bg-white border border-gray-200 rounded-xl">
-                      <div className="text-xs font-black text-gray-800">{slide.badge2.value}</div>
-                      <div className="text-[7px] text-gray-600">{slide.badge2.label}</div>
+
+                  {slide.social && (
+                    <div className="grid grid-cols-4 gap-1.5 mb-4">
+                      {slide.social.map(([emoji, name], i) => (
+                        <div key={i} className="text-center p-1.5 bg-gray-100 rounded-lg border border-gray-200">
+                          <div className="text-xl mb-0.5">{emoji}</div>
+                          <span className="text-[8px] font-medium text-gray-700">{name}</span>
+                        </div>
+                      ))}
                     </div>
                   )}
+
+                  <div className="relative mb-3">
+                    <div className="aspect-[16/9] rounded-lg overflow-hidden ring-1 ring-gray-200">
+                      <img
+                        src={slide.image}
+                        alt={slide.heading}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
+                    </div>
+                    
+                    {slide.badge1 && (
+                      <div className="absolute -bottom-2 -left-2 p-1.5 bg-white border border-gray-200 rounded-lg shadow-md">
+                        <div className="text-xs font-black text-gray-900">{slide.badge1.value}</div>
+                        <div className="text-[7px] text-gray-600">{slide.badge1.label}</div>
+                      </div>
+                    )}
+                    
+                    {slide.badge2 && (
+                      <div className="absolute -top-1 -right-1 p-1.5 bg-white border border-gray-200 rounded-lg">
+                        <div className="text-[10px] font-black text-gray-800">{slide.badge2.value}</div>
+                        <div className="text-[6px] text-gray-600">{slide.badge2.label}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Link
                   to={slide.link}
-                  className="inline-flex items-center gap-2 text-gray-800 hover:gap-4 transition-all font-semibold text-sm group"
+                  className="inline-flex items-center gap-2 text-gray-800 hover:gap-4 transition-all font-semibold text-sm group mt-3 flex-shrink-0"
                 >
                   <span>{slide.linkText}</span>
                   <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                <div className="flex justify-center gap-1.5 mt-8">
+                <div className="flex justify-center gap-1.5 mt-3 flex-shrink-0">
                   {sectionSlides.map((_, i) => (
                     <div
                       key={i}
@@ -1234,6 +1243,13 @@ function Home() {
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
         .cursor-grab {
           cursor: grab;
