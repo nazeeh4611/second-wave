@@ -33,6 +33,26 @@ function Home() {
   const [activeSection, setActiveSection] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeServiceSlide, setActiveServiceSlide] = useState(0);
+
+  const handleServiceScroll = useCallback(() => {
+    const serviceSlider = document.querySelector('.services-mobile-slider');
+    if (serviceSlider) {
+      const scrollLeft = serviceSlider.scrollLeft;
+      const width = serviceSlider.offsetWidth;
+      const index = Math.round(scrollLeft / width);
+      setActiveServiceSlide(index);
+    }
+  }, []);
+  
+  // Add this useEffect
+  useEffect(() => {
+    const serviceSlider = document.querySelector('.services-mobile-slider');
+    if (serviceSlider) {
+      serviceSlider.addEventListener('scroll', handleServiceScroll);
+      return () => serviceSlider.removeEventListener('scroll', handleServiceScroll);
+    }
+  }, [handleServiceScroll]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -663,82 +683,42 @@ function Home() {
       </section>
 
       <section className="py-12 sm:py-18 md:py-22 bg-white relative overflow-hidden">
-        <div className="container-custom max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 md:mb-14">
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-gray-800 uppercase mb-3">
-              What We Do
-            </span>
-            <h2 className="font-black text-gray-900 text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-              Our <span className="text-gray-800">Services</span>
-            </h2>
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-sm sm:text-base px-4">
-              Comprehensive digital solutions tailored to your brand's unique needs
-            </p>
-          </div>
-          
-          <div className="lg:hidden">
-            <div className="relative">
-              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-              
-              <div className="flex overflow-x-auto gap-4 pb-6 -mx-4 px-4 scroll-smooth scrollbar-hide" 
-                   style={{ WebkitOverflowScrolling: 'touch' }}>
-                {services.map((service, index) => (
-                  <div
-                    key={index}
-                    className="flex-shrink-0 w-[280px] sm:w-[320px]"
-                  >
-                    <div className="group relative p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition-all duration-300 h-full">
-                      <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-xl`} />
-                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      
-                      <div className="relative z-10">
-                        <div className={`text-3xl mb-4 w-14 h-14 rounded-xl ${service.bgColor} flex items-center justify-center text-gray-800 group-hover:scale-110 transition-transform duration-300`}>
-                          {service.icon}
-                        </div>
-                        
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">{service.title}</h3>
-                        <p className="text-sm text-gray-700 font-semibold mb-3">{service.tagline}</p>
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
-                        
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {service.features.slice(0, 3).map((feature, idx) => (
-                            <span key={idx} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
-                        
-                        <div className="flex items-center gap-1 text-gray-800 text-sm font-medium group-hover:gap-2 transition-all duration-300">
-                          <span>Learn more</span>
-                          <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="flex justify-center gap-2 mt-4">
-                {services.map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-4 bg-gray-800' : 'w-1.5 bg-gray-300'}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden lg:grid grid-cols-2 xl:grid-cols-4 gap-6">
-            {services.map((service, index) => (
-              <div
-                key={index}
-                className="group relative p-6 bg-white border border-gray-200 rounded-2xl hover:border-gray-400 transition-all duration-300 hover:shadow-lg"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-2xl`} />
+  <div className="container-custom max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-10 md:mb-14">
+      <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-gray-800 uppercase mb-3">
+        WHAT WE DO
+      </span>
+      <h2 className="font-black text-gray-900 text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+        Our <span className="text-gray-800">Services</span>
+      </h2>
+      <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-sm sm:text-base px-4">
+        Comprehensive digital solutions tailored to your brand's unique needs
+      </p>
+    </div>
+    
+    <div className="lg:hidden">
+      <div className="relative">
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        
+        <div 
+          ref={servicesRef}
+          className="services-slider flex overflow-x-auto gap-4 pb-6 -mx-4 px-4 scroll-smooth scrollbar-hide" 
+          style={{ WebkitOverflowScrolling: 'touch' }}
+          onScroll={(e) => {
+            const scrollLeft = e.currentTarget.scrollLeft;
+            const width = e.currentTarget.offsetWidth;
+            const index = Math.round(scrollLeft / width);
+            setActiveServiceSlide(index);
+          }}
+        >
+          {services.map((service, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 w-[280px] sm:w-[320px]"
+            >
+              <div className="group relative p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition-all duration-300 h-full">
+                <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-xl`} />
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10">
@@ -746,7 +726,7 @@ function Home() {
                     {service.icon}
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{service.title}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{service.title}</h3>
                   <p className="text-sm text-gray-700 font-semibold mb-3">{service.tagline}</p>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
                   
@@ -766,10 +746,72 @@ function Home() {
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex justify-center gap-2 mt-4">
+          {services.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                const slider = document.querySelector('.services-slider');
+                if (slider) {
+                  const cardWidth = slider.querySelector('.flex-shrink-0')?.offsetWidth || 320;
+                  slider.scrollTo({
+                    left: i * (cardWidth + 16),
+                    behavior: 'smooth'
+                  });
+                }
+              }}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === activeServiceSlide ? 'w-4 bg-gray-800' : 'w-1.5 bg-gray-300'
+              }`}
+              aria-label={`Go to service ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="hidden lg:grid grid-cols-2 xl:grid-cols-4 gap-6">
+      {services.map((service, index) => (
+        <div
+          key={index}
+          className="group relative p-6 bg-white border border-gray-200 rounded-2xl hover:border-gray-400 transition-all duration-300 hover:shadow-lg"
+        >
+          <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-2xl`} />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          <div className="relative z-10">
+            <div className={`text-3xl mb-4 w-14 h-14 rounded-xl ${service.bgColor} flex items-center justify-center text-gray-800 group-hover:scale-110 transition-transform duration-300`}>
+              {service.icon}
+            </div>
+            
+            <h3 className="text-xl font-bold text-gray-900 mb-1">{service.title}</h3>
+            <p className="text-sm text-gray-700 font-semibold mb-3">{service.tagline}</p>
+            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              {service.features.slice(0, 3).map((feature, idx) => (
+                <span key={idx} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
+                  {feature}
+                </span>
+              ))}
+            </div>
+            
+            <div className="flex items-center gap-1 text-gray-800 text-sm font-medium group-hover:gap-2 transition-all duration-300">
+              <span>Learn more</span>
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
       <div className="lg:hidden">
         <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">

@@ -245,10 +245,10 @@ function Services() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { number: '01', title: 'Discovery', desc: '深入了解您的品牌、目标和受众，找出最佳解决方案' },
-              { number: '02', title: 'Strategy', desc: '制定数据驱动的策略，确保每个决策都有依据' },
-              { number: '03', title: 'Execution', desc: '创意执行与持续优化，确保项目完美落地' },
-              { number: '04', title: 'Growth', desc: '持续增长与迭代，帮助品牌实现长期成功' }
+              { number: '01', title: 'Discovery', desc: 'Deep dive into your brand, goals, and audience to find the best solutions' },
+              { number: '02', title: 'Strategy', desc: 'Develop data-driven strategies ensuring every decision is backed by insights' },
+              { number: '03', title: 'Execution', desc: 'Creative execution with continuous optimization for perfect project delivery' },
+              { number: '04', title: 'Growth', desc: 'Continuous growth and iteration to help your brand achieve long-term success' }
             ].map((item, index) => (
               <div key={index} className="process-step text-center group">
                 <div className="text-5xl font-black text-gray-200 mb-4 group-hover:text-gray-300 transition-colors">
