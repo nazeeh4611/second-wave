@@ -560,78 +560,82 @@ function Home() {
 
   return (
     <div ref={containerRef} className="relative overflow-x-hidden bg-white pt-20">
-      <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Spline
-            scene="https://prod.spline.design/EGGb-LCYchBVxVDG/scene.splinecode" 
-            onLoad={onSplineLoad}
-            className="w-full h-full pointer-events-auto"
-          />
+<section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
+  {/* Spline Background - Visible on all screens */}
+  <div className="absolute inset-0 z-0">
+    <Spline
+      scene="https://prod.spline.design/EGGb-LCYchBVxVDG/scene.splinecode" 
+      onLoad={onSplineLoad}
+      className="w-full h-full pointer-events-auto"
+    />
+  </div>
+  
+  {/* Semi-transparent overlay to make Spline darker on mobile for better text contrast */}
+  <div className="absolute inset-0 bg-black/30 lg:bg-transparent z-10 pointer-events-none" />
+  
+  {/* Content - Original styling preserved */}
+  <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
+    <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-gray-100 border border-gray-200 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-700 backdrop-blur-md">
+      <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
+      Award-Winning Digital Agency
+      <FiZap className="text-gray-800" />
+    </div>
+
+    <div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
+      <h1 className="font-black leading-none tracking-tight text-gray-900" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
+        {heroChars.map((char, i) => (
+          <span
+            key={i}
+            className="hero-char inline-block text-gray-900"
+            style={{ display: 'inline-block' }}
+          >
+            {char}
+          </span>
+        ))}
+      </h1>
+    </div>
+
+    <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
+      Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
+    </p>
+
+    <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center mb-7 sm:mb-10 md:mb-12">
+      <Link
+        to="/services"
+        className="hero-cta-btn group relative px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 bg-gray-900 text-white rounded-full text-xs sm:text-sm md:text-base font-bold overflow-hidden shadow-[0_0_26px_rgba(0,0,0,0.1)] hover:shadow-[0_0_50px_rgba(0,0,0,0.2)] transition-shadow duration-300"
+      >
+        <span className="relative z-10 flex items-center justify-center gap-2">
+          Explore Services <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+        </span>
+        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-15 transition-opacity duration-300" />
+      </Link>
+      <Link
+        to="/works"
+        className="hero-cta-btn group px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 border border-gray-300 rounded-full text-xs sm:text-sm md:text-base font-semibold text-gray-800 hover:border-gray-800 hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center justify-center gap-2"
+      >
+        View Portfolio <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
+      </Link>
+    </div>
+
+    <div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
+      {[
+        ['500+', 'Projects'],
+        ['200+', 'Clients'],
+        ['10+', 'Years'],
+      ].map(([num, label], i) => (
+        <div key={i} className="hero-stat text-center">
+          <div className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900">{num}</div>
+          <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5">{label}</div>
         </div>
-        
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/10 z-10 pointer-events-none" />
-        <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
-          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-gray-100 border border-gray-200 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-700 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
-            Award-Winning Digital Agency
-            <FiZap className="text-gray-800" />
-          </div>
+      ))}
+    </div>
+  </div>
 
-          <div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
-            <h1 className="font-black leading-none tracking-tight text-gray-900" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
-              {heroChars.map((char, i) => (
-                <span
-                  key={i}
-                  className="hero-char inline-block text-gray-900"
-                  style={{ display: 'inline-block' }}
-                >
-                  {char}
-                </span>
-              ))}
-            </h1>
-          </div>
-
-          <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
-            Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center mb-7 sm:mb-10 md:mb-12">
-            <Link
-              to="/services"
-              className="hero-cta-btn group relative px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 bg-gray-900 text-white rounded-full text-xs sm:text-sm md:text-base font-bold overflow-hidden shadow-[0_0_26px_rgba(0,0,0,0.1)] hover:shadow-[0_0_50px_rgba(0,0,0,0.2)] transition-shadow duration-300"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Explore Services <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-15 transition-opacity duration-300" />
-            </Link>
-            <Link
-              to="/works"
-              className="hero-cta-btn group px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 border border-gray-300 rounded-full text-xs sm:text-sm md:text-base font-semibold text-gray-800 hover:border-gray-800 hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center justify-center gap-2"
-            >
-              View Portfolio <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
-            {[
-              ['500+', 'Projects'],
-              ['200+', 'Clients'],
-              ['10+', 'Years'],
-            ].map(([num, label], i) => (
-              <div key={i} className="hero-stat text-center">
-                <div className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900">{num}</div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2">
-          <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-400 tracking-[0.3em] uppercase">SCROLL</span>
-          <div className="scroll-line w-px h-10 sm:h-12 md:h-14 bg-gradient-to-b from-gray-800 to-transparent" />
-        </div>
-      </section>
+  <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2">
+    <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-400 tracking-[0.3em] uppercase">SCROLL</span>
+    <div className="scroll-line w-px h-10 sm:h-12 md:h-14 bg-gradient-to-b from-gray-800 to-transparent" />
+  </div>
+</section>
 
       <div className="relative py-6 sm:py-10 overflow-hidden bg-white will-change-transform">
         <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
@@ -814,7 +818,7 @@ function Home() {
 </section>
 
       <div className="lg:hidden">
-        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
+        {/* <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
           {sectionSlides.map((_, index) => (
             <button
               key={index}
@@ -825,7 +829,7 @@ function Home() {
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
-        </div>
+        </div> */}
 
         <div
           ref={mobileSliderRef}
