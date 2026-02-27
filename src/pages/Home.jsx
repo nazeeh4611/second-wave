@@ -29,6 +29,7 @@ function Home() {
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const sectionRef = useRef(null);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeSection, setActiveSection] = useState(0);
@@ -75,21 +76,36 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if (!waveRef.current) return;
-    const ctx = gsap.context(() => {
-      gsap.to(waveRef.current, {
-        xPercent: -60,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: waveRef.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 0.5,
-        },
+    if (!waveRef.current || !sectionRef.current) return;
+  
+    // Small delay to ensure DOM is fully painted
+    const timer = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        gsap.to(waveRef.current, {
+          x: () => -(waveRef.current.scrollWidth / 4),
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.5,
+            invalidateOnRefresh: true,
+          },
+        });
       });
-    });
-    return () => ctx.revert();
-  }, []);
+  
+      return () => ctx.revert();
+    }, 200);
+  
+    return () => clearTimeout(timer);
+  }, [isLoading]); // add isLoading dependency
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (isLoading) return;
@@ -636,21 +652,25 @@ function Home() {
   </div>
 </section>
 
-      <div className="relative py-6 sm:py-10 overflow-hidden bg-white will-change-transform">
-        <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
-        <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-          <div
-            ref={waveRef}
-            className="flex font-black tracking-tighter text-gray-100 uppercase"
-            style={{ fontSize: 'clamp(2.8rem, 14vw, 10rem)', whiteSpace: 'nowrap' }}
-          >
-            <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE</span>
-            <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE</span>
-            <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE</span>
-          </div>
-        </div>
-      </div>
+<div
+  ref={sectionRef}
+  className="relative py-6 sm:py-10 bg-white will-change-transform"
+  style={{ overflow: 'hidden' }}>
+  <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
+  <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
+  
+  {/* Remove the inner overflow hidden wrapper */}
+  <div
+    ref={waveRef}
+    className="flex font-black tracking-tighter text-gray-100 uppercase"
+    style={{ fontSize: 'clamp(2.8rem, 14vw, 10rem)', whiteSpace: 'nowrap', display: 'flex' }}
+  >
+    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+  </div>
+</div>
 
       <section ref={textRef} className="py-12 sm:py-20 md:py-24 bg-white">
         <div className="container-custom">
