@@ -22,7 +22,8 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.13.0",
     "react-toastify": "^11.0.5",
-    "three": "^0.182.0"
+    "simplex-noise": "^4.0.3",
+    "three": "^0.183.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

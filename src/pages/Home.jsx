@@ -9,6 +9,7 @@ import {
   FiArrowRight, FiCamera, FiTrendingUp, FiCode, FiMonitor,
   FiHeart, FiStar, FiFilm, FiUsers, FiTarget, FiAward, FiZap, FiGlobe
 } from 'react-icons/fi';
+import SilkWave from '../components/ParticlesWave';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin);
 
@@ -560,20 +561,18 @@ function Home() {
 
   return (
     <div ref={containerRef} className="relative overflow-x-hidden bg-white pt-20">
-<section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
-  {/* Spline Background - Visible on all screens */}
+
+<section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-white">
+  {/* Particles Wave Background */}
   <div className="absolute inset-0 z-0">
-    <Spline
-      scene="https://prod.spline.design/EGGb-LCYchBVxVDG/scene.splinecode" 
-      onLoad={onSplineLoad}
-      className="w-full h-full pointer-events-auto"
-    />
-  </div>
+  <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
+
+</div>
   
-  {/* Semi-transparent overlay to make Spline darker on mobile for better text contrast */}
-  <div className="absolute inset-0 bg-black/30 lg:bg-transparent z-10 pointer-events-none" />
+  {/* Semi-transparent overlay for better text contrast on mobile */}
+  <div className="absolute inset-0 bg-white/30 lg:bg-transparent z-10 pointer-events-none" />
   
-  {/* Content - Original styling preserved */}
+  {/* Content */}
   <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
     <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-gray-100 border border-gray-200 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-700 backdrop-blur-md">
       <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
