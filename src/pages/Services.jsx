@@ -7,6 +7,7 @@ import {
   FiArrowRight, FiMonitor, FiFilm, FiZap, FiTarget
 } from 'react-icons/fi';
 import Spline from '@splinetool/react-spline';
+import SilkWave from '../components/ParticlesWave';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -155,11 +156,8 @@ function Services() {
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
-  <Spline
-        scene="https://prod.spline.design/EGGb-LCYchBVxVDG/scene.splinecode" 
-        onLoad={onSplineLoad}
-    className="w-full h-full pointer-events-auto"
-  />
+  <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
+
 </div>
         <div className="absolute inset-0 bg-gradient-to-b from-gray-100/30 to-transparent" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gray-200 rounded-full blur-3xl opacity-20" />

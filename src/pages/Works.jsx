@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FiFilter, FiX, FiArrowRight, FiZap, FiTarget, FiEye } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import Spline from '@splinetool/react-spline';
+import SilkWave from '../components/ParticlesWave';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -186,13 +187,9 @@ function Works() {
       <section ref={heroRef} className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
         {/* Spline Background - placed exactly like Services page */}
         <div className="absolute inset-0 z-0">
-          <Spline
-        scene="https://prod.spline.design/EGGb-LCYchBVxVDG/scene.splinecode" 
-        onLoad={onSplineLoad}
-            onError={onSplineError}
-            className="w-full h-full pointer-events-auto"
-          />
-        </div>
+  <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
+
+</div>
         
         {/* Overlay gradient to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/80 z-1" />

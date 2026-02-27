@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FiSend, FiMapPin, FiDollarSign, FiMail, FiTarget, FiArrowRight } from 'react-icons/fi';
 import Spline from '@splinetool/react-spline';
+import SilkWave from '../components/ParticlesWave';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -142,13 +143,10 @@ function Contact() {
   return (
     <div ref={sectionRef} className="relative overflow-x-hidden bg-white min-h-screen">
       {/* Spline Background - EXACT same placement as Services page */}
-      <div className="absolute inset-0 w-full h-screen opacity-30 pointer-events-none">
-        <Spline
-        scene="https://prod.spline.design/EGGb-LCYchBVxVDG/scene.splinecode" 
-        onLoad={onSplineLoad}
-          onError={onSplineError}
-        />
-      </div>
+      <div className="absolute inset-0 z-0">
+  <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
+
+</div>
 
       {/* Hero Section - matching Services page structure */}
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-20">
