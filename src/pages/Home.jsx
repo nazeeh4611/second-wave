@@ -480,7 +480,7 @@ function Home() {
       </p>
     </div>
 
-    {/* Rest of your code remains exactly the same... */}
+    {/* Desktop Grid */}
     <div className="hidden md:block">
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem'}}>
         <div style={{display: 'flex', justifyContent: 'center', gap: '1.5rem'}}>
@@ -493,17 +493,12 @@ function Home() {
                 boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
               }}
             >
-              {/* Background Image */}
               <img
                 src={service.image}
                 alt={service.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-            
-              {/* Soft Overlay */}
               <div className="absolute inset-0 bg-black/10" />
-            
-              {/* Glass Top Bar */}
               <div
                 className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
                 style={{
@@ -515,7 +510,6 @@ function Home() {
                 <span className="text-white text-2xl tracking-wide font-light">
                   {service.title}
                 </span>
-            
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center"
                   style={{
@@ -539,17 +533,12 @@ function Home() {
                 boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
               }}
             >
-              {/* Background Image */}
               <img
                 src={service.image}
                 alt={service.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-            
-              {/* Soft Overlay */}
               <div className="absolute inset-0 bg-black/10" />
-            
-              {/* Glass Top Bar */}
               <div
                 className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
                 style={{
@@ -561,7 +550,6 @@ function Home() {
                 <span className="text-white text-2xl tracking-wide font-light">
                   {service.title}
                 </span>
-            
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center"
                   style={{
@@ -577,67 +565,103 @@ function Home() {
       </div>
     </div>
 
+    {/* Mobile Horizontal Slider - Responsive Cards */}
     <div className="md:hidden">
-      <div style={{position: 'relative'}}>
-        <div style={{position: 'absolute', left: '0', top: '0', bottom: '2.5rem', width: '1.5rem', background: 'linear-gradient(to right, #111, transparent)', zIndex: '10', pointerEvents: 'none'}} />
-        <div style={{position: 'absolute', right: '0', top: '0', bottom: '2.5rem', width: '1.5rem', background: 'linear-gradient(to left, #111, transparent)', zIndex: '10', pointerEvents: 'none'}} />
+      <div className="relative">
+        {/* Horizontal Scroll Container - Removed gradient overlays */}
         <div
-          style={{display: 'flex', overflowX: 'auto', gap: '0.75rem', paddingBottom: '1rem', marginLeft: '-1rem', marginRight: '-1rem', paddingLeft: '1rem', paddingRight: '1rem', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory'}}
+          ref={mobileSliderRef}
+          className="flex overflow-x-auto gap-3 sm:gap-4 pb-8 px-4 scrollbar-hide"
+          style={{
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
           onScroll={(e) => {
-            setActiveServiceSlide(Math.round(e.currentTarget.scrollLeft / (e.currentTarget.offsetWidth * 0.75)));
+            const container = e.currentTarget;
+            const scrollPosition = container.scrollLeft;
+            const cardWidth = container.offsetWidth * 0.75;
+            const newIndex = Math.round(scrollPosition / cardWidth);
+            if (newIndex !== activeServiceSlide && newIndex >= 0 && newIndex < services.length) {
+              setActiveServiceSlide(newIndex);
+            }
           }}
         >
-          <div className="flex flex-wrap justify-center gap-6">
-            {services.map((service, index) => (
-              <Link
-                key={index}
-                to={service.link}
-                className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
+          {services.map((service, index) => (
+            <Link
+              key={index}
+              to={service.link}
+              className="flex-shrink-0 w-[75vw] sm:w-[70vw] snap-start"
+            >
+              <div
+                className="group relative w-full h-[400px] xs:h-[420px] sm:h-[440px] rounded-[24px] sm:rounded-[30px] overflow-hidden cursor-pointer"
                 style={{
                   boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
                 }}
               >
-                {/* Background Image */}
                 <img
                   src={service.image}
                   alt={service.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              
-                {/* Soft Overlay */}
                 <div className="absolute inset-0 bg-black/10" />
-              
-                {/* Glass Top Bar */}
+                
+                {/* Glass Top Bar - Responsive sizing */}
                 <div
-                  className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
+                  className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 rounded-[20px] sm:rounded-[24px]"
                   style={{
                     background: "rgba(255,255,255,0.25)",
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)"
                   }}
                 >
-                  <span className="text-white text-2xl tracking-wide font-light">
+                  <span className="text-white text-lg sm:text-xl md:text-2xl tracking-wide font-light line-clamp-1 pr-2">
                     {service.title}
                   </span>
-              
                   <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center"
+                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{
                       background: "rgba(255,255,255,0.25)"
                     }}
                   >
-                    <FiArrowUpRight className="text-white text-xl" />
+                    <FiArrowUpRight className="text-white text-base sm:text-lg md:text-xl" />
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
+
+                {/* Optional: Add a small description or indicator for "All Services" card */}
+                {index === services.length - 1 && (
+                  <div className="absolute bottom-4 left-4 right-4 text-center">
+                    <span className="text-white/80 text-xs sm:text-sm bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      View all services →
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
         </div>
-        <div style={{display: 'flex', justifyContent: 'center', gap: '0.375rem', marginTop: '0.75rem'}}>
+
+        {/* Pagination Dots - Responsive sizing */}
+        <div className="flex justify-center gap-1.5 sm:gap-2 mt-2">
           {services.map((_, i) => (
-            <div
+            <button
               key={i}
-              style={{height: '0.375rem', borderRadius: '9999px', transition: 'all 0.3s', width: i === activeServiceSlide ? '1rem' : '0.375rem', backgroundColor: i === activeServiceSlide ? '#ffffff' : '#374151'}}
+              onClick={() => {
+                if (mobileSliderRef.current) {
+                  const cardWidth = mobileSliderRef.current.offsetWidth * 0.75;
+                  mobileSliderRef.current.scrollTo({
+                    left: i * cardWidth,
+                    behavior: 'smooth'
+                  });
+                }
+              }}
+              className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
+                i === activeServiceSlide 
+                  ? 'w-6 sm:w-8 bg-black' 
+                  : 'w-1.5 sm:w-2 bg-gray-300'
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
@@ -647,19 +671,44 @@ function Home() {
 
   <style>{`
     @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.5;
-      }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
     .scrollbar-hide::-webkit-scrollbar {
       display: none;
     }
+    .line-clamp-1 {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
+    
+    /* Extra small devices (phones, 360px and down) */
+    @media (max-width: 360px) {
+      .w-\\[75vw\\] {
+        width: 85vw;
+      }
+      .h-\\[400px\\] {
+        height: 380px;
+      }
+    }
+    
+    /* Small devices (phones, 361px to 480px) */
+    @media (min-width: 361px) and (max-width: 480px) {
+      .xs\\:h-\\[420px\\] {
+        height: 420px;
+      }
+    }
+    
+    /* Medium devices (tablets, 481px to 767px) */
+    @media (min-width: 481px) and (max-width: 767px) {
+      .w-\\[75vw\\] {
+        width: 70vw;
+      }
+    }
   `}</style>
 </section>
-
       <div
         ref={stickyWrapRef}
         className="hidden lg:block relative overflow-hidden"

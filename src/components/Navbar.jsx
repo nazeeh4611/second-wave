@@ -14,6 +14,7 @@ const navItems = [
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // Initial fade + slide animation
@@ -36,6 +37,9 @@ function Navbar() {
       end: "max",
       onUpdate: (self) => {
         const currentScroll = self.scroll();
+        
+        // Update scrolled state
+        setIsScrolled(currentScroll > 20);
 
         if (currentScroll > lastScroll && currentScroll > 80) {
           // Scroll Down → Hide
@@ -59,15 +63,24 @@ function Navbar() {
   }, []);
 
   return (
-    <nav className="navbar fixed top-0 left-0 w-full z-50 
-      h-20 
-      bg-white/30 
-      backdrop-blur-2xl 
-      border-b border-white/20
-      shadow-[0_8px_32px_rgba(0,0,0,0.05)]
-      transition-all duration-300">
-
-      <div className="container-custom flex items-center justify-between h-full px-6">
+    <nav 
+      className={`
+        navbar 
+        fixed 
+        top-0 
+        left-0 
+        w-full 
+        z-50 
+        h-20 
+        transition-all 
+        duration-300
+        ${isScrolled 
+          ? 'bg-white/95 backdrop-blur-2xl border-b border-gray-200/50 shadow-lg' 
+          : 'bg-white/90 backdrop-blur-xl border-b border-white/30'
+        }
+      `}
+    >
+      <div className="container-custom flex items-center justify-between h-full px-6 mx-auto max-w-7xl">
 
         {/* Logo */}
         <Link to="/" className="nav-item flex items-center">
@@ -79,7 +92,7 @@ function Navbar() {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-12">
+        <div className="hidden md:flex items-center gap-8 lg:gap-12">
 
           {navItems.map((item) => (
             <NavLink
@@ -92,7 +105,7 @@ function Navbar() {
                 text-sm
                 font-medium
                 tracking-wide
-                text-gray-700
+                ${isScrolled ? 'text-gray-800' : 'text-gray-800'}
                 transition-all duration-300
                 hover:text-black
                 after:absolute
@@ -112,12 +125,21 @@ function Navbar() {
             </NavLink>
           ))}
 
+          {/* Optional: Contact button */}
+          <Link
+            to="/contact"
+            className="nav-item bg-black text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors"
+          >
+            Get in touch
+          </Link>
+
         </div>
 
         {/* Mobile Button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="nav-item md:hidden text-gray-700 hover:text-black transition-colors"
+          className="nav-item md:hidden text-gray-800 hover:text-black transition-colors"
+          aria-label="Toggle menu"
         >
           <svg
             className="w-7 h-7"
@@ -142,22 +164,33 @@ function Navbar() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full 
-          bg-white/90 backdrop-blur-xl 
+          bg-white 
           border-t border-gray-200 
-          shadow-lg">
+          shadow-xl
+          animate-slideDown">
 
-          <div className="py-6 flex flex-col items-center gap-6 text-lg font-medium">
+          <div className="py-8 flex flex-col items-center gap-6 text-lg font-medium">
 
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-black transition-colors"
+                className={({ isActive }) =>
+                  `text-gray-700 hover:text-black transition-colors ${isActive ? 'text-black font-bold' : ''}`
+                }
               >
                 {item.label}
               </NavLink>
             ))}
+
+            <Link
+              to="/contact"
+              onClick={() => setIsMenuOpen(false)}
+              className="bg-black text-white px-8 py-3 rounded-full text-base font-medium hover:bg-gray-800 transition-colors mt-4"
+            >
+              Get in touch
+            </Link>
 
           </div>
         </div>
