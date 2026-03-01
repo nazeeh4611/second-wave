@@ -163,3 +163,48 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+.services-grid-dark {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.service-card-new {
+  aspect-ratio: 379 / 466;
+  width: 100%;
+  max-width: 379px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Responsive grid */
+@media (max-width: 1024px) {
+  .services-grid-dark {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .services-grid-dark {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animation for recording dot */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

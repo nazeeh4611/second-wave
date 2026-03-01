@@ -4,225 +4,217 @@ import { gsap } from 'gsap';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { TextPlugin } from 'gsap/TextPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Spline from '@splinetool/react-spline';
 import {
-  FiArrowRight, FiCamera, FiTrendingUp, FiCode, FiMonitor,
+  FiArrowRight, FiArrowUpRight, FiTrendingUp, FiCode, FiMonitor,
   FiHeart, FiStar, FiFilm, FiUsers, FiTarget, FiAward, FiZap, FiGlobe
 } from 'react-icons/fi';
 import SilkWave from '../components/ParticlesWave';
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin);
 
+const STICKY_SLIDES = [
+  {
+    id: 's1', label: 'BRANDING', number: '01',
+    title: 'Crafting Brands\nThat Last', sub: 'Identity · Strategy · Voice',
+    image: '/branding.jpg',
+    link: '/branding',
+  },
+  {
+    id: 's2', label: 'PRODUCTION', number: '02',
+    title: 'Cinematic Stories\nBrought to Life', sub: 'Video · Photography · Sound',
+    image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1800&q=90',
+    link: '/production',
+  },
+  {
+    id: 's3', label: 'PERFORMANCE', number: '03',
+    title: 'Campaigns That\nConvert', sub: 'Meta · Google · TikTok',
+    image: '/perfo.jpg',
+    link: '/performance-marketing',
+  },
+  {
+    id: 's4', label: 'WEB DEV', number: '04',
+    title: 'Experiences That\nInspire', sub: 'React · Next.js · Shopify',
+    image: '/web.png',
+    link: '/web-development',
+  },
+  {
+    id: 's5', label: 'SOCIAL MEDIA', number: '05',
+    title: 'Communities That\nEngage', sub: 'Content · Growth · Loyalty',
+    image: '/sm.jpg',
+    link: '/social-media-marketing',
+  },
+];
+
 function Home() {
   const heroRef = useRef(null);
   const waveRef = useRef(null);
-  const servicesRef = useRef(null);
   const statsRef = useRef(null);
   const ctaRef = useRef(null);
   const textRef = useRef(null);
-  const marqueeRef = useRef(null);
-  const marqueeRef2 = useRef(null);
   const clientsMarqueeRef = useRef(null);
-  const splineRef = useRef(null);
   const mobileSliderRef = useRef(null);
   const containerRef = useRef(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const scrollLeftRef = useRef(0);
   const sectionRef = useRef(null);
+  const servicesSectionRef = useRef(null);
+  const stickyWrapRef = useRef(null);
+  const videoRef = useRef(null);
+  const videoSectionRef = useRef(null);
 
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [activeSection, setActiveSection] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeServiceSlide, setActiveServiceSlide] = useState(0);
-
-  const handleServiceScroll = useCallback(() => {
-    const serviceSlider = document.querySelector('.services-mobile-slider');
-    if (serviceSlider) {
-      const scrollLeft = serviceSlider.scrollLeft;
-      const width = serviceSlider.offsetWidth;
-      const index = Math.round(scrollLeft / width);
-      setActiveServiceSlide(index);
-    }
-  }, []);
-  
-  // Add this useEffect
-  useEffect(() => {
-    const serviceSlider = document.querySelector('.services-mobile-slider');
-    if (serviceSlider) {
-      serviceSlider.addEventListener('scroll', handleServiceScroll);
-      return () => serviceSlider.removeEventListener('scroll', handleServiceScroll);
-    }
-  }, [handleServiceScroll]);
+  const [activeStickySlide, setActiveStickySlide] = useState(0);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-  }, []);
-
-  const onSplineLoad = useCallback((spline) => {
-    splineRef.current = spline;
+    setTimeout(() => setIsLoading(false), 100);
   }, []);
 
   useEffect(() => {
     if (!waveRef.current || !sectionRef.current) return;
-  
-    // Small delay to ensure DOM is fully painted
     const timer = setTimeout(() => {
       const ctx = gsap.context(() => {
         gsap.to(waveRef.current, {
           x: () => -(waveRef.current.scrollWidth / 4),
-          ease: "none",
+          ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.5,
-            invalidateOnRefresh: true,
+            start: 'top bottom', end: 'bottom top',
+            scrub: 1.5, invalidateOnRefresh: true,
           },
         });
       });
-  
       return () => ctx.revert();
     }, 200);
-  
     return () => clearTimeout(timer);
-  }, [isLoading]); // add isLoading dependency
+  }, [isLoading]);
 
+  useEffect(() => {
+    if (isLoading || isMobile || !stickyWrapRef.current) return;
+    const timer = setTimeout(() => {
+      const wrap = stickyWrapRef.current;
+      const slides = Array.from(wrap.querySelectorAll('.sticky-slide'));
+      const totalSlides = slides.length;
+      const scrollDistance = (totalSlides - 1) * window.innerHeight;
 
+      const ctx = gsap.context(() => {
+        slides.forEach((slide, i) => {
+          if (i === 0) return;
+          gsap.set(slide, { yPercent: 100 });
+          const img = slide.querySelector('.sticky-img img');
+          if (img) gsap.set(img, { scale: 1.15 });
+        });
 
+        const tl = gsap.timeline({ paused: true });
 
+        slides.forEach((slide, i) => {
+          if (i === 0) return;
+          const img = slide.querySelector('.sticky-img img');
+          tl.to(slide, { yPercent: 0, ease: 'none', duration: 1 }, i - 1);
+          if (img) tl.to(img, { scale: 1, ease: 'none', duration: 1 }, i - 1);
+        });
 
+        ScrollTrigger.create({
+          trigger: wrap,
+          start: 'top top',
+          end: () => `+=${scrollDistance}`,
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+          animation: tl,
+          onUpdate: (self) => {
+            const rawIdx = self.progress * (totalSlides - 1);
+            setActiveStickySlide(Math.min(Math.round(rawIdx), totalSlides - 1));
+          },
+        });
+      }, wrap);
 
+      return () => ctx.revert();
+    }, 400);
 
+    return () => clearTimeout(timer);
+  }, [isLoading, isMobile]);
 
   useEffect(() => {
     if (isLoading) return;
-    
     const ctx = gsap.context(() => {
       gsap.set('.hero-char', { y: 120, opacity: 0, rotationX: -90 });
       gsap.to('.hero-char', {
-        y: 0,
-        opacity: 1,
-        rotationX: 0,
-        duration: 1.1,
-        ease: 'power4.out',
-        stagger: { amount: 0.75 },
-        delay: 0.2,
+        y: 0, opacity: 1, rotationX: 0, duration: 1.1, ease: 'power4.out',
+        stagger: { amount: 0.75 }, delay: 0.2,
       });
-
-      gsap.fromTo(
-        '.hero-subtitle',
+      gsap.fromTo('.hero-subtitle',
         { y: 40, opacity: 0, filter: 'blur(10px)' },
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.1, delay: 1, ease: 'power3.out' }
       );
-
-      gsap.fromTo(
-        '.hero-cta-btn',
+      gsap.fromTo('.hero-cta-btn',
         { y: 30, opacity: 0, scale: 0.85 },
         { y: 0, opacity: 1, scale: 1, duration: 0.9, delay: 1.35, ease: 'back.out(1.7)', stagger: 0.12 }
       );
-
-      gsap.fromTo(
-        '.hero-badge',
+      gsap.fromTo('.hero-badge',
         { y: -30, opacity: 0, scale: 0.9 },
         { y: 0, opacity: 1, scale: 1, duration: 0.7, delay: 0.5, ease: 'back.out(1.6)' }
       );
-
-      gsap.fromTo(
-        '.hero-stat',
+      gsap.fromTo('.hero-stat',
         { y: 20, opacity: 0, scale: 0.9 },
         { y: 0, opacity: 1, scale: 1, duration: 0.6, delay: 1.6, stagger: 0.09, ease: 'power2.out' }
       );
-
-      gsap.fromTo(
-        '.scroll-line',
+      gsap.fromTo('.scroll-line',
         { scaleY: 0, transformOrigin: 'top center' },
         { scaleY: 1, duration: 1, delay: 2, ease: 'power2.out' }
       );
 
       if (!isMobile) {
-        gsap.fromTo(
-          '.reveal-text .text-block',
+        gsap.fromTo('.reveal-text .text-block',
           { y: '110%', opacity: 0, skewY: 5 },
           {
-            y: '0%',
-            opacity: 1,
-            skewY: 0,
-            duration: 1.15,
-            stagger: 0.15,
-            ease: 'power4.out',
-            scrollTrigger: {
-              trigger: textRef.current,
-              start: 'top 78%',
-              toggleActions: 'play none none reverse',
-            },
+            y: '0%', opacity: 1, skewY: 0, duration: 1.15, stagger: 0.15, ease: 'power4.out',
+            scrollTrigger: { trigger: textRef.current, start: 'top 78%', toggleActions: 'play none none reverse' },
           }
         );
-
-        gsap.fromTo(
-          '.counter-box',
+        gsap.fromTo('.counter-box',
           { scale: 0.8, opacity: 0, y: 26 },
           {
-            scale: 1,
-            opacity: 1,
-            y: 0,
-            duration: 0.85,
-            stagger: 0.1,
-            ease: 'back.out(1.4)',
-            scrollTrigger: {
-              trigger: textRef.current,
-              start: 'top 74%',
-              toggleActions: 'play none none reverse',
-            },
+            scale: 1, opacity: 1, y: 0, duration: 0.85, stagger: 0.1, ease: 'back.out(1.4)',
+            scrollTrigger: { trigger: textRef.current, start: 'top 74%', toggleActions: 'play none none reverse' },
           }
         );
-
-        gsap.fromTo(
-          '.stat-item',
+        gsap.fromTo('.service-card-new',
+          { y: 80, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 0.8, stagger: 0.07, ease: 'power3.out',
+            scrollTrigger: { trigger: servicesSectionRef.current, start: 'top 78%', toggleActions: 'play none none reverse' },
+          }
+        );
+        gsap.fromTo('.stat-item',
           { y: 60, opacity: 0, scale: 0.85, rotateX: 8 },
           {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            rotateX: 0,
-            duration: 0.9,
-            stagger: 0.12,
-            ease: 'back.out(1.6)',
-            scrollTrigger: {
-              trigger: statsRef.current,
-              start: 'top 82%',
-              toggleActions: 'play none none reverse',
-            },
+            y: 0, opacity: 1, scale: 1, rotateX: 0, duration: 0.9, stagger: 0.12, ease: 'back.out(1.6)',
+            scrollTrigger: { trigger: statsRef.current, start: 'top 82%', toggleActions: 'play none none reverse' },
           }
         );
-
-        gsap.fromTo(
-          '.cta-content',
+        gsap.fromTo('.cta-content',
           { y: 50, opacity: 0, scale: 0.94, filter: 'blur(10px)' },
           {
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            filter: 'blur(0px)',
-            duration: 1.05,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: ctaRef.current,
-              start: 'top 78%',
-              toggleActions: 'play none none reverse',
-            },
+            y: 0, opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.05, ease: 'power3.out',
+            scrollTrigger: { trigger: ctaRef.current, start: 'top 78%', toggleActions: 'play none none reverse' },
+          }
+        );
+        gsap.fromTo('.video-section-content',
+          { y: 60, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 1, ease: 'power3.out',
+            scrollTrigger: { trigger: videoSectionRef.current, start: 'top 70%', toggleActions: 'play none none reverse' },
           }
         );
 
@@ -231,79 +223,19 @@ function Home() {
           const suffix = el.getAttribute('data-suffix') || '';
           const obj = { val: 0 };
           ScrollTrigger.create({
-            trigger: el,
-            start: 'top 88%',
-            once: true,
+            trigger: el, start: 'top 88%', once: true,
             onEnter: () => {
               gsap.to(obj, {
-                val: target,
-                duration: 2.4,
-                ease: 'power2.out',
-                onUpdate: () => {
-                  el.textContent = Math.round(obj.val).toString() + suffix;
-                },
+                val: target, duration: 2.4, ease: 'power2.out',
+                onUpdate: () => { el.textContent = Math.round(obj.val).toString() + suffix; },
               });
             },
           });
         });
       }
 
-      if (marqueeRef.current) {
-        gsap.to(marqueeRef.current, { x: '-50%', duration: 22, repeat: -1, ease: 'none' });
-      }
-      if (marqueeRef2.current) {
-        gsap.to(marqueeRef2.current, {
-          x: '0%',
-          duration: 18,
-          repeat: -1,
-          ease: 'none',
-          startAt: { x: '-50%' },
-        });
-      }
-
       if (clientsMarqueeRef.current) {
-        gsap.to(clientsMarqueeRef.current, {
-          x: '-50%',
-          duration: 20,
-          repeat: -1,
-          ease: 'none',
-        });
-      }
-
-      gsap.utils.toArray('.parallax-img').forEach(img => {
-        gsap.to(img, {
-          yPercent: -14,
-          scale: 1.06,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: img.closest('section') || img,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 0.5,
-          },
-        });
-      });
-
-      gsap.utils.toArray('.floating-badge').forEach((badge, i) => {
-        gsap.to(badge, {
-          y: -10,
-          rotation: i % 2 === 0 ? 4 : -4,
-          duration: 2.4 + i * 0.25,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: i * 0.35,
-        });
-      });
-
-      if (heroRef.current && !isMobile) {
-        gsap.to(heroRef.current, {
-          yPercent: -4,
-          duration: 2,
-          ease: 'sine.inOut',
-          repeat: -1,
-          yoyo: true,
-        });
+        gsap.to(clientsMarqueeRef.current, { x: '-33.333%', duration: 20, repeat: -1, ease: 'none' });
       }
     }, containerRef);
 
@@ -313,34 +245,27 @@ function Home() {
     };
   }, [isLoading, isMobile]);
 
-  const handleScroll = useCallback(() => {
-    if (mobileSliderRef.current) {
-      const scrollLeft = mobileSliderRef.current.scrollLeft;
-      const width = mobileSliderRef.current.offsetWidth;
-      const index = Math.round(scrollLeft / width);
-      if (index !== activeSection) {
-        setActiveSection(index);
-        setCurrentSlide(index);
-      }
-    }
-  }, [activeSection]);
-
   const scrollToSlide = useCallback((index) => {
     if (mobileSliderRef.current) {
-      mobileSliderRef.current.scrollTo({
-        left: index * mobileSliderRef.current.offsetWidth,
-        behavior: 'smooth'
-      });
+      mobileSliderRef.current.scrollTo({ left: index * mobileSliderRef.current.offsetWidth, behavior: 'smooth' });
       setActiveSection(index);
-      setCurrentSlide(index);
     }
   }, []);
+
+  const handleScroll = useCallback(() => {
+    if (mobileSliderRef.current) {
+      const sl = mobileSliderRef.current.scrollLeft;
+      const width = mobileSliderRef.current.offsetWidth;
+      const index = Math.round(sl / width);
+      if (index !== activeSection) setActiveSection(index);
+    }
+  }, [activeSection]);
 
   const handleMouseDown = useCallback((e) => {
     if (!mobileSliderRef.current) return;
     isDragging.current = true;
     startX.current = e.pageX - mobileSliderRef.current.offsetLeft;
-    scrollLeft.current = mobileSliderRef.current.scrollLeft;
+    scrollLeftRef.current = mobileSliderRef.current.scrollLeft;
     mobileSliderRef.current.style.cursor = 'grabbing';
     mobileSliderRef.current.style.scrollSnapType = 'none';
   }, []);
@@ -349,8 +274,7 @@ function Home() {
     if (!isDragging.current || !mobileSliderRef.current) return;
     e.preventDefault();
     const x = e.pageX - mobileSliderRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5;
-    mobileSliderRef.current.scrollLeft = scrollLeft.current - walk;
+    mobileSliderRef.current.scrollLeft = scrollLeftRef.current - (x - startX.current) * 1.5;
   }, []);
 
   const handleMouseUp = useCallback(() => {
@@ -358,16 +282,14 @@ function Home() {
     isDragging.current = false;
     mobileSliderRef.current.style.cursor = 'grab';
     mobileSliderRef.current.style.scrollSnapType = 'x mandatory';
-    
-    const index = Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth);
-    scrollToSlide(index);
+    scrollToSlide(Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth));
   }, [scrollToSlide]);
 
   const handleTouchStart = useCallback((e) => {
     if (!mobileSliderRef.current) return;
     isDragging.current = true;
     startX.current = e.touches[0].pageX - mobileSliderRef.current.offsetLeft;
-    scrollLeft.current = mobileSliderRef.current.scrollLeft;
+    scrollLeftRef.current = mobileSliderRef.current.scrollLeft;
     mobileSliderRef.current.style.scrollSnapType = 'none';
   }, []);
 
@@ -375,23 +297,19 @@ function Home() {
     if (!isDragging.current || !mobileSliderRef.current) return;
     e.preventDefault();
     const x = e.touches[0].pageX - mobileSliderRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5;
-    mobileSliderRef.current.scrollLeft = scrollLeft.current - walk;
+    mobileSliderRef.current.scrollLeft = scrollLeftRef.current - (x - startX.current) * 1.5;
   }, []);
 
   const handleTouchEnd = useCallback(() => {
     if (!mobileSliderRef.current) return;
     isDragging.current = false;
     mobileSliderRef.current.style.scrollSnapType = 'x mandatory';
-    
-    const index = Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth);
-    scrollToSlide(index);
+    scrollToSlide(Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth));
   }, [scrollToSlide]);
 
   useEffect(() => {
     const slider = mobileSliderRef.current;
     if (!slider) return;
-
     slider.addEventListener('scroll', handleScroll, { passive: true });
     slider.addEventListener('mousedown', handleMouseDown);
     slider.addEventListener('mousemove', handleMouseMove);
@@ -400,7 +318,6 @@ function Home() {
     slider.addEventListener('touchstart', handleTouchStart, { passive: false });
     slider.addEventListener('touchmove', handleTouchMove, { passive: false });
     slider.addEventListener('touchend', handleTouchEnd);
-
     return () => {
       slider.removeEventListener('scroll', handleScroll);
       slider.removeEventListener('mousedown', handleMouseDown);
@@ -416,288 +333,133 @@ function Home() {
   const heroChars = useMemo(() => ['S', 'e', 'c', 'o', 'n', 'd', '\u00A0', 'W', 'a', 'v', 'e', '.'], []);
 
   const services = useMemo(() => [
-    { icon: <FiCamera />, title: 'Branding', tagline: 'Eye catchy', description: 'Create unforgettable brand identities that captivate your audience and leave lasting impressions.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Logo Design', 'Brand Strategy', 'Visual Identity', 'Brand Guidelines'] },
-    { icon: <FiTrendingUp />, title: 'SEO', tagline: 'On top', description: 'Dominate search engine rankings with our data-driven SEO strategies.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Keyword Research', 'On-Page SEO', 'Technical SEO', 'Link Building'] },
-    { icon: <FiCode />, title: 'Website Dev', tagline: 'Dynamic, User Friendly', description: 'Build powerful, responsive websites that convert visitors into customers.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Custom Development', 'E-commerce', 'CMS Integration', 'Responsive Design'] },
-    { icon: <FiMonitor />, title: 'Performance', tagline: 'Meta, Google', description: 'Data-driven advertising campaigns that deliver measurable results.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Paid Search', 'Social Ads', 'Display Advertising', 'Retargeting'] },
-    { icon: <FiHeart />, title: 'Social Media', tagline: 'Fun, Engagement', description: 'Build thriving communities and drive engagement through social media.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Content Strategy', 'Community Management', 'Influencer Marketing', 'Analytics'] },
-    { icon: <FiStar />, title: 'Creative', tagline: 'Strategy, growth', description: 'Innovative creative solutions that drive brand growth and capture attention.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Creative Direction', 'Content Creation', 'Campaign Strategy', 'Storytelling'] },
-    { icon: <FiFilm />, title: 'Production', tagline: 'Sound, Camera, Action', description: 'Professional video and audio production that brings your vision to life.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Video Production', 'Sound Design', 'Photography', 'Post-Production'] },
-    { icon: <FiUsers />, title: 'Digital PR', tagline: 'We can get anyone', description: 'Strategic PR campaigns that build relationships with media and influencers.', color: 'from-gray-800 to-black', bgColor: 'bg-gray-100', features: ['Media Relations', 'Influencer Outreach', 'Crisis Management', 'Brand Reputation'] },
-  ], []);
+    {
+      title: "Marketing & Advertising",
+      description: "Grow your brand with data-driven marketing strategies and powerful advertising campaigns that attract, engage, and convert your ideal audience.",
+      image: "/mark.png",
+      link: "/production"
+    },
+    {
+      title: "Branding",
+      description: "We craft powerful brand identities that connect emotionally with your audience and position your business for long-term success.",
+      image: "/bran.png",
+      link: "/branding"
+    },
 
-  const sectionSlides = useMemo(() => [
     {
-      id: 'production',
-      title: 'VIDEO PRODUCTION',
-      heading: 'Production Excellence',
-      description: 'Professional video and audio production that brings your vision to life. Cinematic quality that captivates and communicates your message powerfully.',
-      items: [
-        { title: 'Video Production', desc: 'Commercials & brand films' },
-        { title: 'Sound Design', desc: 'Audio & mixing' },
-        { title: 'Post-Production', desc: 'Editing & VFX' },
-        { title: 'Photography', desc: 'Product & lifestyle' },
-      ],
-      image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '4K', label: 'Ultra HD' },
-      badge2: { value: 'Dolby', label: 'Audio' },
-      link: '/production',
-      linkText: 'See our production work'
+      title: "Web Development",
+      description: "We design and develop high-performance, scalable websites tailored to your business goals and user experience.",
+      image: "/webd.png",
+      link: "/web-development"
     },
     {
-      id: 'branding',
-      title: 'BRAND IDENTITY',
-      heading: 'Branding That Sticks',
-      description: 'Create unforgettable brand identities that captivate your audience and leave lasting impressions. From logo design to comprehensive brand guidelines, we craft cohesive visual stories.',
-      items: [
-        { title: 'Brand Strategy', desc: 'Positioning & messaging' },
-        { title: 'Visual Identity', desc: 'Logos & guidelines' },
-        { title: 'Brand Voice', desc: 'Tone & personality' },
-        { title: 'Brand Experience', desc: 'Touchpoints & journey' },
-      ],
-      image: 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '300+', label: 'Brands Created' },
-      badge2: { value: '★★★★★', label: 'Rated' },
-      link: '/branding',
-      linkText: 'Discover our branding process'
+      title: "Social Media Marketing",
+      description: "Build strong online communities and grow your brand presence with strategic content and engagement campaigns.",
+      image: "/social.png",
+      link: "/social-media-marketing"
     },
     {
-      id: 'seo',
-      title: 'SEARCH DOMINATION',
-      heading: 'SEO Excellence',
-      description: 'Dominate search engine rankings with our data-driven SEO strategies. Sustainable organic growth with higher conversions and maximum ROI.',
-      stats: [
-        { label: 'Organic Traffic Growth', pct: 94 },
-        { label: 'Keyword Rankings', pct: 87 },
-        { label: 'Conversion Rate Lift', pct: 76 },
-      ],
-      items: [
-        ['#1', 'Rankings'],
-        ['200%', 'Traffic'],
-        ['5x', 'ROI'],
-      ],
-      image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '#1', label: 'Rankings' },
-      link: '/seo',
-      linkText: 'Explore SEO strategies'
+      title: "All Services",
+      description: ".",
+      image: "/all.png",
+      link: "/services"
     },
-    {
-      id: 'web',
-      title: 'DEVELOPMENT',
-      heading: 'Web Dev That Converts',
-      description: 'Build powerful, responsive websites that turn visitors into customers. Lightning-fast performance, seamless UX, and scalable solutions.',
-      tech: ['React', 'Next.js', 'Node.js', 'TypeScript', 'Shopify', 'WordPress', 'Tailwind', 'MongoDB'],
-      features: [
-        'Custom Development with React/Node.js',
-        'E-commerce Solutions on Shopify/Magento',
-        'Responsive Mobile-First Design',
-        'CMS Integration (WordPress, Sanity)',
-      ],
-      image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '99ms', label: 'Load Time' },
-      link: '/web-development',
-      linkText: 'View our development work'
-    },
-    {
-      id: 'performance',
-      title: 'PAID MEDIA',
-      heading: 'Performance That Delivers',
-      description: 'Data-driven campaigns across Meta and Google. Advanced targeting with creative excellence to maximize ROI and drive qualified traffic that converts.',
-      tech: ['Meta Ads', 'Google Ads', 'TikTok Ads', 'LinkedIn Ads', 'Retargeting', 'Analytics', 'A/B Testing', 'Attribution'],
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '380%', label: 'Avg ROI' },
-      link: '/performance-marketing',
-      linkText: 'Boost your campaigns'
-    },
-    {
-      id: 'social',
-      title: 'COMMUNITY GROWTH',
-      heading: 'Social Media Marketing',
-      description: 'Build thriving communities and drive engagement. Content that sparks conversations, builds brand loyalty, and turns followers into advocates.',
-      social: [
-        ['📸', 'Insta'],
-        ['🎵', 'TikTok'],
-        ['👍', 'Facebook'],
-        ['🐦', 'Twitter'],
-        ['💼', 'LinkedIn'],
-        ['▶️', 'YouTube'],
-        ['📌', 'Pinterest'],
-        ['👻', 'Snapchat'],
-      ],
-      image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '2M+', label: 'Followers' },
-      link: '/social-media-marketing',
-      linkText: 'Grow your community'
-    },
-    {
-      id: 'creative',
-      title: 'CREATIVE STUDIO',
-      heading: 'Creative Excellence',
-      description: 'Innovative creative solutions that drive brand growth. Design thinking meets marketing expertise to deliver work that truly resonates with your audience.',
-      items: [
-        { title: 'Creative Direction', desc: 'Vision & concepts' },
-        { title: 'Content Creation', desc: 'Visual storytelling' },
-        { title: 'Campaign Strategy', desc: 'Integrated planning' },
-        { title: 'Brand Storytelling', desc: 'Narrative development' },
-      ],
-      image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '∞', label: 'Creativity' },
-      link: '/creative',
-      linkText: 'Explore creative work'
-    },
-    {
-      id: 'pr',
-      title: 'PUBLIC RELATIONS',
-      heading: 'Digital PR',
-      description: 'Strategic PR campaigns that build relationships with media, influencers, and your target audience. Get featured in top publications worldwide.',
-      tech: ['Forbes', 'TechCrunch', 'Vogue', 'WSJ', 'CNN', 'BBC', 'NYT', 'Bloomberg'],
-      image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      badge1: { value: '50+', label: 'Publications' },
-      link: '/digital-pr',
-      linkText: 'Get featured'
-    },
+    
   ], []);
 
   const clients = useMemo(() => ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Spotify', 'Adobe', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Tesla', 'SpaceX', 'Uber', 'Airbnb', 'Shopify', 'Slack'], []);
 
   const stats = useMemo(() => [
-    { count: 500, suffix: '+', label: 'Projects Completed', icon: <FiAward /> },
-    { count: 200, suffix: '+', label: 'Happy Clients', icon: <FiHeart /> },
-    { count: 50, suffix: '+', label: 'Awards Won', icon: <FiStar /> },
-    { count: 10, suffix: '+', label: 'Years Experience', icon: <FiTarget /> },
+    { count: 710, suffix: '', label: 'Satisfied Customers', icon: <FiAward /> },
+    { count: 125, suffix: '+', label: 'Successful Partnerships', icon: <FiHeart /> },
+    { count: 9, suffix: '+', label: 'Years Experience', icon: <FiStar /> },
+    { count: 720, suffix: '', label: 'Completed Projects', icon: <FiTarget /> },
   ], []);
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-gray-800 rounded-full animate-spin" />
+      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+        <div className="w-16 h-16 border-4 border-gray-800 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="relative overflow-x-hidden bg-white pt-20">
+    <div ref={containerRef} className="relative overflow-x-hidden bg-black pt-20">
 
-<section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-white">
-  {/* Particles Wave Background */}
-  <div className="absolute inset-0 z-0">
-  <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
-
-</div>
-  
-  {/* Semi-transparent overlay for better text contrast on mobile */}
-  <div className="absolute inset-0 bg-white/30 lg:bg-transparent z-10 pointer-events-none" />
-  
-  {/* Content */}
-  <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
-    <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-gray-100 border border-gray-200 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-700 backdrop-blur-md">
-      <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
-      Award-Winning Digital Agency
-      <FiZap className="text-gray-800" />
-    </div>
-
-    <div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
-      <h1 className="font-black leading-none tracking-tight text-gray-900" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
-        {heroChars.map((char, i) => (
-          <span
-            key={i}
-            className="hero-char inline-block text-gray-900"
-            style={{ display: 'inline-block' }}
-          >
-            {char}
-          </span>
-        ))}
-      </h1>
-    </div>
-
-    <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
-      Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
-    </p>
-
-    <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center mb-7 sm:mb-10 md:mb-12">
-      <Link
-        to="/services"
-        className="hero-cta-btn group relative px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 bg-gray-900 text-white rounded-full text-xs sm:text-sm md:text-base font-bold overflow-hidden shadow-[0_0_26px_rgba(0,0,0,0.1)] hover:shadow-[0_0_50px_rgba(0,0,0,0.2)] transition-shadow duration-300"
-      >
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          Explore Services <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-        </span>
-        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-15 transition-opacity duration-300" />
-      </Link>
-      <Link
-        to="/works"
-        className="hero-cta-btn group px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 border border-gray-300 rounded-full text-xs sm:text-sm md:text-base font-semibold text-gray-800 hover:border-gray-800 hover:bg-gray-50 transition-all backdrop-blur-sm flex items-center justify-center gap-2"
-      >
-        View Portfolio <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-      </Link>
-    </div>
-
-    <div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
-      {[
-        ['500+', 'Projects'],
-        ['200+', 'Clients'],
-        ['10+', 'Years'],
-      ].map(([num, label], i) => (
-        <div key={i} className="hero-stat text-center">
-          <div className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900">{num}</div>
-          <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5">{label}</div>
+      <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-black">
+        <div className="absolute inset-0 z-0">
+          <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
         </div>
-      ))}
-    </div>
-  </div>
-
-  <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2">
-    <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-400 tracking-[0.3em] uppercase">SCROLL</span>
-    <div className="scroll-line w-px h-10 sm:h-12 md:h-14 bg-gradient-to-b from-gray-800 to-transparent" />
-  </div>
-</section>
-
-<div
-  ref={sectionRef}
-  className="relative py-6 sm:py-10 bg-white will-change-transform"
-  style={{ overflow: 'hidden' }}>
-  <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
-  <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
-  
-  {/* Remove the inner overflow hidden wrapper */}
-  <div
-    ref={waveRef}
-    className="flex font-black tracking-tighter text-gray-100 uppercase"
-    style={{ fontSize: 'clamp(2.8rem, 14vw, 10rem)', whiteSpace: 'nowrap', display: 'flex' }}
-  >
-    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-    <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-  </div>
-</div>
-
-      <section ref={textRef} className="py-12 sm:py-20 md:py-24 bg-white">
-        <div className="container-custom">
-          <div
-            className="reveal-text font-black text-center max-w-4xl md:max-w-5xl mx-auto leading-tight"
-            style={{ fontSize: 'clamp(1.6rem, 5vw, 3.2rem)' }}
-          >
-            {["We don't just market,", 'we create experiences', 'that inspire, engage,', 'and transform.'].map((line, i) => (
-              <div key={i} className="overflow-hidden mb-1 sm:mb-1.5">
-                <span className={`text-block inline-block ${i % 2 === 0 ? 'text-gray-800' : 'text-gray-900'}`}>{line}</span>
+        <div className="absolute inset-0 bg-black/40 lg:bg-black/20 z-10 pointer-events-none" />
+        <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
+          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white/5 border border-white/10 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-400 backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            Award-Winning Digital Agency
+            <FiZap className="text-white" />
+          </div>
+          <div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
+            <h1 className="font-black leading-none tracking-tight text-white" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
+              {heroChars.map((char, i) => (
+                <span key={i} className="hero-char inline-block text-white" style={{ display: 'inline-block' }}>{char}</span>
+              ))}
+            </h1>
+          </div>
+          <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-500 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
+            Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center mb-7 sm:mb-10 md:mb-12">
+            <Link to="/services" className="hero-cta-btn group relative px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 bg-white text-black rounded-full text-xs sm:text-sm md:text-base font-bold overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.25)] transition-all duration-300">
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Explore Services <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </span>
+            </Link>
+            <Link to="/works" className="hero-cta-btn group px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 border border-white/15 rounded-full text-xs sm:text-sm md:text-base font-semibold text-white hover:border-white/40 hover:bg-white/5 transition-all backdrop-blur-sm flex items-center justify-center gap-2">
+              View Portfolio <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </div>
+          <div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
+            {[['500+', 'Projects'], ['200+', 'Clients'], ['10+', 'Years']].map(([num, label], i) => (
+              <div key={i} className="hero-stat text-center">
+                <div className="text-lg sm:text-2xl md:text-3xl font-black text-white">{num}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{label}</div>
               </div>
             ))}
           </div>
-          <p className="text-gray-500 text-center mt-6 sm:mt-8 max-w-xl md:max-w-2xl mx-auto text-xs sm:text-sm md:text-base px-2 sm:px-4 leading-relaxed">
+        </div>
+        <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2">
+          <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-700 tracking-[0.3em] uppercase">SCROLL</span>
+          <div className="scroll-line w-px h-10 sm:h-12 md:h-14 bg-gradient-to-b from-white to-transparent" />
+        </div>
+      </section>
+
+      <div ref={sectionRef} className="relative py-6 sm:py-10 bg-black will-change-transform" style={{ overflow: 'hidden' }}>
+        <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-black to-transparent z-10" />
+        <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-black to-transparent z-10" />
+        <div ref={waveRef} className="flex font-black tracking-tighter uppercase" style={{ fontSize: 'clamp(2.8rem, 14vw, 10rem)', whiteSpace: 'nowrap', display: 'flex', color: 'rgba(255,255,255,0.03)' }}>
+          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
+        </div>
+      </div>
+
+      <section ref={textRef} className="py-12 sm:py-20 md:py-24 bg-black">
+        <div className="container-custom">
+          <div className="reveal-text font-black text-center max-w-4xl md:max-w-5xl mx-auto leading-tight" style={{ fontSize: 'clamp(1.6rem, 5vw, 3.2rem)' }}>
+            {["We don't just market,", 'we create experiences', 'that inspire, engage,', 'and transform.'].map((line, i) => (
+              <div key={i} className="overflow-hidden mb-1 sm:mb-1.5">
+                <span className={`text-block inline-block ${i % 2 === 0 ? 'text-gray-400' : 'text-white'}`}>{line}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-gray-600 text-center mt-6 sm:mt-8 max-w-xl md:max-w-2xl mx-auto text-xs sm:text-sm md:text-base px-2 sm:px-4 leading-relaxed">
             Over a decade of turning bold ideas into unforgettable campaigns. Trusted by the world's most ambitious brands.
           </p>
           <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mt-7 sm:mt-10 max-w-md sm:max-w-xl mx-auto px-2 sm:px-4">
-            {[
-              { label: 'Brand Growth', val: '94%' },
-              { label: 'Client Retention', val: '97%' },
-              { label: 'Avg ROI', val: '380%' },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="counter-box text-center p-2.5 sm:p-4 md:p-5 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl hover:border-gray-300 transition-colors"
-              >
-                <div className="text-base sm:text-2xl md:text-3xl font-black text-gray-900">{item.val}</div>
+            {[{ label: 'Brand Growth', val: '94%' }, { label: 'Client Retention', val: '97%' }, { label: 'Avg ROI', val: '380%' }].map((item, i) => (
+              <div key={i} className="counter-box text-center p-2.5 sm:p-4 md:p-5 bg-white/3 border border-white/8 rounded-lg sm:rounded-xl hover:border-white/15 transition-colors">
+                <div className="text-base sm:text-2xl md:text-3xl font-black text-white">{item.val}</div>
                 <div className="text-[9px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{item.label}</div>
               </div>
             ))}
@@ -705,542 +467,402 @@ function Home() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-18 md:py-22 bg-white relative overflow-hidden">
-  <div className="container-custom max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="text-center mb-10 md:mb-14">
-      <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-gray-800 uppercase mb-3">
-        WHAT WE DO
-      </span>
-      <h2 className="font-black text-gray-900 text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-        Our <span className="text-gray-800">Services</span>
+      <section ref={servicesSectionRef} className="py-16 sm:py-24 relative overflow-hidden" style={{backgroundColor: '#ffff'}}>
+  <div style={{maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1rem', paddingRight: '1rem'}} className="sm:px-6 lg:px-8">
+    <div style={{textAlign: 'center', marginBottom: '2.5rem'}} className="md:mb-14">
+      <span style={{display: 'inline-block', fontSize: '12px', fontWeight: '700', letterSpacing: '0.3em', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '0.75rem'}} className="sm:text-sm">WHAT WE DO</span>
+      <h2 style={{fontWeight: '900', color: '#111111', fontSize: '2.25rem', lineHeight: '1.2'}} className="sm:text-5xl md:text-6xl lg:text-7xl">
+        <span style={{color: '#111111'}}>Our</span>{' '}
+        <span style={{color: '#6B7280'}}>Services</span>
       </h2>
-      <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-sm sm:text-base px-4">
+      <p style={{color: '#4b5563', marginTop: '1.25rem', maxWidth: '48rem', marginLeft: 'auto', marginRight: 'auto', fontSize: '1rem', lineHeight: '1.5', paddingLeft: '1rem', paddingRight: '1rem'}} className="sm:text-lg">
         Comprehensive digital solutions tailored to your brand's unique needs
       </p>
     </div>
-    
-    <div className="lg:hidden">
-      <div className="relative">
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-        
-        <div 
-          ref={servicesRef}
-          className="services-slider flex overflow-x-auto gap-4 pb-6 -mx-4 px-4 scroll-smooth scrollbar-hide" 
-          style={{ WebkitOverflowScrolling: 'touch' }}
-          onScroll={(e) => {
-            const scrollLeft = e.currentTarget.scrollLeft;
-            const width = e.currentTarget.offsetWidth;
-            const index = Math.round(scrollLeft / width);
-            setActiveServiceSlide(index);
-          }}
-        >
-          {services.map((service, index) => (
-            <div
+
+    {/* Rest of your code remains exactly the same... */}
+    <div className="hidden md:block">
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem'}}>
+        <div style={{display: 'flex', justifyContent: 'center', gap: '1.5rem'}}>
+          {services.slice(0, 3).map((service, index) => (
+            <Link
+              to={service.link}
               key={index}
-              className="flex-shrink-0 w-[280px] sm:w-[320px]"
-            >
-              <div className="group relative p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition-all duration-300 h-full">
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-xl`} />
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                <div className="relative z-10">
-                  <div className={`text-3xl mb-4 w-14 h-14 rounded-xl ${service.bgColor} flex items-center justify-center text-gray-800 group-hover:scale-110 transition-transform duration-300`}>
-                    {service.icon}
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">{service.title}</h3>
-                  <p className="text-sm text-gray-700 font-semibold mb-3">{service.tagline}</p>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {service.features.slice(0, 3).map((feature, idx) => (
-                      <span key={idx} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center gap-1 text-gray-800 text-sm font-medium group-hover:gap-2 transition-all duration-300">
-                    <span>Learn more</span>
-                    <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex justify-center gap-2 mt-4">
-          {services.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                const slider = document.querySelector('.services-slider');
-                if (slider) {
-                  const cardWidth = slider.querySelector('.flex-shrink-0')?.offsetWidth || 320;
-                  slider.scrollTo({
-                    left: i * (cardWidth + 16),
-                    behavior: 'smooth'
-                  });
-                }
-              }}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === activeServiceSlide ? 'w-4 bg-gray-800' : 'w-1.5 bg-gray-300'
-              }`}
-              aria-label={`Go to service ${i + 1}`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-
-    <div className="hidden lg:grid grid-cols-2 xl:grid-cols-4 gap-6">
-      {services.map((service, index) => (
-        <div
-          key={index}
-          className="group relative p-6 bg-white border border-gray-200 rounded-2xl hover:border-gray-400 transition-all duration-300 hover:shadow-lg"
-        >
-          <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-2xl`} />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
-          <div className="relative z-10">
-            <div className={`text-3xl mb-4 w-14 h-14 rounded-xl ${service.bgColor} flex items-center justify-center text-gray-800 group-hover:scale-110 transition-transform duration-300`}>
-              {service.icon}
-            </div>
-            
-            <h3 className="text-xl font-bold text-gray-900 mb-1">{service.title}</h3>
-            <p className="text-sm text-gray-700 font-semibold mb-3">{service.tagline}</p>
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
-            
-            <div className="flex flex-wrap gap-2 mb-4">
-              {service.features.slice(0, 3).map((feature, idx) => (
-                <span key={idx} className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                  {feature}
-                </span>
-              ))}
-            </div>
-            
-            <div className="flex items-center gap-1 text-gray-800 text-sm font-medium group-hover:gap-2 transition-all duration-300">
-              <span>Learn more</span>
-              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-      <div className="lg:hidden">
-        {/* <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
-          {sectionSlides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => scrollToSlide(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                activeSection === index ? 'bg-gray-800 w-4' : 'bg-gray-300'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div> */}
-
-        <div
-          ref={mobileSliderRef}
-          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
-            height: 'calc(100vh - 80px)',
-            scrollBehavior: 'smooth',
-          }}
-        >
-          {sectionSlides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className="flex-shrink-0 w-screen snap-start overflow-y-auto hide-scrollbar"
-              style={{ 
-                height: 'calc(100vh - 80px)',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
+              className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
+              style={{
+                boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
               }}
             >
-              <div className="min-h-full bg-white py-6 px-4 flex flex-col">
-                <span className="inline-block text-[10px] font-bold tracking-[0.3em] text-gray-800 uppercase mb-2 flex-shrink-0">
-                  {slide.title}
-                </span>
-
-                <h2 className="font-black mb-2 leading-tight text-gray-900 text-2xl flex-shrink-0">
-                  <span className="text-gray-800">{slide.heading.split(' ')[0]}</span>{' '}
-                  {slide.heading.split(' ').slice(1).join(' ')}
-                </h2>
-
-                <p className="text-gray-600 mb-3 leading-relaxed text-xs flex-shrink-0">
-                  {slide.description}
-                </p>
-
-                <div className="flex-1 overflow-y-auto hide-scrollbar pr-1" style={{ maxHeight: 'calc(100vh - 280px)' }}>
-                  {slide.stats && (
-                    <div className="space-y-3 mb-4">
-                      {slide.stats.map((stat, i) => (
-                        <div key={i}>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-gray-700 font-medium">{stat.label}</span>
-                            <span className="text-gray-900 font-black">{stat.pct}%</span>
-                          </div>
-                          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-gray-800"
-                              style={{ width: `${stat.pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.features && (
-                    <ul className="space-y-2 mb-4">
-                      {slide.features.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2 text-xs">
-                          <span className="w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gray-800" />
-                          </span>
-                          <span className="text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {slide.items && !Array.isArray(slide.items[0]) && (
-                    <div className="grid grid-cols-2 gap-2 mb-4">
-                      {slide.items.map((item, i) => (
-                        <div key={i} className="p-2.5 bg-white border border-gray-200 rounded-lg">
-                          <div className="w-1 h-1 rounded-full bg-gray-800 mb-1.5" />
-                          <h4 className="font-bold text-xs text-gray-900 mb-0.5">{item.title}</h4>
-                          <p className="text-[10px] text-gray-600">{item.desc}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.items && slide.items[0] && Array.isArray(slide.items[0]) && (
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {slide.items.map(([val, label], i) => (
-                        <div key={i} className="text-center p-2 bg-white border border-gray-200 rounded-lg">
-                          <div className="text-base font-black text-gray-900">{val}</div>
-                          <p className="text-[9px] text-gray-600">{label}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.tech && (
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {slide.tech.slice(0, 6).map((tech, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 bg-gray-100 rounded-full text-[10px] border border-gray-200 text-gray-700"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.social && (
-                    <div className="grid grid-cols-4 gap-1.5 mb-4">
-                      {slide.social.map(([emoji, name], i) => (
-                        <div key={i} className="text-center p-1.5 bg-gray-100 rounded-lg border border-gray-200">
-                          <div className="text-xl mb-0.5">{emoji}</div>
-                          <span className="text-[8px] font-medium text-gray-700">{name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="relative mb-3">
-                    <div className="aspect-[16/9] rounded-lg overflow-hidden ring-1 ring-gray-200">
-                      <img
-                        src={slide.image}
-                        alt={slide.heading}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
-                    </div>
-                    
-                    {slide.badge1 && (
-                      <div className="absolute -bottom-2 -left-2 p-1.5 bg-white border border-gray-200 rounded-lg shadow-md">
-                        <div className="text-xs font-black text-gray-900">{slide.badge1.value}</div>
-                        <div className="text-[7px] text-gray-600">{slide.badge1.label}</div>
-                      </div>
-                    )}
-                    
-                    {slide.badge2 && (
-                      <div className="absolute -top-1 -right-1 p-1.5 bg-white border border-gray-200 rounded-lg">
-                        <div className="text-[10px] font-black text-gray-800">{slide.badge2.value}</div>
-                        <div className="text-[6px] text-gray-600">{slide.badge2.label}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <Link
-                  to={slide.link}
-                  className="inline-flex items-center gap-2 text-gray-800 hover:gap-4 transition-all font-semibold text-sm group mt-3 flex-shrink-0"
-                >
-                  <span>{slide.linkText}</span>
-                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-
-                <div className="flex justify-center gap-1.5 mt-3 flex-shrink-0">
-                  {sectionSlides.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-1 rounded-full transition-all duration-300 ${
-                        i === index ? 'w-4 bg-gray-800' : 'w-1 bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="hidden lg:block">
-        {sectionSlides.map((slide, index) => (
-          <section
-            key={slide.id}
-            className={`py-14 sm:py-18 md:py-22 relative overflow-hidden bg-white ${
-              index % 2 === 0 ? 'bg-gradient-to-br' : 'bg-gradient-to-bl'
-            } from-gray-100 via-transparent to-gray-100`}
-          >
-            <div className="container-custom relative">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 sm:gap-10 md:gap-14 items-center">
-                <div className={`relative order-2 lg:order-${index % 2 === 0 ? '2' : '1'}`}>
-                  <div className="aspect-[4/3] sm:aspect-square rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-gray-200">
-                    <img
-                      src={slide.image}
-                      alt={slide.title}
-                      className="parallax-img w-full h-full object-cover scale-110"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent" />
-                  </div>
-                  
-                  {slide.badge1 && (
-                    <div className={`floating-badge absolute ${
-                      index % 2 === 0 ? '-bottom-3 -left-3 sm:-bottom-5 sm:-left-5' : '-bottom-3 -right-2 sm:-bottom-5 sm:-right-5'
-                    } p-2.5 sm:p-3.5 bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg`}>
-                      <div className="text-sm sm:text-lg md:text-xl font-black text-gray-900">{slide.badge1.value}</div>
-                      <div className="text-[9px] sm:text-[10px] md:text-xs text-gray-600">{slide.badge1.label}</div>
-                    </div>
-                  )}
-                  
-                  {slide.badge2 && (
-                    <div className="floating-badge absolute -top-2 -right-2 sm:-top-3 sm:-right-3 p-2 sm:p-2.5 bg-white border border-gray-200 rounded-xl">
-                      <div className="text-xs sm:text-sm md:text-base font-black text-gray-800">{slide.badge2.value}</div>
-                      <div className="text-[8px] sm:text-[9px] text-gray-600">{slide.badge2.label}</div>
-                    </div>
-                  )}
-                  
-                  <div className={`absolute ${
-                    index % 2 === 0 ? '-bottom-6 -left-6' : '-bottom-7 -right-7'
-                  } w-28 sm:w-40 h-28 sm:h-40 bg-gray-200 rounded-full blur-3xl animate-pulse`} />
-                  <div className={`absolute ${
-                    index % 2 === 0 ? '-top-6 -right-6' : '-top-6 -left-6'
-                  } w-32 sm:w-44 h-32 sm:h-44 bg-gray-200 rounded-full blur-3xl animate-pulse`} />
-                </div>
-
-                <div className={`order-1 lg:order-${index % 2 === 0 ? '1' : '2'}`}>
-                  <span className="inline-block text-[9px] sm:text-[10px] md:text-xs font-bold tracking-[0.3em] text-gray-800 uppercase mb-2 sm:mb-3">
-                    {slide.title}
-                  </span>
-                  <h2 className="font-black mb-3 sm:mb-4 md:mb-5 leading-tight text-gray-900" style={{ fontSize: 'clamp(1.7rem, 4.6vw, 2.7rem)' }}>
-                    <span className="text-gray-800">{slide.heading.split(' ')[0]}</span> {slide.heading.split(' ').slice(1).join(' ')}
-                  </h2>
-                  <p className="text-gray-600 mb-4 sm:mb-5 md:mb-6 leading-relaxed text-xs sm:text-sm md:text-base">
-                    {slide.description}
-                  </p>
-
-                  {slide.stats && (
-                    <div className="space-y-2.5 sm:space-y-3.5 md:space-y-4 mb-5 sm:mb-6 md:mb-7">
-                      {slide.stats.map((stat, i) => (
-                        <div key={i}>
-                          <div className="flex justify-between text-[10px] sm:text-xs md:text-sm mb-1">
-                            <span className="text-gray-700 font-medium">{stat.label}</span>
-                            <span className="text-gray-900 font-black">{stat.pct}%</span>
-                          </div>
-                          <div className="h-1.5 sm:h-1.5 md:h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="seo-bar-fill h-full rounded-full bg-gray-800"
-                              style={{ width: `${stat.pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.features && (
-                    <ul className="space-y-1.5 sm:space-y-2.5 md:space-y-3 mb-4 sm:mb-5 md:mb-6">
-                      {slide.features.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm">
-                          <span className="w-3.5 h-3.5 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gray-800" />
-                          </span>
-                          <span className="text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {slide.items && !Array.isArray(slide.items[0]) && (
-                    <div className="grid grid-cols-2 gap-3 md:gap-4 mb-5 md:mb-7">
-                      {slide.items.map((item, i) => (
-                        <div
-                          key={i}
-                          className="p-3 md:p-4 bg-white border border-gray-200 rounded-lg md:rounded-xl"
-                        >
-                          <div className="w-1.5 h-1.5 rounded-full bg-gray-800 mb-2" />
-                          <h4 className="font-bold text-xs md:text-sm text-gray-900 mb-1">{item.title}</h4>
-                          <p className="text-xs text-gray-600">{item.desc}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.items && slide.items[0] && Array.isArray(slide.items[0]) && (
-                    <div className="grid grid-cols-3 gap-3 md:gap-4 mb-5 md:mb-7">
-                      {slide.items.map(([val, label], i) => (
-                        <div key={i} className="text-center p-3 md:p-4 bg-white border border-gray-200 rounded-lg md:rounded-xl">
-                          <div className="text-lg md:text-2xl font-black text-gray-900">{val}</div>
-                          <p className="text-xs md:text-sm text-gray-600 mt-1">{label}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.tech && (
-                    <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-                      {slide.tech.map((tech, i) => (
-                        <span
-                          key={i}
-                          className="px-3 py-1.5 bg-gray-100 rounded-full text-xs md:text-sm border border-gray-200 text-gray-700"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {slide.social && (
-                    <div className="grid grid-cols-4 gap-2 mb-4 md:mb-6">
-                      {slide.social.map(([emoji, name], i) => (
-                        <div
-                          key={i}
-                          className="text-center p-2 bg-gray-100 rounded-lg border border-gray-200"
-                        >
-                          <div className="text-2xl mb-1">{emoji}</div>
-                          <span className="text-xs font-medium text-gray-700">{name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <Link
-                    to={slide.link}
-                    className="inline-flex items-center gap-2 text-gray-800 hover:gap-4 transition-all font-semibold text-xs sm:text-sm md:text-base group"
-                  >
-                    <span>{slide.linkText}</span>
-                    <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-        ))}
-      </div>
-
-      <section className="py-9 sm:py-12 md:py-14 overflow-hidden bg-white">
-        <div className="text-center mb-6 sm:mb-8 px-4">
-          <h2 className="font-black text-gray-900" style={{ fontSize: 'clamp(1.4rem, 4.2vw, 2.4rem)' }}>
-            Trusted by <span className="text-gray-800">Industry Leaders</span>
-          </h2>
-          <p className="text-gray-600 mt-2 sm:mt-2.5 text-[10px] sm:text-xs md:text-sm">
-            Join hundreds of brands that have partnered with us
-          </p>
-        </div>
-        
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
-          <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
-          <div 
-            ref={clientsMarqueeRef}
-            className="flex whitespace-nowrap animate-marquee will-change-transform"
-          >
-            {[...clients, ...clients, ...clients].map((client, index) => (
+              {/* Background Image */}
+              <img
+                src={service.image}
+                alt={service.title}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            
+              {/* Soft Overlay */}
+              <div className="absolute inset-0 bg-black/10" />
+            
+              {/* Glass Top Bar */}
               <div
-                key={index}
-                className="mx-4 sm:mx-6 text-xs sm:text-base md:text-xl font-black text-gray-200 hover:text-gray-400 transition-colors flex-shrink-0"
+                className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
+                style={{
+                  background: "rgba(255,255,255,0.25)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)"
+                }}
               >
-                {client}
+                <span className="text-white text-2xl tracking-wide font-light">
+                  {service.title}
+                </span>
+            
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{
+                    background: "rgba(255,255,255,0.25)"
+                  }}
+                >
+                  <FiArrowUpRight className="text-white text-xl" />
+                </div>
               </div>
+            </Link>
+          ))}
+        </div>
+
+        <div style={{display: 'flex', justifyContent: 'center', gap: '1.5rem'}}>
+          {services.slice(3, 5).map((service, index) => (
+            <Link
+              to={service.link}
+              key={index}
+              className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
+              style={{
+                boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
+              }}
+            >
+              {/* Background Image */}
+              <img
+                src={service.image}
+                alt={service.title}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            
+              {/* Soft Overlay */}
+              <div className="absolute inset-0 bg-black/10" />
+            
+              {/* Glass Top Bar */}
+              <div
+                className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
+                style={{
+                  background: "rgba(255,255,255,0.25)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)"
+                }}
+              >
+                <span className="text-white text-2xl tracking-wide font-light">
+                  {service.title}
+                </span>
+            
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{
+                    background: "rgba(255,255,255,0.25)"
+                  }}
+                >
+                  <FiArrowUpRight className="text-white text-xl" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="md:hidden">
+      <div style={{position: 'relative'}}>
+        <div style={{position: 'absolute', left: '0', top: '0', bottom: '2.5rem', width: '1.5rem', background: 'linear-gradient(to right, #111, transparent)', zIndex: '10', pointerEvents: 'none'}} />
+        <div style={{position: 'absolute', right: '0', top: '0', bottom: '2.5rem', width: '1.5rem', background: 'linear-gradient(to left, #111, transparent)', zIndex: '10', pointerEvents: 'none'}} />
+        <div
+          style={{display: 'flex', overflowX: 'auto', gap: '0.75rem', paddingBottom: '1rem', marginLeft: '-1rem', marginRight: '-1rem', paddingLeft: '1rem', paddingRight: '1rem', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory'}}
+          onScroll={(e) => {
+            setActiveServiceSlide(Math.round(e.currentTarget.scrollLeft / (e.currentTarget.offsetWidth * 0.75)));
+          }}
+        >
+          <div className="flex flex-wrap justify-center gap-6">
+            {services.map((service, index) => (
+              <Link
+                key={index}
+                to={service.link}
+                className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
+                style={{
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
+                }}
+              >
+                {/* Background Image */}
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              
+                {/* Soft Overlay */}
+                <div className="absolute inset-0 bg-black/10" />
+              
+                {/* Glass Top Bar */}
+                <div
+                  className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
+                  style={{
+                    background: "rgba(255,255,255,0.25)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)"
+                  }}
+                >
+                  <span className="text-white text-2xl tracking-wide font-light">
+                    {service.title}
+                  </span>
+              
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center"
+                    style={{
+                      background: "rgba(255,255,255,0.25)"
+                    }}
+                  >
+                    <FiArrowUpRight className="text-white text-xl" />
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
-        
-        <div className="relative overflow-hidden mt-4">
-          <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-white to-transparent z-10" />
-          <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-white to-transparent z-10" />
-          <div 
-            className="flex whitespace-nowrap animate-marquee-reverse will-change-transform"
+        <div style={{display: 'flex', justifyContent: 'center', gap: '0.375rem', marginTop: '0.75rem'}}>
+          {services.map((_, i) => (
+            <div
+              key={i}
+              style={{height: '0.375rem', borderRadius: '9999px', transition: 'all 0.3s', width: i === activeServiceSlide ? '1rem' : '0.375rem', backgroundColor: i === activeServiceSlide ? '#ffffff' : '#374151'}}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>{`
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  `}</style>
+</section>
+
+      <div
+        ref={stickyWrapRef}
+        className="hidden lg:block relative overflow-hidden"
+        style={{ height: '100vh' }}
+      >
+        {STICKY_SLIDES.map((slide, index) => (
+          <div
+            key={slide.id}
+            className="sticky-slide absolute inset-0 w-full h-full overflow-hidden"
+            style={{ zIndex: index + 1 }}
           >
-            {[...clients, ...clients, ...clients].map((client, index) => (
-              <div
-                key={index}
-                className="mx-4 sm:mx-6 text-[10px] sm:text-xs md:text-sm font-bold text-gray-300 hover:text-gray-500 transition-colors flex-shrink-0"
-              >
-                {client}
+            <div className="sticky-img absolute inset-0" style={{ transformOrigin: 'center center' }}>
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+            </div>
+
+            <div className="absolute inset-0 flex items-end z-10 pb-20 px-16">
+              <div className="max-w-2xl">
+                <div className="mb-4 flex items-center gap-5">
+                  <span className="text-white/15 font-black select-none" style={{ fontSize: 'clamp(4rem, 9vw, 7rem)', lineHeight: 1 }}>{slide.number}</span>
+                  <div className="w-px h-14 bg-white/15" />
+                  <span className="text-[11px] font-bold tracking-[0.45em] text-white/45 uppercase">{slide.label}</span>
+                </div>
+                <h2
+                  className="font-black text-white mb-3 leading-tight whitespace-pre-line"
+                  style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)' }}
+                >
+                  {slide.title}
+                </h2>
+                <p className="text-white/45 text-base mb-8">{slide.sub}</p>
+                <Link to={slide.link} className="inline-flex items-center gap-3 border border-white/25 text-white font-semibold rounded-full px-7 py-3 text-sm hover:bg-white hover:text-black hover:border-white transition-all duration-300 group backdrop-blur-sm">
+                  <span>Discover More</span>
+                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
+            </div>
+
+            <div className="absolute top-10 right-16 z-10 flex flex-col items-end gap-3">
+              <div className="flex gap-2 items-center">
+                {STICKY_SLIDES.map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-px rounded-full bg-white transition-all duration-500"
+                    style={{ width: i === activeStickySlide ? '40px' : '12px', opacity: i === activeStickySlide ? 1 : 0.2 }}
+                  />
+                ))}
+              </div>
+              <span className="text-white/25 text-xs tracking-widest">{activeStickySlide + 1} / {STICKY_SLIDES.length}</span>
+            </div>
+          </div>
+        ))}
+
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2.5">
+          {STICKY_SLIDES.map((_, i) => (
+            <div
+              key={i}
+              className="w-1 rounded-full bg-white transition-all duration-500"
+              style={{ height: i === activeStickySlide ? '32px' : '6px', opacity: i === activeStickySlide ? 1 : 0.15 }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="lg:hidden">
+        <div
+          ref={mobileSliderRef}
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', height: 'calc(100vh - 80px)' }}
+        >
+          {STICKY_SLIDES.map((slide, index) => (
+            <div key={slide.id} className="flex-shrink-0 w-screen snap-start relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+              <img src={slide.image} alt={slide.title} className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-end p-6 pb-12">
+                <span className="text-[10px] font-bold tracking-[0.35em] text-white/40 uppercase mb-3">{slide.label}</span>
+                <h2 className="font-black text-white text-2xl leading-tight whitespace-pre-line mb-2">{slide.title}</h2>
+                <p className="text-white/40 text-xs mb-5">{slide.sub}</p>
+                <Link to={slide.link} className="inline-flex items-center gap-2 border border-white/25 text-white font-semibold rounded-full px-5 py-2.5 text-xs self-start hover:bg-white hover:text-black transition-all backdrop-blur-sm">
+                  <span>Discover More</span><FiArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+              <div className="absolute top-6 right-6 text-white/10 font-black select-none" style={{ fontSize: '4.5rem', lineHeight: 1 }}>{slide.number}</div>
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {STICKY_SLIDES.map((_, i) => (
+                  <div key={i} className={`h-px rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-white' : 'w-2 bg-white/25'}`} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <section ref={videoSectionRef} className="relative bg-black" style={{ minHeight: '100vh' }}>
+        <div className="sticky top-0 w-full overflow-hidden" style={{ height: '100vh' }}>
+          <video
+            ref={videoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1800&q=80"
+          >
+            <source src="https://pub-6070c66a49144147b12828af75c69a0c.r2.dev/100882-video-2160%20(1)%20(1)%20(1)%20(1)%20(1).mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+
+          <div className="absolute inset-0 flex items-center z-10 px-8 sm:px-16">
+            <div className="video-section-content max-w-3xl">
+              <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.4em] text-white/35 uppercase mb-4 border border-white/8 px-3 py-1 rounded-full backdrop-blur-sm">
+                ABOUT US
+              </span>
+              <h2 className="font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(2rem, 5vw, 3.8rem)' }}>
+                We Make the{' '}
+                <span style={{ color: '#6eb8ff' }}>Difference</span>
+              </h2>
+              <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
+                Over a decade of transforming brands across the UAE and beyond. We blend creativity with data to deliver campaigns that don't just look good — they perform.
+              </p>
+              <div className="flex flex-wrap gap-3 mb-8">
+                {[['UAE Based', '🇦🇪'], ['Global Reach', '🌍'], ['Award Winning', '🏆']].map(([label, emoji]) => (
+                  <div key={label} className="flex items-center gap-2 text-white/60 text-sm font-medium bg-white/5 border border-white/8 rounded-full px-4 py-2 backdrop-blur-sm">
+                    <span>{emoji}</span><span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <Link to="/about" className="inline-flex items-center gap-3 bg-white text-black font-bold rounded-full px-7 py-3.5 text-sm hover:bg-gray-100 transition-all group">
+                <span>Our Story</span>
+                <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 bg-black border-t border-white/5">
+          <div className="max-w-6xl mx-auto px-6 py-20">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div
+                    className="font-black text-white mb-2 leading-none"
+                    style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
+                    data-count={stat.count}
+                    data-suffix={stat.suffix}
+                  >
+                    {stat.count}{stat.suffix}
+                  </div>
+                  <div className="text-gray-600 text-xs sm:text-sm font-medium tracking-widest uppercase">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-9 sm:py-12 md:py-14 overflow-hidden bg-black">
+        <div className="text-center mb-6 sm:mb-8 px-4">
+          <h2 className="font-black text-white" style={{ fontSize: 'clamp(1.4rem, 4.2vw, 2.4rem)' }}>
+            Trusted by <span className="text-gray-500">Industry Leaders</span>
+          </h2>
+          <p className="text-gray-600 mt-2 sm:mt-2.5 text-[10px] sm:text-xs md:text-sm">Join hundreds of brands that have partnered with us</p>
+        </div>
+        <div className="relative overflow-hidden mb-4">
+          <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-black to-transparent z-10" />
+          <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-black to-transparent z-10" />
+          <div ref={clientsMarqueeRef} className="flex whitespace-nowrap will-change-transform">
+            {[...clients, ...clients, ...clients].map((client, index) => (
+              <div key={index} className="mx-4 sm:mx-6 text-xs sm:text-base md:text-xl font-black text-white/10 hover:text-white/25 transition-colors flex-shrink-0 cursor-default">{client}</div>
+            ))}
+          </div>
+        </div>
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-black to-transparent z-10" />
+          <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-black to-transparent z-10" />
+          <div className="flex whitespace-nowrap animate-marquee-reverse will-change-transform">
+            {[...clients, ...clients, ...clients].map((client, index) => (
+              <div key={index} className="mx-4 sm:mx-6 text-[10px] sm:text-xs md:text-sm font-bold text-white/5 hover:text-white/15 transition-colors flex-shrink-0 cursor-default">{client}</div>
             ))}
           </div>
         </div>
       </section>
 
-      <section ref={statsRef} className="py-14 sm:py-18 md:py-22 bg-white">
+      <section ref={statsRef} className="py-14 sm:py-18 md:py-22 bg-black">
         <div className="container-custom">
           <div className="text-center mb-7 sm:mb-10 md:mb-12">
-            <h2 className="font-black text-gray-900" style={{ fontSize: 'clamp(1.5rem, 4.6vw, 2.7rem)' }}>
-              Numbers That <span className="text-gray-800">Speak</span>
+            <h2 className="font-black text-white" style={{ fontSize: 'clamp(1.5rem, 4.6vw, 2.7rem)' }}>
+              Numbers That <span className="text-gray-500">Speak</span>
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
             {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="stat-item text-center p-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-xl sm:rounded-2xl md:rounded-3xl hover:border-gray-800 transition-all group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-100/0 to-gray-100/0 group-hover:from-gray-100 group-hover:to-gray-100 transition-all duration-500" />
-                <div className="text-lg sm:text-xl md:text-2xl text-gray-800 mb-2 sm:mb-3 flex justify-center group-hover:scale-125 transition-transform duration-300 relative z-10">
-                  {stat.icon}
-                </div>
-                <div
-                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-0.5 sm:mb-1.5 relative z-10"
-                  data-count={stat.count}
-                  data-suffix={stat.suffix}
-                >
-                  {stat.count}
-                  {stat.suffix}
+              <div key={index} className="stat-item text-center p-4 sm:p-6 md:p-8 bg-white/2 border border-white/6 rounded-xl sm:rounded-2xl md:rounded-3xl hover:border-white/15 transition-all group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-xl" style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
+                <div className="text-lg sm:text-xl md:text-2xl text-white/30 mb-2 sm:mb-3 flex justify-center group-hover:scale-125 transition-transform duration-300 relative z-10">{stat.icon}</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-0.5 sm:mb-1.5 relative z-10" data-count={stat.count} data-suffix={stat.suffix}>
+                  {stat.count}{stat.suffix}
                 </div>
                 <div className="text-gray-600 text-[9px] sm:text-xs md:text-sm relative z-10">{stat.label}</div>
               </div>
@@ -1249,44 +871,36 @@ function Home() {
         </div>
       </section>
 
-      <section ref={ctaRef} className="py-14 sm:py-18 md:py-22 bg-white">
+      <section ref={ctaRef} className="py-14 sm:py-18 md:py-22 bg-black">
         <div className="container-custom px-3 sm:px-4 md:px-6">
-          <div className="cta-content relative p-7 sm:p-12 md:p-16 lg:p-20 rounded-2xl sm:rounded-3xl overflow-hidden bg-gray-900">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black" />
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.2) 0%, transparent 50%)',
-              }}
-            />
-            <div className="absolute top-0 left-0 right-0 h-px bg-white/20" />
-            <div className="relative z-10 text-center text-white">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-white/10 rounded-full text-[10px] sm:text-xs md:text-sm mb-4 sm:mb-6 md:mb-7 backdrop-blur-sm">
-                <FiGlobe />
-                Ready when you are
+          <div className="cta-content relative overflow-hidden rounded-2xl sm:rounded-3xl">
+            <div className="absolute inset-0">
+              <img
+                src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1800&q=90"
+                alt="CTA"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/72" />
+              <div className="absolute inset-0 backdrop-blur-[1px]" />
+            </div>
+            <div className="absolute top-0 left-0 right-0 h-px bg-white/8" />
+            <div className="relative z-10 text-center text-white p-7 sm:p-12 md:p-16 lg:p-20">
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-white/8 rounded-full text-[10px] sm:text-xs md:text-sm mb-4 sm:mb-6 md:mb-7 backdrop-blur-sm border border-white/8">
+                <FiGlobe className="text-white/60" />
+                <span className="text-white/60">Ready when you are</span>
               </div>
-              <h2
-                className="font-black mb-3 sm:mb-4 md:mb-5 leading-tight drop-shadow-lg text-white"
-                style={{ fontSize: 'clamp(1.8rem, 5.4vw, 3rem)' }}
-              >
+              <h2 className="font-black mb-3 sm:mb-4 md:mb-5 leading-tight text-white" style={{ fontSize: 'clamp(1.8rem, 5.4vw, 3rem)' }}>
                 Ready to Ride the Wave?
               </h2>
-              <p className="text-xs sm:text-sm md:text-lg mb-6 sm:mb-8 md:mb-9 max-w-xl md:max-w-2xl mx-auto opacity-90 leading-relaxed text-gray-300">
+              <p className="text-xs sm:text-sm md:text-lg mb-6 sm:mb-8 md:mb-9 max-w-xl md:max-w-2xl mx-auto text-white/50 leading-relaxed">
                 Let's create something amazing together and take your brand to new heights. Our team is ready to transform your digital presence.
               </p>
               <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center">
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-9 py-3 sm:py-3.5 md:py-4 bg-white text-gray-900 rounded-full font-black hover:shadow-[0_0_42px_rgba(255,255,255,0.3)] transition-all group text-xs sm:text-sm md:text-base"
-                >
+                <Link to="/contact" className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-9 py-3 sm:py-3.5 md:py-4 bg-white text-black rounded-full font-black hover:shadow-[0_0_42px_rgba(255,255,255,0.15)] transition-all group text-xs sm:text-sm md:text-base">
                   <span>Start Your Project</span>
                   <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
                 </Link>
-                <Link
-                  to="/works"
-                  className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-9 py-3 sm:py-3.5 md:py-4 border-2 border-white/60 rounded-full font-bold hover:bg-white/15 hover:border-white transition-all text-xs sm:text-sm md:text-base backdrop-blur-sm text-white"
-                >
+                <Link to="/works" className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-9 py-3 sm:py-3.5 md:py-4 border border-white/20 rounded-full font-bold hover:bg-white/8 hover:border-white/35 transition-all text-xs sm:text-sm md:text-base backdrop-blur-sm text-white">
                   View Portfolio
                 </Link>
               </div>
@@ -1296,35 +910,53 @@ function Home() {
       </section>
 
       <style jsx>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        .services-grid-dark {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          grid-template-rows: auto auto;
+          gap: 12px;
         }
-        .animate-marquee {
-          animation: marquee 20s linear infinite;
+        .services-grid-dark .service-card-new:nth-child(1) {
+          min-height: 380px;
+        }
+        .services-grid-dark .service-card-new:nth-child(2) {
+          min-height: 380px;
+        }
+        .services-grid-dark .service-card-new:nth-child(3) {
+          min-height: 380px;
+        }
+        .services-grid-dark .service-card-new:nth-child(4) {
+          grid-column: span 1;
+          min-height: 300px;
+        }
+        .services-grid-dark .service-card-new:nth-child(5) {
+          grid-column: span 1;
+          min-height: 300px;
+        }
+        @media (min-width: 1024px) {
+          .services-grid-dark {
+            gap: 16px;
+          }
+          .services-grid-dark .service-card-new:nth-child(1),
+          .services-grid-dark .service-card-new:nth-child(2),
+          .services-grid-dark .service-card-new:nth-child(3) {
+            min-height: 420px;
+          }
+          .services-grid-dark .service-card-new:nth-child(4),
+          .services-grid-dark .service-card-new:nth-child(5) {
+            min-height: 340px;
+          }
+        }
+        @keyframes marqueeRev {
+          0% { transform: translateX(-33.333%); }
+          100% { transform: translateX(0%); }
         }
         .animate-marquee-reverse {
-          animation: marquee 18s linear infinite reverse;
+          animation: marqueeRev 18s linear infinite;
         }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .cursor-grab {
-          cursor: grab;
-        }
-        .cursor-grabbing {
-          cursor: grabbing;
-        }
-        .will-change-transform {
-          will-change: transform;
-        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .will-change-transform { will-change: transform; }
       `}</style>
     </div>
   );
