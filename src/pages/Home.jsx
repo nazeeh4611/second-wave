@@ -52,11 +52,8 @@ function Home() {
   const ctaRef = useRef(null);
   const textRef = useRef(null);
   const clientsMarqueeRef = useRef(null);
-  const mobileSliderRef = useRef(null);
+  const servicesSliderRef = useRef(null);
   const containerRef = useRef(null);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollLeftRef = useRef(0);
   const sectionRef = useRef(null);
   const servicesSectionRef = useRef(null);
   const stickyWrapRef = useRef(null);
@@ -67,7 +64,48 @@ function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeServiceSlide, setActiveServiceSlide] = useState(0);
-  const [activeStickySlide, setActiveStickySlide] = useState(0);
+
+  const services = useMemo(() => [
+    {
+      title: "Marketing & Advertising",
+      description: "Grow your brand with data-driven marketing strategies and powerful advertising campaigns that attract, engage, and convert your ideal audience.",
+      image: "/mark.png",
+      link: "/production"
+    },
+    {
+      title: "Branding",
+      description: "We craft powerful brand identities that connect emotionally with your audience and position your business for long-term success.",
+      image: "/bran.png",
+      link: "/branding"
+    },
+    {
+      title: "Web Development",
+      description: "We design and develop high-performance, scalable websites tailored to your business goals and user experience.",
+      image: "/webd.png",
+      link: "/web-development"
+    },
+    {
+      title: "Social Media Marketing",
+      description: "Build strong online communities and grow your brand presence with strategic content and engagement campaigns.",
+      image: "/social.png",
+      link: "/social-media-marketing"
+    },
+    {
+      title: "All Services",
+      description: ".",
+      image: "/all.png",
+      link: "/services"
+    },
+  ], []);
+
+  const clients = useMemo(() => ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Spotify', 'Adobe', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Tesla', 'SpaceX', 'Uber', 'Airbnb', 'Shopify', 'Slack'], []);
+
+  const stats = useMemo(() => [
+    { count: 710, suffix: '', label: 'Satisfied Customers', icon: <FiAward /> },
+    { count: 125, suffix: '+', label: 'Successful Partnerships', icon: <FiHeart /> },
+    { count: 9, suffix: '+', label: 'Years Experience', icon: <FiStar /> },
+    { count: 720, suffix: '', label: 'Completed Projects', icon: <FiTarget /> },
+  ], []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -134,7 +172,7 @@ function Home() {
           animation: tl,
           onUpdate: (self) => {
             const rawIdx = self.progress * (totalSlides - 1);
-            setActiveStickySlide(Math.min(Math.round(rawIdx), totalSlides - 1));
+            setActiveSection(Math.min(Math.round(rawIdx), totalSlides - 1));
           },
         });
       }, wrap);
@@ -189,13 +227,6 @@ function Home() {
             scrollTrigger: { trigger: textRef.current, start: 'top 74%', toggleActions: 'play none none reverse' },
           }
         );
-        gsap.fromTo('.service-card-new',
-          { y: 80, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 0.8, stagger: 0.07, ease: 'power3.out',
-            scrollTrigger: { trigger: servicesSectionRef.current, start: 'top 78%', toggleActions: 'play none none reverse' },
-          }
-        );
         gsap.fromTo('.stat-item',
           { y: 60, opacity: 0, scale: 0.85, rotateX: 8 },
           {
@@ -245,136 +276,53 @@ function Home() {
     };
   }, [isLoading, isMobile]);
 
-  const scrollToSlide = useCallback((index) => {
-    if (mobileSliderRef.current) {
-      mobileSliderRef.current.scrollTo({ left: index * mobileSliderRef.current.offsetWidth, behavior: 'smooth' });
-      setActiveSection(index);
+  const handleServiceScroll = useCallback(() => {
+    const container = servicesSliderRef.current;
+    if (!container) return;
+  
+    const children = Array.from(container.children);
+  
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+  
+    children.forEach((child, index) => {
+      const distance = Math.abs(
+        child.offsetLeft - container.scrollLeft
+      );
+  
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+  
+    if (closestIndex !== activeServiceSlide) {
+      setActiveServiceSlide(closestIndex);
     }
-  }, []);
-
-  const handleScroll = useCallback(() => {
-    if (mobileSliderRef.current) {
-      const sl = mobileSliderRef.current.scrollLeft;
-      const width = mobileSliderRef.current.offsetWidth;
-      const index = Math.round(sl / width);
-      if (index !== activeSection) setActiveSection(index);
-    }
-  }, [activeSection]);
-
-  const handleMouseDown = useCallback((e) => {
-    if (!mobileSliderRef.current) return;
-    isDragging.current = true;
-    startX.current = e.pageX - mobileSliderRef.current.offsetLeft;
-    scrollLeftRef.current = mobileSliderRef.current.scrollLeft;
-    mobileSliderRef.current.style.cursor = 'grabbing';
-    mobileSliderRef.current.style.scrollSnapType = 'none';
-  }, []);
-
-  const handleMouseMove = useCallback((e) => {
-    if (!isDragging.current || !mobileSliderRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - mobileSliderRef.current.offsetLeft;
-    mobileSliderRef.current.scrollLeft = scrollLeftRef.current - (x - startX.current) * 1.5;
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    if (!mobileSliderRef.current) return;
-    isDragging.current = false;
-    mobileSliderRef.current.style.cursor = 'grab';
-    mobileSliderRef.current.style.scrollSnapType = 'x mandatory';
-    scrollToSlide(Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth));
-  }, [scrollToSlide]);
-
-  const handleTouchStart = useCallback((e) => {
-    if (!mobileSliderRef.current) return;
-    isDragging.current = true;
-    startX.current = e.touches[0].pageX - mobileSliderRef.current.offsetLeft;
-    scrollLeftRef.current = mobileSliderRef.current.scrollLeft;
-    mobileSliderRef.current.style.scrollSnapType = 'none';
-  }, []);
-
-  const handleTouchMove = useCallback((e) => {
-    if (!isDragging.current || !mobileSliderRef.current) return;
-    e.preventDefault();
-    const x = e.touches[0].pageX - mobileSliderRef.current.offsetLeft;
-    mobileSliderRef.current.scrollLeft = scrollLeftRef.current - (x - startX.current) * 1.5;
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (!mobileSliderRef.current) return;
-    isDragging.current = false;
-    mobileSliderRef.current.style.scrollSnapType = 'x mandatory';
-    scrollToSlide(Math.round(mobileSliderRef.current.scrollLeft / mobileSliderRef.current.offsetWidth));
-  }, [scrollToSlide]);
+  }, [activeServiceSlide]);
 
   useEffect(() => {
-    const slider = mobileSliderRef.current;
+    const slider = servicesSliderRef.current;
     if (!slider) return;
-    slider.addEventListener('scroll', handleScroll, { passive: true });
-    slider.addEventListener('mousedown', handleMouseDown);
-    slider.addEventListener('mousemove', handleMouseMove);
-    slider.addEventListener('mouseup', handleMouseUp);
-    slider.addEventListener('mouseleave', handleMouseUp);
-    slider.addEventListener('touchstart', handleTouchStart, { passive: false });
-    slider.addEventListener('touchmove', handleTouchMove, { passive: false });
-    slider.addEventListener('touchend', handleTouchEnd);
+  
+    slider.addEventListener('scroll', handleServiceScroll, { passive: true });
+  
     return () => {
-      slider.removeEventListener('scroll', handleScroll);
-      slider.removeEventListener('mousedown', handleMouseDown);
-      slider.removeEventListener('mousemove', handleMouseMove);
-      slider.removeEventListener('mouseup', handleMouseUp);
-      slider.removeEventListener('mouseleave', handleMouseUp);
-      slider.removeEventListener('touchstart', handleTouchStart);
-      slider.removeEventListener('touchmove', handleTouchMove);
-      slider.removeEventListener('touchend', handleTouchEnd);
+      slider.removeEventListener('scroll', handleServiceScroll);
     };
-  }, [handleScroll, handleMouseDown, handleMouseMove, handleMouseUp, handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [handleServiceScroll]);
+
+  const scrollToServiceSlide = useCallback((index) => {
+    if (servicesSliderRef.current) {
+      const cardWidth = servicesSliderRef.current.offsetWidth * (window.innerWidth < 640 ? 0.85 : window.innerWidth < 1024 ? 0.7 : 0.6);
+      servicesSliderRef.current.scrollTo({
+        left: index * cardWidth,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
 
   const heroChars = useMemo(() => ['S', 'e', 'c', 'o', 'n', 'd', '\u00A0', 'W', 'a', 'v', 'e', '.'], []);
-
-  const services = useMemo(() => [
-    {
-      title: "Marketing & Advertising",
-      description: "Grow your brand with data-driven marketing strategies and powerful advertising campaigns that attract, engage, and convert your ideal audience.",
-      image: "/mark.png",
-      link: "/production"
-    },
-    {
-      title: "Branding",
-      description: "We craft powerful brand identities that connect emotionally with your audience and position your business for long-term success.",
-      image: "/bran.png",
-      link: "/branding"
-    },
-
-    {
-      title: "Web Development",
-      description: "We design and develop high-performance, scalable websites tailored to your business goals and user experience.",
-      image: "/webd.png",
-      link: "/web-development"
-    },
-    {
-      title: "Social Media Marketing",
-      description: "Build strong online communities and grow your brand presence with strategic content and engagement campaigns.",
-      image: "/social.png",
-      link: "/social-media-marketing"
-    },
-    {
-      title: "All Services",
-      description: ".",
-      image: "/all.png",
-      link: "/services"
-    },
-    
-  ], []);
-
-  const clients = useMemo(() => ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Spotify', 'Adobe', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Tesla', 'SpaceX', 'Uber', 'Airbnb', 'Shopify', 'Slack'], []);
-
-  const stats = useMemo(() => [
-    { count: 710, suffix: '', label: 'Satisfied Customers', icon: <FiAward /> },
-    { count: 125, suffix: '+', label: 'Successful Partnerships', icon: <FiHeart /> },
-    { count: 9, suffix: '+', label: 'Years Experience', icon: <FiStar /> },
-    { count: 720, suffix: '', label: 'Completed Projects', icon: <FiTarget /> },
-  ], []);
 
   if (isLoading) {
     return (
@@ -386,9 +334,8 @@ function Home() {
 
   return (
     <div ref={containerRef} className="relative overflow-x-hidden bg-black pt-20">
-
       <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-black">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 bg-white">
           <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
         </div>
         <div className="absolute inset-0 bg-black/40 lg:bg-black/20 z-10 pointer-events-none" />
@@ -467,248 +414,175 @@ function Home() {
         </div>
       </section>
 
-      <section ref={servicesSectionRef} className="py-16 sm:py-24 relative overflow-hidden" style={{backgroundColor: '#ffff'}}>
-  <div style={{maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1rem', paddingRight: '1rem'}} className="sm:px-6 lg:px-8">
-    <div style={{textAlign: 'center', marginBottom: '2.5rem'}} className="md:mb-14">
-      <span style={{display: 'inline-block', fontSize: '12px', fontWeight: '700', letterSpacing: '0.3em', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '0.75rem'}} className="sm:text-sm">WHAT WE DO</span>
-      <h2 style={{fontWeight: '900', color: '#111111', fontSize: '2.25rem', lineHeight: '1.2'}} className="sm:text-5xl md:text-6xl lg:text-7xl">
-        <span style={{color: '#111111'}}>Our</span>{' '}
-        <span style={{color: '#6B7280'}}>Services</span>
-      </h2>
-      <p style={{color: '#4b5563', marginTop: '1.25rem', maxWidth: '48rem', marginLeft: 'auto', marginRight: 'auto', fontSize: '1rem', lineHeight: '1.5', paddingLeft: '1rem', paddingRight: '1rem'}} className="sm:text-lg">
-        Comprehensive digital solutions tailored to your brand's unique needs
-      </p>
-    </div>
+      <section ref={servicesSectionRef} className="py-16 sm:py-24 relative overflow-hidden bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 md:mb-14">
+            <span className="inline-block text-xs sm:text-sm font-bold tracking-[0.3em] text-gray-400 uppercase mb-3">WHAT WE DO</span>
+            <h2 className="font-black text-gray-900 text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+              <span className="text-gray-900">Our</span>{' '}
+              <span className="text-gray-500">Services</span>
+            </h2>
+            <p className="text-gray-600 mt-5 max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-4">
+              Comprehensive digital solutions tailored to your brand's unique needs
+            </p>
+          </div>
 
-    {/* Desktop Grid */}
-    <div className="hidden md:block">
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem'}}>
-        <div style={{display: 'flex', justifyContent: 'center', gap: '1.5rem'}}>
-          {services.slice(0, 3).map((service, index) => (
-            <Link
-              to={service.link}
-              key={index}
-              className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
-              style={{
-                boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
-              }}
-            >
-              <img
-                src={service.image}
-                alt={service.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/10" />
-              <div
-                className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
-                style={{
-                  background: "rgba(255,255,255,0.25)",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)"
-                }}
-              >
-                <span className="text-white text-2xl tracking-wide font-light">
-                  {service.title}
-                </span>
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center"
-                  style={{
-                    background: "rgba(255,255,255,0.25)"
-                  }}
-                >
-                  <FiArrowUpRight className="text-white text-xl" />
+          {!isMobile ? (
+            <div className="hidden lg:block">
+              <div className="flex flex-col items-center gap-6">
+                <div className="flex justify-center gap-6">
+                  {services.slice(0, 3).map((service, index) => (
+                    <Link
+                      to={service.link}
+                      key={index}
+                      className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
+                    >
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/10" />
+                      <div
+                        className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
+                        style={{
+                          background: "rgba(255,255,255,0.25)",
+                          backdropFilter: "blur(20px)",
+                          WebkitBackdropFilter: "blur(20px)"
+                        }}
+                      >
+                        <span className="text-white text-2xl tracking-wide font-light">
+                          {service.title}
+                        </span>
+                        <div
+                          className="w-14 h-14 rounded-full flex items-center justify-center"
+                          style={{
+                            background: "rgba(255,255,255,0.25)"
+                          }}
+                        >
+                          <FiArrowUpRight className="text-white text-xl" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <div className="flex justify-center gap-6">
+                  {services.slice(3, 5).map((service, index) => (
+                    <Link
+                      to={service.link}
+                      key={index}
+                      className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
+                    >
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/10" />
+                      <div
+                        className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
+                        style={{
+                          background: "rgba(255,255,255,0.25)",
+                          backdropFilter: "blur(20px)",
+                          WebkitBackdropFilter: "blur(20px)"
+                        }}
+                      >
+                        <span className="text-white text-2xl tracking-wide font-light">
+                          {service.title}
+                        </span>
+                        <div
+                          className="w-14 h-14 rounded-full flex items-center justify-center"
+                          style={{
+                            background: "rgba(255,255,255,0.25)"
+                          }}
+                        >
+                          <FiArrowUpRight className="text-white text-xl" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
-            </Link>
-          ))}
-        </div>
-
-        <div style={{display: 'flex', justifyContent: 'center', gap: '1.5rem'}}>
-          {services.slice(3, 5).map((service, index) => (
-            <Link
-              to={service.link}
-              key={index}
-              className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
-              style={{
-                boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
-              }}
-            >
-              <img
-                src={service.image}
-                alt={service.title}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/10" />
-              <div
-                className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
-                style={{
-                  background: "rgba(255,255,255,0.25)",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)"
-                }}
-              >
-                <span className="text-white text-2xl tracking-wide font-light">
-                  {service.title}
-                </span>
+            </div>
+          ) : (
+            <div className="lg:hidden">
+              <div className="relative">
                 <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center"
+                  ref={servicesSliderRef}
+                  className="flex overflow-x-auto gap-4 sm:gap-6 pb-8 px-4 scrollbar-hide"
                   style={{
-                    background: "rgba(255,255,255,0.25)"
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
                   }}
                 >
-                  <FiArrowUpRight className="text-white text-xl" />
+                  {services.map((service, index) => (
+                    <Link
+                      key={index}
+                      to={service.link}
+                      className="flex-shrink-0 w-[85vw] sm:w-[70vw] snap-start"
+                    >
+                      <div
+                        className="group relative w-full h-[400px] sm:h-[440px] rounded-[24px] sm:rounded-[30px] overflow-hidden cursor-pointer"
+                      >
+                        <img
+                          src={service.image}
+                          alt={service.title}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/10" />
+                        <div
+                          className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 rounded-[20px] sm:rounded-[24px]"
+                          style={{
+                            background: "rgba(255,255,255,0.25)",
+                            backdropFilter: "blur(20px)",
+                            WebkitBackdropFilter: "blur(20px)"
+                          }}
+                        >
+                          <span className="text-white text-lg sm:text-xl md:text-2xl tracking-wide font-light line-clamp-1 pr-2">
+                            {service.title}
+                          </span>
+                          <div
+                            className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{
+                              background: "rgba(255,255,255,0.25)"
+                            }}
+                          >
+                            <FiArrowUpRight className="text-white text-base sm:text-lg md:text-xl" />
+                          </div>
+                        </div>
+                        {index === services.length - 1 && (
+                          <div className="absolute bottom-4 left-4 right-4 text-center">
+                            <span className="text-white/80 text-xs sm:text-sm bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                              View all services →
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <div className="flex justify-center gap-1.5 sm:gap-2 mt-4">
+                  {/* {services.map((_, i) => (
+                    // <button
+                    //   key={i}
+                    //   onClick={() => scrollToServiceSlide(i)}
+                    //   className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
+                    //     i === activeServiceSlide
+                    //       ? 'w-6 sm:w-8 bg-black'
+                    //       : 'w-1.5 sm:w-2 bg-gray-300'
+                    //   }`}
+                    //   aria-label={`Go to slide ${i + 1}`}
+                    // />
+                  ))} */}
                 </div>
               </div>
-            </Link>
-          ))}
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      </section>
 
-    {/* Mobile Horizontal Slider - Responsive Cards */}
-    <div className="md:hidden">
-      <div className="relative">
-        {/* Horizontal Scroll Container - Removed gradient overlays */}
-        <div
-          ref={mobileSliderRef}
-          className="flex overflow-x-auto gap-3 sm:gap-4 pb-8 px-4 scrollbar-hide"
-          style={{
-            scrollSnapType: 'x mandatory',
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
-          onScroll={(e) => {
-            const container = e.currentTarget;
-            const scrollPosition = container.scrollLeft;
-            const cardWidth = container.offsetWidth * 0.75;
-            const newIndex = Math.round(scrollPosition / cardWidth);
-            if (newIndex !== activeServiceSlide && newIndex >= 0 && newIndex < services.length) {
-              setActiveServiceSlide(newIndex);
-            }
-          }}
-        >
-          {services.map((service, index) => (
-            <Link
-              key={index}
-              to={service.link}
-              className="flex-shrink-0 w-[75vw] sm:w-[70vw] snap-start"
-            >
-              <div
-                className="group relative w-full h-[400px] xs:h-[420px] sm:h-[440px] rounded-[24px] sm:rounded-[30px] overflow-hidden cursor-pointer"
-                style={{
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
-                }}
-              >
-                <img
-                  src={service.image}
-                  alt={service.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/10" />
-                
-                {/* Glass Top Bar - Responsive sizing */}
-                <div
-                  className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 rounded-[20px] sm:rounded-[24px]"
-                  style={{
-                    background: "rgba(255,255,255,0.25)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)"
-                  }}
-                >
-                  <span className="text-white text-lg sm:text-xl md:text-2xl tracking-wide font-light line-clamp-1 pr-2">
-                    {service.title}
-                  </span>
-                  <div
-                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: "rgba(255,255,255,0.25)"
-                    }}
-                  >
-                    <FiArrowUpRight className="text-white text-base sm:text-lg md:text-xl" />
-                  </div>
-                </div>
-
-                {/* Optional: Add a small description or indicator for "All Services" card */}
-                {index === services.length - 1 && (
-                  <div className="absolute bottom-4 left-4 right-4 text-center">
-                    <span className="text-white/80 text-xs sm:text-sm bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                      View all services →
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Pagination Dots - Responsive sizing */}
-        <div className="flex justify-center gap-1.5 sm:gap-2 mt-2">
-          {services.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                if (mobileSliderRef.current) {
-                  const cardWidth = mobileSliderRef.current.offsetWidth * 0.75;
-                  mobileSliderRef.current.scrollTo({
-                    left: i * cardWidth,
-                    behavior: 'smooth'
-                  });
-                }
-              }}
-              className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                i === activeServiceSlide 
-                  ? 'w-6 sm:w-8 bg-black' 
-                  : 'w-1.5 sm:w-2 bg-gray-300'
-              }`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <style>{`
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    .line-clamp-1 {
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-    }
-    
-    /* Extra small devices (phones, 360px and down) */
-    @media (max-width: 360px) {
-      .w-\\[75vw\\] {
-        width: 85vw;
-      }
-      .h-\\[400px\\] {
-        height: 380px;
-      }
-    }
-    
-    /* Small devices (phones, 361px to 480px) */
-    @media (min-width: 361px) and (max-width: 480px) {
-      .xs\\:h-\\[420px\\] {
-        height: 420px;
-      }
-    }
-    
-    /* Medium devices (tablets, 481px to 767px) */
-    @media (min-width: 481px) and (max-width: 767px) {
-      .w-\\[75vw\\] {
-        width: 70vw;
-      }
-    }
-  `}</style>
-</section>
       <div
         ref={stickyWrapRef}
         className="hidden lg:block relative overflow-hidden"
@@ -729,7 +603,6 @@ function Home() {
               <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
             </div>
-
             <div className="absolute inset-0 flex items-end z-10 pb-20 px-16">
               <div className="max-w-2xl">
                 <div className="mb-4 flex items-center gap-5">
@@ -750,28 +623,26 @@ function Home() {
                 </Link>
               </div>
             </div>
-
             <div className="absolute top-10 right-16 z-10 flex flex-col items-end gap-3">
               <div className="flex gap-2 items-center">
                 {STICKY_SLIDES.map((_, i) => (
                   <div
                     key={i}
                     className="h-px rounded-full bg-white transition-all duration-500"
-                    style={{ width: i === activeStickySlide ? '40px' : '12px', opacity: i === activeStickySlide ? 1 : 0.2 }}
+                    style={{ width: i === activeSection ? '40px' : '12px', opacity: i === activeSection ? 1 : 0.2 }}
                   />
                 ))}
               </div>
-              <span className="text-white/25 text-xs tracking-widest">{activeStickySlide + 1} / {STICKY_SLIDES.length}</span>
+              <span className="text-white/25 text-xs tracking-widest">{activeSection + 1} / {STICKY_SLIDES.length}</span>
             </div>
           </div>
         ))}
-
         <div className="absolute right-8 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2.5">
           {STICKY_SLIDES.map((_, i) => (
             <div
               key={i}
               className="w-1 rounded-full bg-white transition-all duration-500"
-              style={{ height: i === activeStickySlide ? '32px' : '6px', opacity: i === activeStickySlide ? 1 : 0.15 }}
+              style={{ height: i === activeSection ? '32px' : '6px', opacity: i === activeSection ? 1 : 0.15 }}
             />
           ))}
         </div>
@@ -779,7 +650,7 @@ function Home() {
 
       <div className="lg:hidden">
         <div
-          ref={mobileSliderRef}
+          ref={servicesSliderRef}
           className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', height: 'calc(100vh - 80px)' }}
         >
@@ -822,7 +693,6 @@ function Home() {
           </video>
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/40" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
-
           <div className="absolute inset-0 flex items-center z-10 px-8 sm:px-16">
             <div className="video-section-content max-w-3xl">
               <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.4em] text-white/35 uppercase mb-4 border border-white/8 px-3 py-1 rounded-full backdrop-blur-sm">
@@ -849,7 +719,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         <div className="relative z-10 bg-black border-t border-white/5">
           <div className="max-w-6xl mx-auto px-6 py-20">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">

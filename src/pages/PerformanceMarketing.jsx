@@ -11,8 +11,9 @@ import {
   FiZap,
   FiAward,
   FiFacebook,
-  FiGoogle
+
 } from 'react-icons/fi';
+import { SiGoogle } from "react-icons/si";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -94,7 +95,7 @@ function PerformanceMarketing() {
       features: ['Facebook Ads', 'Instagram Ads', 'Retargeting', 'Lookalike Audiences']
     },
     { 
-      icon: <FiGoogle />, 
+      icon: <SiGoogle />, 
       title: 'Google Ads', 
       desc: 'Search & Display advertising that captures intent',
       features: ['Search Ads', 'Display Network', 'YouTube Ads', 'Shopping Ads']
