@@ -1,8 +1,15 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
+
+// User Pages
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Works from './pages/Works';
@@ -15,14 +22,15 @@ import Creative from './pages/Creative';
 import Production from './pages/Production';
 import DigitalPR from './pages/DigitalPR';
 import Contact from './pages/Contact';
-import Admin from './pages/Admin';
-import ScrollToTop from './components/ScrollToTop';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
+// Admin Pages
+import AdminLogin from './pages/admin/Login';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminWorkForm from './pages/admin/WorkForm';
+import ProtectedRoute from './pages/admin/ProtectedRoute';
 
 function App() {
   useEffect(() => {
-    // Override the smooth scroll behavior from CSS
     const style = document.createElement('style');
     style.innerHTML = `
       body {
@@ -48,7 +56,6 @@ function App() {
   
     requestAnimationFrame(raf);
     
-    // Force scroll to top on initial load
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -67,25 +74,44 @@ function App() {
     <Router>
       <ScrollToTop />
       <div className="relative bg-[#0A0A0A] min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/works" element={<Works />} />
-            <Route path="/branding" element={<Branding />} />
-            <Route path="/seo" element={<SEO />} />
-            <Route path="/web-development" element={<WebDevelopment />} />
-            <Route path="/performance-marketing" element={<PerformanceMarketing />} />
-            <Route path="/social-media-marketing" element={<SocialMediaMarketing />} />
-            <Route path="/creative" element={<Creative />} />
-            <Route path="/production" element={<Production />} />
-            <Route path="/digital-pr" element={<DigitalPR />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
-        </main>
-        <Footer />
+        <Routes>
+          {/* Public Routes with Navbar and Footer */}
+          <Route
+            path="/*"
+            element={
+              <>
+                <Navbar />
+                <main className="flex-grow">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/services" element={<Services />} />
+                    <Route path="/works" element={<Works />} />
+                    <Route path="/branding" element={<Branding />} />
+                    <Route path="/seo" element={<SEO />} />
+                    <Route path="/web-development" element={<WebDevelopment />} />
+                    <Route path="/performance-marketing" element={<PerformanceMarketing />} />
+                    <Route path="/social-media-marketing" element={<SocialMediaMarketing />} />
+                    <Route path="/creative" element={<Creative />} />
+                    <Route path="/production" element={<Production />} />
+                    <Route path="/digital-pr" element={<DigitalPR />} />
+                    <Route path="/contact" element={<Contact />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </>
+            }
+          />
+
+          {/* Admin Routes - No Navbar/Footer */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          
+          <Route path="/admin" element={<ProtectedRoute />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="works/new" element={<AdminWorkForm />} />
+            <Route path="works/:id" element={<AdminWorkForm />} />
+          </Route>
+        </Routes>
+        
         <ToastContainer position="bottom-right" theme="dark" />
       </div>
     </Router>
