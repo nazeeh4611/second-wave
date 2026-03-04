@@ -340,44 +340,37 @@ function Home() {
         </div>
         <div className="absolute inset-0 bg-black/40 lg:bg-black/20 z-10 pointer-events-none" />
         <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
-          <div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white/5 border border-white/10 rounded-full text-[10px] sm:text-xs md:text-sm text-gray-400 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            Award-Winning Digital Agency
-            <FiZap className="text-white" />
-          </div>
-          <div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
-            <h1 className="font-black leading-none tracking-tight text-white" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
-              {heroChars.map((char, i) => (
-                <span key={i} className="hero-char inline-block text-white" style={{ display: 'inline-block' }}>{char}</span>
-              ))}
-            </h1>
-          </div>
-          <p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-gray-500 mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
-            Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center mb-7 sm:mb-10 md:mb-12">
-            <Link to="/services" className="hero-cta-btn group relative px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 bg-white text-black rounded-full text-xs sm:text-sm md:text-base font-bold overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.25)] transition-all duration-300">
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Explore Services <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-            <Link to="/works" className="hero-cta-btn group px-5 sm:px-7 md:px-9 py-2.5 sm:py-3.5 md:py-4 border border-white/15 rounded-full text-xs sm:text-sm md:text-base font-semibold text-white hover:border-white/40 hover:bg-white/5 transition-all backdrop-blur-sm flex items-center justify-center gap-2">
-              View Portfolio <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-            </Link>
-          </div>
-          <div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
-            {[['500+', 'Projects'], ['200+', 'Clients'], ['10+', 'Years']].map(([num, label], i) => (
-              <div key={i} className="hero-stat text-center">
-                <div className="text-lg sm:text-2xl md:text-3xl font-black text-white">{num}</div>
-                <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{label}</div>
-              </div>
-            ))}
-          </div>
+      {/* Replace the badge, subtitle, and stats sections with these updated versions */}
+
+<div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white border border-black/10 rounded-full text-[10px] sm:text-xs md:text-sm text-black">
+  <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+  Award-Winning Digital Agency
+  <FiZap className="text-black" />
+</div>
+
+{/* Keep the Second Wave heading white - no changes needed */}
+<div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
+  <h1 className="font-black leading-none tracking-tight text-white" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
+    {heroChars.map((char, i) => (
+      <span key={i} className="hero-char inline-block text-white" style={{ display: 'inline-block' }}>{char}</span>
+    ))}
+  </h1>
+</div>
+
+<p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-black mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
+  Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
+</p>
+
+<div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
+  {[['500+', 'Projects'], ['200+', 'Clients'], ['10+', 'Years']].map(([num, label], i) => (
+    <div key={i} className="hero-stat text-center">
+      <div className="text-lg sm:text-2xl md:text-3xl font-black text-black">{num}</div>
+      <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{label}</div>
+    </div>
+  ))}
+</div>
         </div>
-        <div className="absolute bottom-4 sm:bottom-7 md:bottom-9 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 sm:gap-2">
-          <span className="text-[9px] sm:text-[10px] md:text-xs text-gray-700 tracking-[0.3em] uppercase">SCROLL</span>
-          <div className="scroll-line w-px h-10 sm:h-12 md:h-14 bg-gradient-to-b from-white to-transparent" />
-        </div>
+        
       </section>
 
       <div ref={sectionRef} className="relative py-6 sm:py-10 bg-black will-change-transform" style={{ overflow: 'hidden' }}>
@@ -876,6 +869,7 @@ function Home() {
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .will-change-transform { will-change: transform; }
       `}</style>
+      
     </div>
   );
 }
