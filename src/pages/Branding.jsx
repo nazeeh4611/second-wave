@@ -146,25 +146,25 @@ function Branding() {
     {
       step: '01',
       title: 'Discovery',
-      desc: '深入挖掘您的品牌核心、市场定位和目标受众，识别独特价值主张',
+      desc: 'Deeply explore your brand core, market positioning, and target audience to identify unique value propositions',
       icon: <FiUsers />
     },
     {
       step: '02',
       title: 'Strategy',
-      desc: '制定全面的品牌战略，包括定位、信息和视觉方向，确保市场差异化',
+      desc: 'Develop comprehensive brand strategy including positioning, messaging, and visual direction to ensure market differentiation',
       icon: <FiTrendingUp />
     },
     {
       step: '03',
       title: 'Design',
-      desc: '将战略转化为引人注目的视觉识别系统，创建 cohesive 品牌体验',
-      icon: <FiLayout /> // Replaced FiPalette with FiLayout
+      desc: 'Transform strategy into compelling visual identity systems, creating cohesive brand experiences',
+      icon: <FiLayout />
     },
     {
       step: '04',
       title: 'Implement',
-      desc: '在所有接触点执行品牌战略，确保一致性和持续优化',
+      desc: 'Execute brand strategy across all touchpoints, ensuring consistency and continuous optimization',
       icon: <FiGlobe />
     }
   ];

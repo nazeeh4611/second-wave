@@ -4,15 +4,14 @@ import Lenis from '@studio-freight/lenis';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 
-// User Pages
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Works from './pages/Works';
+import WorkDetail from './pages/WorkDetail';
 import Branding from './pages/Branding';
 import SEO from './pages/SEO';
 import WebDevelopment from './pages/WebDevelopment';
@@ -23,7 +22,6 @@ import Production from './pages/Production';
 import DigitalPR from './pages/DigitalPR';
 import Contact from './pages/Contact';
 
-// Admin Pages
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminWorkForm from './pages/admin/WorkForm';
@@ -46,24 +44,24 @@ function App() {
       smoothTouch: false,
       touchMultiplier: 2,
     });
-  
+
     window.lenis = lenis;
-  
+
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
-  
+
     requestAnimationFrame(raf);
-    
+
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    
+
     if (lenis) {
       lenis.scrollTo(0, { immediate: true, duration: 0 });
     }
-  
+
     return () => {
       lenis.destroy();
       style.remove();
@@ -75,7 +73,6 @@ function App() {
       <ScrollToTop />
       <div className="relative bg-[#0A0A0A] min-h-screen flex flex-col">
         <Routes>
-          {/* Public Routes with Navbar and Footer */}
           <Route
             path="/*"
             element={
@@ -86,6 +83,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/services" element={<Services />} />
                     <Route path="/works" element={<Works />} />
+                    <Route path="/works/:slug" element={<WorkDetail />} />
                     <Route path="/branding" element={<Branding />} />
                     <Route path="/seo" element={<SEO />} />
                     <Route path="/web-development" element={<WebDevelopment />} />
@@ -102,16 +100,15 @@ function App() {
             }
           />
 
-          {/* Admin Routes - No Navbar/Footer */}
           <Route path="/admin/login" element={<AdminLogin />} />
-          
+
           <Route path="/admin" element={<ProtectedRoute />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="works/new" element={<AdminWorkForm />} />
             <Route path="works/:id" element={<AdminWorkForm />} />
           </Route>
         </Routes>
-        
+
         <ToastContainer position="bottom-right" theme="dark" />
       </div>
     </Router>
