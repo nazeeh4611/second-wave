@@ -1,877 +1,584 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-import { TextPlugin } from 'gsap/TextPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  FiArrowRight, FiArrowUpRight, FiTrendingUp, FiCode, FiMonitor,
-  FiHeart, FiStar, FiFilm, FiUsers, FiTarget, FiAward, FiZap, FiGlobe
-} from 'react-icons/fi';
-import SilkWave from '../components/ParticlesWave';
+import { SplitText } from 'gsap/SplitText';
+import { FiArrowDown, FiPlus, FiMinus, FiArrowRight, FiArrowUpRight } from 'react-icons/fi';
 
-gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin);
+gsap.registerPlugin(ScrollTrigger);
 
-const STICKY_SLIDES = [
+/* ─── DATA ─────────────────────────────────────────────────── */
+const SERVICES_LEFT = [
+  { label: 'BRANDING', link: '/branding', desc: 'Our branding services create a strong, memorable identity that connects emotionally and drives loyalty.' },
+  { label: 'DIGITAL MARKETING', link: '/production', desc: 'We specialize in SEO, social media marketing, content creation, and performance campaigns.' },
+  { label: 'WEBSITE DEVELOPMENT', link: '/web-development', desc: 'We build custom websites that are visually engaging, fast, and functionally robust.' },
+];
+const SERVICES_RIGHT = [
+  { label: 'PERFORMANCE MARKETING', link: '/performance-marketing', desc: 'Targeted ad campaigns on Meta, Google & TikTok that generate measurable ROI.' },
+  { label: 'SOCIAL MEDIA', link: '/social-media-marketing', desc: 'Build strong online communities and grow brand presence with strategic content.' },
+  { label: 'PRODUCTION', link: '/production', desc: 'Delivering top-quality video, photography, and creative production services.' },
+];
+
+const CLIENTS = [
+  'Client Co.', 'Samsung', 'Client 3', 'GreenSync', 'CAPKON',
+  'Do Next', 'AMS', 'Accelerate', '11GRAMS', 'Client 10',
+];
+
+const TESTIMONIALS = [
   {
-    id: 's1', label: 'BRANDING', number: '01',
-    title: 'Crafting Brands\nThat Last', sub: 'Identity · Strategy · Voice',
-    image: '/branding.jpg',
-    link: '/branding',
+    quote: 'We have been working with SecondWave for our advertising and digital marketing needs, and they have consistently exceeded our expectations.',
+    name: 'Ar. Siraj',
+    role: 'Founder & Chief Architect',
+    company: 'Sacred Saga',
   },
   {
-    id: 's2', label: 'PRODUCTION', number: '02',
-    title: 'Cinematic Stories\nBrought to Life', sub: 'Video · Photography · Sound',
-    image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1800&q=90',
-    link: '/production',
+    quote: 'SecondWave transformed our brand presence completely. Their creativity and strategic approach have helped us achieve remarkable results in our marketing campaigns.',
+    name: 'Ahmed Al Rashid',
+    role: 'Founder',
+    company: 'NovaBrand',
   },
   {
-    id: 's3', label: 'PERFORMANCE', number: '03',
-    title: 'Campaigns That\nConvert', sub: 'Meta · Google · TikTok',
-    image: '/perfo.jpg',
-    link: '/performance-marketing',
-  },
-  {
-    id: 's4', label: 'WEB DEV', number: '04',
-    title: 'Experiences That\nInspire', sub: 'React · Next.js · Shopify',
-    image: '/web.png',
-    link: '/web-development',
-  },
-  {
-    id: 's5', label: 'SOCIAL MEDIA', number: '05',
-    title: 'Communities That\nEngage', sub: 'Content · Growth · Loyalty',
-    image: '/sm.jpg',
-    link: '/social-media-marketing',
+    quote: 'Their out-of-the-box ideas and innovative campaigns helped us stand out in a crowded market, generating significant brand awareness. Truly a creative powerhouse.',
+    name: 'Sarah Mitchell',
+    role: 'CEO',
+    company: 'GrowthLab',
   },
 ];
 
-function Home() {
-  const heroRef = useRef(null);
-  const waveRef = useRef(null);
-  const statsRef = useRef(null);
-  const ctaRef = useRef(null);
-  const textRef = useRef(null);
-  const clientsMarqueeRef = useRef(null);
-  const servicesSliderRef = useRef(null);
-  const containerRef = useRef(null);
-  const sectionRef = useRef(null);
-  const servicesSectionRef = useRef(null);
-  const stickyWrapRef = useRef(null);
-  const videoRef = useRef(null);
-  const videoSectionRef = useRef(null);
+const FAQS = [
+  { q: 'What digital marketing services do you offer?', a: 'We offer a wide range of services including SEO, Social Media Marketing, PPC Advertising, Content Marketing, Website Design & Development, and Performance Marketing — all tailored to your business goals.' },
+  { q: 'Why should I choose SecondWave?', a: 'We are a results-driven agency with 9+ years of experience. We understand your unique business goals and craft personalized strategies that deliver real, measurable results.' },
+  { q: 'How do I know if your digital marketing services are right for my business?', a: 'We take time to understand your business goals first. We then create a personalized strategy that works specifically for your needs and target audience.' },
+  { q: 'What makes SecondWave different from other agencies?', a: 'Our deep creative expertise combined with data-driven performance marketing makes us unique. We don\'t just make things look good — we make sure they perform.' },
+  { q: 'How much do your digital marketing services cost?', a: 'Prices vary depending on your goals, target audience, and platforms. We offer packages for startups to enterprise brands. Contact us for a free consultation and custom quote.' },
+];
+/* ─────────────────────────────────────────────────────────── */
 
-  const [activeSection, setActiveSection] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeServiceSlide, setActiveServiceSlide] = useState(0);
+export default function Home() {
+  const containerRef  = useRef(null);
+  const marqueeRef    = useRef(null);
+  const testiRef      = useRef(null);
+  const faqTitleRef   = useRef(null);
+  const faqAccRef     = useRef(null);
+  const ctaRef        = useRef(null);
+  const clientsRef    = useRef(null);
 
-  const services = useMemo(() => [
-    {
-      title: "Marketing & Advertising",
-      description: "Grow your brand with data-driven marketing strategies and powerful advertising campaigns that attract, engage, and convert your ideal audience.",
-      image: "/mark.png",
-      link: "/production"
-    },
-    {
-      title: "Branding",
-      description: "We craft powerful brand identities that connect emotionally with your audience and position your business for long-term success.",
-      image: "/bran.png",
-      link: "/branding"
-    },
-    {
-      title: "Web Development",
-      description: "We design and develop high-performance, scalable websites tailored to your business goals and user experience.",
-      image: "/webd.png",
-      link: "/web-development"
-    },
-    {
-      title: "Social Media Marketing",
-      description: "Build strong online communities and grow your brand presence with strategic content and engagement campaigns.",
-      image: "/social.png",
-      link: "/social-media-marketing"
-    },
-    {
-      title: "All Services",
-      description: ".",
-      image: "/all.png",
-      link: "/services"
-    },
-  ], []);
+  const [openFaq, setOpenFaq]   = useState(null);
+  const [testi, setTesti]       = useState(0);
+  const [form, setForm]         = useState({ name: '', phone: '' });
+  const [loading, setLoading]   = useState(true);
+  const [testiAnim, setTestiAnim] = useState(false);
 
-  const clients = useMemo(() => ['Google', 'Meta', 'Amazon', 'Microsoft', 'Apple', 'Netflix', 'Spotify', 'Adobe', 'Salesforce', 'Oracle', 'IBM', 'Intel', 'Tesla', 'SpaceX', 'Uber', 'Airbnb', 'Shopify', 'Slack'], []);
+  useEffect(() => { setTimeout(() => setLoading(false), 80); }, []);
 
-  const stats = useMemo(() => [
-    { count: 710, suffix: '', label: 'Satisfied Customers', icon: <FiAward /> },
-    { count: 125, suffix: '+', label: 'Successful Partnerships', icon: <FiHeart /> },
-    { count: 9, suffix: '+', label: 'Years Experience', icon: <FiStar /> },
-    { count: 720, suffix: '', label: 'Completed Projects', icon: <FiTarget /> },
-  ], []);
+  /* change testimonial with fade */
+  const changeTesti = useCallback((i) => {
+    if (i === testi) return;
+    setTestiAnim(true);
+    setTimeout(() => { setTesti(i); setTestiAnim(false); }, 300);
+  }, [testi]);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 100);
-  }, []);
-
-  useEffect(() => {
-    if (!waveRef.current || !sectionRef.current) return;
-    const timer = setTimeout(() => {
-      const ctx = gsap.context(() => {
-        gsap.to(waveRef.current, {
-          x: () => -(waveRef.current.scrollWidth / 4),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top bottom', end: 'bottom top',
-            scrub: 1.5, invalidateOnRefresh: true,
-          },
-        });
-      });
-      return () => ctx.revert();
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (isLoading || isMobile || !stickyWrapRef.current) return;
-    const timer = setTimeout(() => {
-      const wrap = stickyWrapRef.current;
-      const slides = Array.from(wrap.querySelectorAll('.sticky-slide'));
-      const totalSlides = slides.length;
-      const scrollDistance = (totalSlides - 1) * window.innerHeight;
-
-      const ctx = gsap.context(() => {
-        slides.forEach((slide, i) => {
-          if (i === 0) return;
-          gsap.set(slide, { yPercent: 100 });
-          const img = slide.querySelector('.sticky-img img');
-          if (img) gsap.set(img, { scale: 1.15 });
-        });
-
-        const tl = gsap.timeline({ paused: true });
-
-        slides.forEach((slide, i) => {
-          if (i === 0) return;
-          const img = slide.querySelector('.sticky-img img');
-          tl.to(slide, { yPercent: 0, ease: 'none', duration: 1 }, i - 1);
-          if (img) tl.to(img, { scale: 1, ease: 'none', duration: 1 }, i - 1);
-        });
-
-        ScrollTrigger.create({
-          trigger: wrap,
-          start: 'top top',
-          end: () => `+=${scrollDistance}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          animation: tl,
-          onUpdate: (self) => {
-            const rawIdx = self.progress * (totalSlides - 1);
-            setActiveSection(Math.min(Math.round(rawIdx), totalSlides - 1));
-          },
-        });
-      }, wrap);
-
-      return () => ctx.revert();
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [isLoading, isMobile]);
-
-  useEffect(() => {
-    if (isLoading) return;
+    if (loading) return;
     const ctx = gsap.context(() => {
-      gsap.set('.hero-char', { y: 120, opacity: 0, rotationX: -90 });
-      gsap.to('.hero-char', {
-        y: 0, opacity: 1, rotationX: 0, duration: 1.1, ease: 'power4.out',
-        stagger: { amount: 0.75 }, delay: 0.2,
-      });
-      gsap.fromTo('.hero-subtitle',
-        { y: 40, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.1, delay: 1, ease: 'power3.out' }
-      );
-      gsap.fromTo('.hero-cta-btn',
-        { y: 30, opacity: 0, scale: 0.85 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.9, delay: 1.35, ease: 'back.out(1.7)', stagger: 0.12 }
-      );
-      gsap.fromTo('.hero-badge',
-        { y: -30, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.7, delay: 0.5, ease: 'back.out(1.6)' }
-      );
-      gsap.fromTo('.hero-stat',
-        { y: 20, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.6, delay: 1.6, stagger: 0.09, ease: 'power2.out' }
-      );
-      gsap.fromTo('.scroll-line',
-        { scaleY: 0, transformOrigin: 'top center' },
-        { scaleY: 1, duration: 1, delay: 2, ease: 'power2.out' }
-      );
 
-      if (!isMobile) {
-        gsap.fromTo('.reveal-text .text-block',
-          { y: '110%', opacity: 0, skewY: 5 },
-          {
-            y: '0%', opacity: 1, skewY: 0, duration: 1.15, stagger: 0.15, ease: 'power4.out',
-            scrollTrigger: { trigger: textRef.current, start: 'top 78%', toggleActions: 'play none none reverse' },
-          }
-        );
-        gsap.fromTo('.counter-box',
-          { scale: 0.8, opacity: 0, y: 26 },
-          {
-            scale: 1, opacity: 1, y: 0, duration: 0.85, stagger: 0.1, ease: 'back.out(1.4)',
-            scrollTrigger: { trigger: textRef.current, start: 'top 74%', toggleActions: 'play none none reverse' },
-          }
-        );
-        gsap.fromTo('.stat-item',
-          { y: 60, opacity: 0, scale: 0.85, rotateX: 8 },
-          {
-            y: 0, opacity: 1, scale: 1, rotateX: 0, duration: 0.9, stagger: 0.12, ease: 'back.out(1.6)',
-            scrollTrigger: { trigger: statsRef.current, start: 'top 82%', toggleActions: 'play none none reverse' },
-          }
-        );
-        gsap.fromTo('.cta-content',
-          { y: 50, opacity: 0, scale: 0.94, filter: 'blur(10px)' },
-          {
-            y: 0, opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.05, ease: 'power3.out',
-            scrollTrigger: { trigger: ctaRef.current, start: 'top 78%', toggleActions: 'play none none reverse' },
-          }
-        );
-        gsap.fromTo('.video-section-content',
+      /* ── HERO ── */
+      gsap.fromTo('.h-title',  { y: '110%', skewY: 3 }, { y: '0%', skewY: 0, duration: 1.2,  delay: 0.2,  ease: 'power4.out' });
+      gsap.fromTo('.h-sub',    { opacity: 0, y: 28    }, { opacity: 1, y: 0,  duration: 0.9,  delay: 0.95, ease: 'power3.out' });
+      gsap.fromTo('.h-btn',    { opacity: 0, scale: 0.82, y: 16 }, { opacity: 1, scale: 1, y: 0, duration: 0.75, delay: 1.2, ease: 'back.out(1.8)' });
+      gsap.fromTo('.h-social', { opacity: 0, y: 10    }, { opacity: 1, y: 0,  duration: 0.6,  delay: 1.55, ease: 'power2.out' });
+      gsap.fromTo('.h-scroll', { opacity: 0            }, { opacity: 1,        duration: 0.6,  delay: 2.1,  ease: 'power2.out' });
+
+      /* ── MARQUEE ── */
+      if (marqueeRef.current) {
+        gsap.to(marqueeRef.current, { x: '-50%', duration: 24, repeat: -1, ease: 'none' });
+      }
+
+      /* ── GENERIC SCROLL REVEALS ── */
+      gsap.utils.toArray('.ru').forEach((el, i) => {
+        gsap.fromTo(el,
           { y: 60, opacity: 0 },
-          {
-            y: 0, opacity: 1, duration: 1, ease: 'power3.out',
-            scrollTrigger: { trigger: videoSectionRef.current, start: 'top 70%', toggleActions: 'play none none reverse' },
-          }
+          { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 87%', toggleActions: 'play none none none' } }
         );
-
-        document.querySelectorAll('[data-count]').forEach(el => {
-          const target = parseInt(el.getAttribute('data-count') || '0', 10);
-          const suffix = el.getAttribute('data-suffix') || '';
-          const obj = { val: 0 };
-          ScrollTrigger.create({
-            trigger: el, start: 'top 88%', once: true,
-            onEnter: () => {
-              gsap.to(obj, {
-                val: target, duration: 2.4, ease: 'power2.out',
-                onUpdate: () => { el.textContent = Math.round(obj.val).toString() + suffix; },
-              });
-            },
-          });
-        });
-      }
-
-      if (clientsMarqueeRef.current) {
-        gsap.to(clientsMarqueeRef.current, { x: '-33.333%', duration: 20, repeat: -1, ease: 'none' });
-      }
-    }, containerRef);
-
-    return () => {
-      ctx.revert();
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, [isLoading, isMobile]);
-
-  const handleServiceScroll = useCallback(() => {
-    const container = servicesSliderRef.current;
-    if (!container) return;
-  
-    const children = Array.from(container.children);
-  
-    let closestIndex = 0;
-    let closestDistance = Infinity;
-  
-    children.forEach((child, index) => {
-      const distance = Math.abs(
-        child.offsetLeft - container.scrollLeft
-      );
-  
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = index;
-      }
-    });
-  
-    if (closestIndex !== activeServiceSlide) {
-      setActiveServiceSlide(closestIndex);
-    }
-  }, [activeServiceSlide]);
-
-  useEffect(() => {
-    const slider = servicesSliderRef.current;
-    if (!slider) return;
-  
-    slider.addEventListener('scroll', handleServiceScroll, { passive: true });
-  
-    return () => {
-      slider.removeEventListener('scroll', handleServiceScroll);
-    };
-  }, [handleServiceScroll]);
-
-  const scrollToServiceSlide = useCallback((index) => {
-    if (servicesSliderRef.current) {
-      const cardWidth = servicesSliderRef.current.offsetWidth * (window.innerWidth < 640 ? 0.85 : window.innerWidth < 1024 ? 0.7 : 0.6);
-      servicesSliderRef.current.scrollTo({
-        left: index * cardWidth,
-        behavior: 'smooth'
       });
-    }
+
+      /* ── STAGGERED REVEALS ── */
+      gsap.utils.toArray('.ru-stagger').forEach(container => {
+        const children = container.children;
+        gsap.fromTo(children,
+          { y: 45, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
+            scrollTrigger: { trigger: container, start: 'top 85%', toggleActions: 'play none none none' } }
+        );
+      });
+
+      /* ── ABOUT HEADING ── */
+      gsap.fromTo('.about-heading',
+        { x: -60, opacity: 0 },
+        { x: 0, opacity: 1, duration: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: '.about-heading', start: 'top 85%' } }
+      );
+
+      /* ── SERVICES GRID CELLS ── */
+      gsap.utils.toArray('.svc-cell').forEach((el, i) => {
+        gsap.fromTo(el,
+          { y: 40, opacity: 0, scale: 0.97 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.65, delay: i * 0.07, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' } }
+        );
+      });
+
+      /* ── CLIENTS ROW COUNT ── */
+      gsap.utils.toArray('.client-cell').forEach((el, i) => {
+        gsap.fromTo(el,
+          { opacity: 0, scale: 0.9 },
+          { opacity: 1, scale: 1, duration: 0.5, delay: i * 0.04, ease: 'power2.out',
+            scrollTrigger: { trigger: clientsRef.current, start: 'top 85%', toggleActions: 'play none none none' } }
+        );
+      });
+
+      /* ── TESTIMONIAL SECTION ── */
+      if (testiRef.current) {
+        gsap.fromTo(testiRef.current,
+          { opacity: 0, y: 50 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+            scrollTrigger: { trigger: testiRef.current, start: 'top 82%' } }
+        );
+      }
+
+      /* ── FAQ TITLE SLIDE IN ── */
+      if (faqTitleRef.current) {
+        gsap.fromTo(faqTitleRef.current,
+          { x: -80, opacity: 0 },
+          { x: 0, opacity: 1, duration: 1.1, ease: 'power4.out',
+            scrollTrigger: { trigger: faqTitleRef.current, start: 'top 82%' } }
+        );
+      }
+
+      /* ── FAQ ACCORDION ITEMS ── */
+      if (faqAccRef.current) {
+        gsap.fromTo(faqAccRef.current.children,
+          { x: 40, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out',
+            scrollTrigger: { trigger: faqAccRef.current, start: 'top 82%' } }
+        );
+      }
+
+      /* ── CTA SECTION ── */
+      if (ctaRef.current) {
+        gsap.fromTo('.cta-title',
+          { y: 70, opacity: 0, skewY: 2 },
+          { y: 0, opacity: 1, skewY: 0, duration: 1.1, ease: 'power4.out',
+            scrollTrigger: { trigger: ctaRef.current, start: 'top 80%' } }
+        );
+        gsap.fromTo('.cta-form',
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, delay: 0.3, ease: 'power3.out',
+            scrollTrigger: { trigger: ctaRef.current, start: 'top 80%' } }
+        );
+      }
+
+      /* ── COUNTERS ── */
+      document.querySelectorAll('[data-count]').forEach(el => {
+        const target = +el.dataset.count, suffix = el.dataset.suffix || '', obj = { v: 0 };
+        ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true,
+          onEnter: () => gsap.to(obj, { v: target, duration: 2.4, ease: 'power2.out',
+            onUpdate: () => { el.textContent = Math.round(obj.v) + suffix; } }) });
+      });
+
+    }, containerRef);
+    return () => ctx.revert();
+  }, [loading]);
+
+  const onSubmit = useCallback(e => {
+    e.preventDefault();
+    alert('Thank you! We will get back to you soon.');
+    setForm({ name: '', phone: '' });
   }, []);
 
-  const heroChars = useMemo(() => ['S', 'e', 'c', 'o', 'n', 'd', '\u00A0', 'W', 'a', 'v', 'e', '.'], []);
-
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
-        <div className="w-16 h-16 border-4 border-gray-800 border-t-white rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
+      <div className="w-10 h-10 border-2 border-[#c8f731]/30 border-t-[#c8f731] rounded-full animate-spin" />
+    </div>
+  );
 
   return (
-    <div ref={containerRef} className="relative overflow-x-hidden bg-black pt-20">
-      <section ref={heroRef} className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-black">
-        <div className="absolute inset-0 z-0 bg-white">
-          <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
-        </div>
-        <div className="absolute inset-0 bg-black/40 lg:bg-black/20 z-10 pointer-events-none" />
-        <div className="relative z-30 text-center px-4 max-w-5xl md:max-w-6xl mx-auto w-full">
-      {/* Replace the badge, subtitle, and stats sections with these updated versions */}
+    <div ref={containerRef} className="bg-[#0a0a0a] overflow-x-hidden">
 
-<div className="hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white border border-black/10 rounded-full text-[10px] sm:text-xs md:text-sm text-black">
-  <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
-  Award-Winning Digital Agency
-  <FiZap className="text-black" />
-</div>
+      {/* ══ 1. HERO ══════════════════════════════════════════════ */}
+      <section className="relative w-full bg-black overflow-hidden" style={{ height: '100dvh', minHeight: 580 }}>
+        <video className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline preload="auto">
+          <source src="https://pub-6070c66a49144147b12828af75c69a0c.r2.dev/100882-video-2160%20(1)%20(1)%20(1)%20(1)%20(1).mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.75) 100%)' }} />
 
-{/* Keep the Second Wave heading white - no changes needed */}
-<div className="mb-3 sm:mb-5" style={{ perspective: '1000px' }}>
-  <h1 className="font-black leading-none tracking-tight text-white" style={{ fontSize: 'clamp(2.6rem, 9vw, 5.5rem)' }}>
-    {heroChars.map((char, i) => (
-      <span key={i} className="hero-char inline-block text-white" style={{ display: 'inline-block' }}>{char}</span>
-    ))}
-  </h1>
-</div>
-
-<p className="hero-subtitle text-xs sm:text-sm md:text-lg lg:text-xl text-black mb-6 sm:mb-8 md:mb-10 max-w-xl md:max-w-2xl mx-auto leading-relaxed px-4 py-2">
-  Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
-</p>
-
-<div className="flex justify-center gap-6 sm:gap-10 md:gap-14">
-  {[['500+', 'Projects'], ['200+', 'Clients'], ['10+', 'Years']].map(([num, label], i) => (
-    <div key={i} className="hero-stat text-center">
-      <div className="text-lg sm:text-2xl md:text-3xl font-black text-black">{num}</div>
-      <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{label}</div>
-    </div>
-  ))}
-</div>
-        </div>
-        
-      </section>
-
-      <div ref={sectionRef} className="relative py-6 sm:py-10 bg-black will-change-transform" style={{ overflow: 'hidden' }}>
-        <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-black to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-black to-transparent z-10" />
-        <div ref={waveRef} className="flex font-black tracking-tighter uppercase" style={{ fontSize: 'clamp(2.8rem, 14vw, 10rem)', whiteSpace: 'nowrap', display: 'flex', color: 'rgba(255,255,255,0.03)' }}>
-          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-          <span className="mr-10 sm:mr-16 flex-shrink-0">SECONDWAVE&nbsp;&nbsp;</span>
-        </div>
-      </div>
-
-      <section ref={textRef} className="py-12 sm:py-20 md:py-24 bg-black">
-        <div className="container-custom">
-          <div className="reveal-text font-black text-center max-w-4xl md:max-w-5xl mx-auto leading-tight" style={{ fontSize: 'clamp(1.6rem, 5vw, 3.2rem)' }}>
-            {["We don't just market,", 'we create experiences', 'that inspire, engage,', 'and transform.'].map((line, i) => (
-              <div key={i} className="overflow-hidden mb-1 sm:mb-1.5">
-                <span className={`text-block inline-block ${i % 2 === 0 ? 'text-gray-400' : 'text-white'}`}>{line}</span>
-              </div>
-            ))}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center px-4">
+          <div className="overflow-hidden mb-6">
+            <h1 className="h-title font-black text-white leading-none tracking-tighter" style={{ fontSize: 'clamp(3.2rem, 13vw, 12rem)' }}>
+              SECOND WAVE.
+            </h1>
           </div>
-          <p className="text-gray-600 text-center mt-6 sm:mt-8 max-w-xl md:max-w-2xl mx-auto text-xs sm:text-sm md:text-base px-2 sm:px-4 leading-relaxed">
-            Over a decade of turning bold ideas into unforgettable campaigns. Trusted by the world's most ambitious brands.
+          <p className="h-sub text-white/45 text-xs sm:text-sm max-w-sm leading-relaxed mb-9">
+            Riding the digital wave to transform your brand into an unforgettable experience through innovation, creativity, and strategic excellence.
           </p>
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mt-7 sm:mt-10 max-w-md sm:max-w-xl mx-auto px-2 sm:px-4">
-            {[{ label: 'Brand Growth', val: '94%' }, { label: 'Client Retention', val: '97%' }, { label: 'Avg ROI', val: '380%' }].map((item, i) => (
-              <div key={i} className="counter-box text-center p-2.5 sm:p-4 md:p-5 bg-white/3 border border-white/8 rounded-lg sm:rounded-xl hover:border-white/15 transition-colors">
-                <div className="text-base sm:text-2xl md:text-3xl font-black text-white">{item.val}</div>
-                <div className="text-[9px] sm:text-xs md:text-sm text-gray-600 mt-0.5">{item.label}</div>
-              </div>
-            ))}
+          <Link to="/contact"
+            className="h-btn inline-flex items-center gap-2 bg-[#c8f731] text-black font-black rounded-full px-9 py-3.5 text-sm tracking-wider uppercase hover:bg-[#dbff3f] transition-all hover:scale-105 hover:shadow-[0_0_60px_rgba(200,247,49,0.55)]">
+            Enquire Now
+          </Link>
+          <div className="h-social flex items-center gap-5 mt-8">
+            <a href="https://www.instagram.com/secondwave.ads" target="_blank" rel="noopener noreferrer"
+              className="text-white/28 text-[10px] tracking-[0.25em] uppercase hover:text-white/60 transition-colors">Instagram</a>
+            <span className="text-white/15">|</span>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
+              className="text-white/28 text-[10px] tracking-[0.25em] uppercase hover:text-white/60 transition-colors">Facebook</a>
           </div>
+        </div>
+
+        <div className="h-scroll absolute bottom-7 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5">
+          <FiArrowDown className="text-white/25 animate-bounce" size={16} />
         </div>
       </section>
 
-      <section ref={servicesSectionRef} className="py-16 sm:py-24 relative overflow-hidden bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 md:mb-14">
-            <span className="inline-block text-xs sm:text-sm font-bold tracking-[0.3em] text-gray-400 uppercase mb-3">WHAT WE DO</span>
-            <h2 className="font-black text-gray-900 text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-              <span className="text-gray-900">Our</span>{' '}
-              <span className="text-gray-500">Services</span>
+      {/* ══ 2. MARQUEE ═══════════════════════════════════════════ */}
+      <div className="overflow-hidden bg-[#0a0a0a]" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        <div ref={marqueeRef} className="flex whitespace-nowrap py-4">
+          {Array(10).fill(0).map((_, i) => (
+            <span key={i} className="flex-shrink-0 font-black uppercase tracking-tighter mr-8"
+              style={{ fontSize: 'clamp(2rem, 6vw, 5rem)', color: 'rgba(255,255,255,0.055)' }}>
+              Stand out from the crowd.&nbsp;
+              <span style={{ color: 'rgba(200,247,49,0.18)' }}>·</span>
+              &nbsp;Let your brand speak.&nbsp;
+              <span style={{ color: 'rgba(200,247,49,0.18)' }}>·</span>
+              &nbsp;
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ══ 3. ABOUT ══════════════════════════════════════════════ */}
+      <section className="bg-[#0a0a0a] py-16 sm:py-24 px-5 sm:px-8">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
+          <div>
+            <h2 className="about-heading font-black text-white leading-tight mb-5"
+              style={{ fontSize: 'clamp(1.7rem, 3.8vw, 2.8rem)' }}>
+              Digital Marketing Agency in UAE
             </h2>
-            <p className="text-gray-600 mt-5 max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-4">
-              Comprehensive digital solutions tailored to your brand's unique needs
+            <p className="text-white/38 text-sm leading-relaxed mb-3 ru">
+              As a leading digital marketing agency in the UAE, we are proud to deliver great results in branding and advertising. We offer SEO, social media marketing, PPC ads, content marketing, and website development.
             </p>
-          </div>
+            <button className="text-[#c8f731] text-xs font-black tracking-widest uppercase hover:underline ru">Read More</button>
 
-          {!isMobile ? (
-            <div className="hidden lg:block">
-              <div className="flex flex-col items-center gap-6">
-                <div className="flex justify-center gap-6">
-                  {services.slice(0, 3).map((service, index) => (
-                    <Link
-                      to={service.link}
-                      key={index}
-                      className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
-                    >
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/10" />
-                      <div
-                        className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
-                        style={{
-                          background: "rgba(255,255,255,0.25)",
-                          backdropFilter: "blur(20px)",
-                          WebkitBackdropFilter: "blur(20px)"
-                        }}
-                      >
-                        <span className="text-white text-2xl tracking-wide font-light">
-                          {service.title}
-                        </span>
-                        <div
-                          className="w-14 h-14 rounded-full flex items-center justify-center"
-                          style={{
-                            background: "rgba(255,255,255,0.25)"
-                          }}
-                        >
-                          <FiArrowUpRight className="text-white text-xl" />
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                <div className="flex justify-center gap-6">
-                  {services.slice(3, 5).map((service, index) => (
-                    <Link
-                      to={service.link}
-                      key={index}
-                      className="group relative block w-[379px] h-[466px] rounded-[30px] overflow-hidden cursor-pointer"
-                    >
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/10" />
-                      <div
-                        className="absolute top-4 left-4 right-4 flex items-center justify-between px-6 py-4 rounded-[24px]"
-                        style={{
-                          background: "rgba(255,255,255,0.25)",
-                          backdropFilter: "blur(20px)",
-                          WebkitBackdropFilter: "blur(20px)"
-                        }}
-                      >
-                        <span className="text-white text-2xl tracking-wide font-light">
-                          {service.title}
-                        </span>
-                        <div
-                          className="w-14 h-14 rounded-full flex items-center justify-center"
-                          style={{
-                            background: "rgba(255,255,255,0.25)"
-                          }}
-                        >
-                          <FiArrowUpRight className="text-white text-xl" />
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="lg:hidden">
-              <div className="relative">
-                <div
-                  ref={servicesSliderRef}
-                  className="flex overflow-x-auto gap-4 sm:gap-6 pb-8 px-4 scrollbar-hide"
-                  style={{
-                    scrollSnapType: 'x mandatory',
-                    WebkitOverflowScrolling: 'touch',
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none'
-                  }}
-                >
-                  {services.map((service, index) => (
-                    <Link
-                      key={index}
-                      to={service.link}
-                      className="flex-shrink-0 w-[85vw] sm:w-[70vw] snap-start"
-                    >
-                      <div
-                        className="group relative w-full h-[400px] sm:h-[440px] rounded-[24px] sm:rounded-[30px] overflow-hidden cursor-pointer"
-                      >
-                        <img
-                          src={service.image}
-                          alt={service.title}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-black/10" />
-                        <div
-                          className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 rounded-[20px] sm:rounded-[24px]"
-                          style={{
-                            background: "rgba(255,255,255,0.25)",
-                            backdropFilter: "blur(20px)",
-                            WebkitBackdropFilter: "blur(20px)"
-                          }}
-                        >
-                          <span className="text-white text-lg sm:text-xl md:text-2xl tracking-wide font-light line-clamp-1 pr-2">
-                            {service.title}
-                          </span>
-                          <div
-                            className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center flex-shrink-0"
-                            style={{
-                              background: "rgba(255,255,255,0.25)"
-                            }}
-                          >
-                            <FiArrowUpRight className="text-white text-base sm:text-lg md:text-xl" />
-                          </div>
-                        </div>
-                        {index === services.length - 1 && (
-                          <div className="absolute bottom-4 left-4 right-4 text-center">
-                            <span className="text-white/80 text-xs sm:text-sm bg-black/30 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                              View all services →
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                <div className="flex justify-center gap-1.5 sm:gap-2 mt-4">
-                  {/* {services.map((_, i) => (
-                    // <button
-                    //   key={i}
-                    //   onClick={() => scrollToServiceSlide(i)}
-                    //   className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                    //     i === activeServiceSlide
-                    //       ? 'w-6 sm:w-8 bg-black'
-                    //       : 'w-1.5 sm:w-2 bg-gray-300'
-                    //   }`}
-                    //   aria-label={`Go to slide ${i + 1}`}
-                    // />
-                  ))} */}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <div
-        ref={stickyWrapRef}
-        className="hidden lg:block relative overflow-hidden"
-        style={{ height: '100vh' }}
-      >
-        {STICKY_SLIDES.map((slide, index) => (
-          <div
-            key={slide.id}
-            className="sticky-slide absolute inset-0 w-full h-full overflow-hidden"
-            style={{ zIndex: index + 1 }}
-          >
-            <div className="sticky-img absolute inset-0" style={{ transformOrigin: 'center center' }}>
-              <img
-                src={slide.image}
-                alt={slide.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-            </div>
-            <div className="absolute inset-0 flex items-end z-10 pb-20 px-16">
-              <div className="max-w-2xl">
-                <div className="mb-4 flex items-center gap-5">
-                  <span className="text-white/15 font-black select-none" style={{ fontSize: 'clamp(4rem, 9vw, 7rem)', lineHeight: 1 }}>{slide.number}</span>
-                  <div className="w-px h-14 bg-white/15" />
-                  <span className="text-[11px] font-bold tracking-[0.45em] text-white/45 uppercase">{slide.label}</span>
-                </div>
-                <h2
-                  className="font-black text-white mb-3 leading-tight whitespace-pre-line"
-                  style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)' }}
-                >
-                  {slide.title}
-                </h2>
-                <p className="text-white/45 text-base mb-8">{slide.sub}</p>
-                <Link to={slide.link} className="inline-flex items-center gap-3 border border-white/25 text-white font-semibold rounded-full px-7 py-3 text-sm hover:bg-white hover:text-black hover:border-white transition-all duration-300 group backdrop-blur-sm">
-                  <span>Discover More</span>
-                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-            <div className="absolute top-10 right-16 z-10 flex flex-col items-end gap-3">
-              <div className="flex gap-2 items-center">
-                {STICKY_SLIDES.map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-px rounded-full bg-white transition-all duration-500"
-                    style={{ width: i === activeSection ? '40px' : '12px', opacity: i === activeSection ? 1 : 0.2 }}
-                  />
-                ))}
-              </div>
-              <span className="text-white/25 text-xs tracking-widest">{activeSection + 1} / {STICKY_SLIDES.length}</span>
-            </div>
-          </div>
-        ))}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2.5">
-          {STICKY_SLIDES.map((_, i) => (
-            <div
-              key={i}
-              className="w-1 rounded-full bg-white transition-all duration-500"
-              style={{ height: i === activeSection ? '32px' : '6px', opacity: i === activeSection ? 1 : 0.15 }}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="lg:hidden">
-        <div
-          ref={servicesSliderRef}
-          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide cursor-grab active:cursor-grabbing"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', height: 'calc(100vh - 80px)' }}
-        >
-          {STICKY_SLIDES.map((slide, index) => (
-            <div key={slide.id} className="flex-shrink-0 w-screen snap-start relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
-              <img src={slide.image} alt={slide.title} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-end p-6 pb-12">
-                <span className="text-[10px] font-bold tracking-[0.35em] text-white/40 uppercase mb-3">{slide.label}</span>
-                <h2 className="font-black text-white text-2xl leading-tight whitespace-pre-line mb-2">{slide.title}</h2>
-                <p className="text-white/40 text-xs mb-5">{slide.sub}</p>
-                <Link to={slide.link} className="inline-flex items-center gap-2 border border-white/25 text-white font-semibold rounded-full px-5 py-2.5 text-xs self-start hover:bg-white hover:text-black transition-all backdrop-blur-sm">
-                  <span>Discover More</span><FiArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-              <div className="absolute top-6 right-6 text-white/10 font-black select-none" style={{ fontSize: '4.5rem', lineHeight: 1 }}>{slide.number}</div>
-              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {STICKY_SLIDES.map((_, i) => (
-                  <div key={i} className={`h-px rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-white' : 'w-2 bg-white/25'}`} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <section ref={videoSectionRef} className="relative bg-black" style={{ minHeight: '100vh' }}>
-        <div className="sticky top-0 w-full overflow-hidden" style={{ height: '100vh' }}>
-          <video
-            ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1800&q=80"
-          >
-            <source src="https://pub-6070c66a49144147b12828af75c69a0c.r2.dev/100882-video-2160%20(1)%20(1)%20(1)%20(1)%20(1).mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
-          <div className="absolute inset-0 flex items-center z-10 px-8 sm:px-16">
-            <div className="video-section-content max-w-3xl">
-              <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.4em] text-white/35 uppercase mb-4 border border-white/8 px-3 py-1 rounded-full backdrop-blur-sm">
-                ABOUT US
-              </span>
-              <h2 className="font-black text-white mb-5 leading-tight" style={{ fontSize: 'clamp(2rem, 5vw, 3.8rem)' }}>
-                We Make the{' '}
-                <span style={{ color: '#6eb8ff' }}>Difference</span>
-              </h2>
-              <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
-                Over a decade of transforming brands across the UAE and beyond. We blend creativity with data to deliver campaigns that don't just look good — they perform.
-              </p>
-              <div className="flex flex-wrap gap-3 mb-8">
-                {[['UAE Based', '🇦🇪'], ['Global Reach', '🌍'], ['Award Winning', '🏆']].map(([label, emoji]) => (
-                  <div key={label} className="flex items-center gap-2 text-white/60 text-sm font-medium bg-white/5 border border-white/8 rounded-full px-4 py-2 backdrop-blur-sm">
-                    <span>{emoji}</span><span>{label}</span>
+            {/* stats */}
+            <div className="grid grid-cols-2 gap-5 mt-10 ru-stagger">
+              {[{ count: 710, suffix: '', label: 'Happy Clients' }, { count: 9, suffix: '+', label: 'Years Experience' }, { count: 720, suffix: '', label: 'Projects Done' }, { count: 125, suffix: '+', label: 'Partnerships' }].map((s, i) => (
+                <div key={i} className="border border-white/8 rounded-2xl p-5 hover:border-[#c8f731]/30 transition-colors">
+                  <div className="font-black text-white leading-none mb-1"
+                    style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+                    data-count={s.count} data-suffix={s.suffix}>
+                    {s.count}{s.suffix}
                   </div>
-                ))}
-              </div>
-              <Link to="/about" className="inline-flex items-center gap-3 bg-white text-black font-bold rounded-full px-7 py-3.5 text-sm hover:bg-gray-100 transition-all group">
-                <span>Our Story</span>
-                <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </div>
-        <div className="relative z-10 bg-black border-t border-white/5">
-          <div className="max-w-6xl mx-auto px-6 py-20">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div
-                    className="font-black text-white mb-2 leading-none"
-                    style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)' }}
-                    data-count={stat.count}
-                    data-suffix={stat.suffix}
-                  >
-                    {stat.count}{stat.suffix}
-                  </div>
-                  <div className="text-gray-600 text-xs sm:text-sm font-medium tracking-widest uppercase">{stat.label}</div>
+                  <div className="text-white/30 text-[10px] tracking-widest uppercase">{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="py-9 sm:py-12 md:py-14 overflow-hidden bg-black">
-        <div className="text-center mb-6 sm:mb-8 px-4">
-          <h2 className="font-black text-white" style={{ fontSize: 'clamp(1.4rem, 4.2vw, 2.4rem)' }}>
-            Trusted by <span className="text-gray-500">Industry Leaders</span>
-          </h2>
-          <p className="text-gray-600 mt-2 sm:mt-2.5 text-[10px] sm:text-xs md:text-sm">Join hundreds of brands that have partnered with us</p>
-        </div>
-        <div className="relative overflow-hidden mb-4">
-          <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-black to-transparent z-10" />
-          <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-black to-transparent z-10" />
-          <div ref={clientsMarqueeRef} className="flex whitespace-nowrap will-change-transform">
-            {[...clients, ...clients, ...clients].map((client, index) => (
-              <div key={index} className="mx-4 sm:mx-6 text-xs sm:text-base md:text-xl font-black text-white/10 hover:text-white/25 transition-colors flex-shrink-0 cursor-default">{client}</div>
-            ))}
-          </div>
-        </div>
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-y-0 left-0 w-10 sm:w-24 bg-gradient-to-r from-black to-transparent z-10" />
-          <div className="absolute inset-y-0 right-0 w-10 sm:w-24 bg-gradient-to-l from-black to-transparent z-10" />
-          <div className="flex whitespace-nowrap animate-marquee-reverse will-change-transform">
-            {[...clients, ...clients, ...clients].map((client, index) => (
-              <div key={index} className="mx-4 sm:mx-6 text-[10px] sm:text-xs md:text-sm font-bold text-white/5 hover:text-white/15 transition-colors flex-shrink-0 cursor-default">{client}</div>
+          <div className="grid grid-cols-2 gap-2.5 ru">
+            {['/branding.jpg', '/perfo.jpg', '/sm.jpg', '/web.png'].map((src, i) => (
+              <div key={i} className={`overflow-hidden rounded-2xl bg-white/4 ${i === 1 ? 'mt-8' : ''} ${i === 3 ? '-mt-8' : ''}`}
+                style={{ aspectRatio: '3/4' }}>
+                <img src={src} alt="" className="w-full h-full object-cover hover:scale-106 transition-transform duration-700" />
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section ref={statsRef} className="py-14 sm:py-18 md:py-22 bg-black">
-        <div className="container-custom">
-          <div className="text-center mb-7 sm:mb-10 md:mb-12">
-            <h2 className="font-black text-white" style={{ fontSize: 'clamp(1.5rem, 4.6vw, 2.7rem)' }}>
-              Numbers That <span className="text-gray-500">Speak</span>
+      {/* ══ 4. IMAGE STRIP ════════════════════════════════════════ */}
+      <section className="bg-[#0a0a0a] px-5 sm:px-8 pb-2">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 ru">
+            {['/branding.jpg', '/perfo.jpg', '/bran.png'].map((src, i) => (
+              <Link key={i} to="/works" className="group overflow-hidden rounded-xl sm:rounded-2xl bg-white/4" style={{ aspectRatio: '3/2' }}>
+                <img src={src} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              </Link>
+            ))}
+          </div>
+          <div className="mt-2 overflow-hidden rounded-xl sm:rounded-2xl bg-white/3 ru" style={{ height: 155 }}>
+            <Link to="/works" className="block w-full h-full">
+              <img src="/mark.png" alt="" className="w-full h-full object-cover opacity-60 hover:opacity-80 hover:scale-102 transition-all duration-700" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 5. OUR SERVICES ══════════════════════════════════════ */}
+      <section className="bg-[#0a0a0a] py-16 sm:py-24 px-5 sm:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="ru font-black text-white uppercase" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>OUR SERVICES</h2>
+            <p className="ru text-white/28 text-xs sm:text-sm mt-3 max-w-2xl mx-auto leading-relaxed">
+              We provide businesses with an expert team that guides them through establishing a powerful online presence and marketing strategy.
+            </p>
+          </div>
+
+          <div className="rounded-2xl overflow-hidden border border-white/8" style={{ background: '#111' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_1fr]">
+
+              {/* LEFT */}
+              <div className="divide-y divide-white/8 border-b sm:border-b-0 sm:border-r border-white/8">
+                {SERVICES_LEFT.map((s, i) => (
+                  <Link key={i} to={s.link} className="svc-cell group block p-6 sm:p-8 hover:bg-white/3 transition-colors">
+                    <h3 className="font-black text-white group-hover:text-[#c8f731] transition-colors uppercase tracking-tight text-sm sm:text-base mb-1.5">{s.label}</h3>
+                    <p className="text-white/28 text-[11px] sm:text-xs leading-relaxed">{s.desc}</p>
+                    <span className="inline-flex items-center gap-1 text-[#c8f731] text-[10px] font-black tracking-widest uppercase mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Explore <FiArrowRight size={10} />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+
+              {/* CENTER logo */}
+              <div className="hidden sm:flex flex-col items-center justify-center border-r border-white/8 py-8" style={{ background: '#0d0d0d' }}>
+                <div className="relative w-20 h-20">
+                  <div className="absolute inset-0 rounded-full border border-white/8" style={{ animation: 'rotateSlow 18s linear infinite' }} />
+                  <div className="absolute inset-2.5 rounded-full border border-[#c8f731]/15" style={{ animation: 'rotateSlow 12s linear infinite reverse' }} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <img src="/lg.png" alt="SW" className="w-10 opacity-55" style={{ filter: 'brightness(0) invert(1)' }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT */}
+              <div className="divide-y divide-white/8">
+                {SERVICES_RIGHT.map((s, i) => (
+                  <Link key={i} to={s.link} className="svc-cell group block p-6 sm:p-8 hover:bg-white/3 transition-colors">
+                    <h3 className="font-black text-white group-hover:text-[#c8f731] transition-colors uppercase tracking-tight text-sm sm:text-base mb-1.5">{s.label}</h3>
+                    <p className="text-white/28 text-[11px] sm:text-xs leading-relaxed">{s.desc}</p>
+                    <span className="inline-flex items-center gap-1 text-[#c8f731] text-[10px] font-black tracking-widest uppercase mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Explore <FiArrowRight size={10} />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 6. WORKS GRID ════════════════════════════════════════ */}
+      <section className="bg-[#0a0a0a] pb-16 sm:pb-24 px-5 sm:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3" style={{ gridTemplateRows: 'auto auto' }}>
+            {/* row 1 col 1 */}
+            <Link to="/works" className="svc-cell group overflow-hidden rounded-xl sm:rounded-2xl bg-white/4" style={{ aspectRatio: '1/1' }}>
+              <img src="/branding.jpg" alt="" className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700" />
+            </Link>
+
+            {/* row 1+2 col 2 — tall lime */}
+            <div className="row-span-2 svc-cell overflow-hidden rounded-xl sm:rounded-2xl flex flex-col items-center justify-center relative" style={{ background: '#c8f731' }}>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4">
+                <img src="/lg.png" alt="SecondWave" className="w-14 sm:w-20" style={{ filter: 'brightness(0)' }} />
+                <Link to="/works"
+                  className="bg-black text-white font-black text-[9px] sm:text-[11px] tracking-widest uppercase px-4 py-2 rounded-full hover:bg-gray-900 transition-colors">
+                  Our Works
+                </Link>
+              </div>
+            </div>
+
+            {/* row 1 col 3 */}
+            <Link to="/works" className="svc-cell group overflow-hidden rounded-xl sm:rounded-2xl bg-white/4" style={{ aspectRatio: '1/1' }}>
+              <img src="/bran.png" alt="" className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700" />
+            </Link>
+
+            {/* row 2 col 1 */}
+            <Link to="/works" className="svc-cell group overflow-hidden rounded-xl sm:rounded-2xl bg-white/4" style={{ aspectRatio: '1/1' }}>
+              <img src="/perfo.jpg" alt="" className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700" />
+            </Link>
+
+            {/* row 2 col 3 — two stacked */}
+            <div className="flex flex-col gap-2">
+              <Link to="/works" className="svc-cell group overflow-hidden rounded-xl sm:rounded-2xl bg-white/4" style={{ aspectRatio: '2/1' }}>
+                <img src="/sm.jpg" alt="" className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700" />
+              </Link>
+              <Link to="/works" className="svc-cell group overflow-hidden rounded-xl sm:rounded-2xl bg-white/4" style={{ aspectRatio: '2/1' }}>
+                <img src="/web.png" alt="" className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 7. OUR CLIENTS ═══════════════════════════════════════ */}
+      <section ref={clientsRef} className="bg-[#0a0a0a] py-14 sm:py-20 px-5 sm:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10 ru">
+            <h2 className="font-black text-white uppercase" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>OUR CLIENTS</h2>
+          </div>
+          <div className="border border-white/8 rounded-2xl overflow-hidden">
+            <div className="grid grid-cols-5 divide-x divide-white/8 border-b border-white/8">
+              {CLIENTS.slice(0, 5).map((c, i) => (
+                <div key={i} className="client-cell flex items-center justify-center py-7 hover:bg-white/3 transition-colors">
+                  <span className="text-white/30 font-black text-[9px] sm:text-[11px] tracking-widest uppercase text-center px-2">{c}</span>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-5 divide-x divide-white/8">
+              {CLIENTS.slice(5, 10).map((c, i) => (
+                <div key={i} className="client-cell flex items-center justify-center py-7 hover:bg-white/3 transition-colors">
+                  <span className="text-white/30 font-black text-[9px] sm:text-[11px] tracking-widest uppercase text-center px-2">{c}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="text-center mt-7 ru">
+            <button className="border border-white/12 text-white/35 font-semibold text-[11px] tracking-widest uppercase px-8 py-3 rounded-full hover:border-white/25 hover:text-white/55 transition-all">
+              Load More
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 8. TESTIMONIALS — FIXED ══════════════════════════════ */}
+      <section ref={testiRef} style={{ background: '#c8f731' }} className="py-14 sm:py-20 px-5 sm:px-8">
+        <div className="max-w-4xl mx-auto">
+          {/* quote card */}
+          <div className="relative" style={{ opacity: testiAnim ? 0 : 1, transition: 'opacity 0.3s ease' }}>
+            {/* giant opening quote */}
+            <span
+              className="absolute font-black select-none leading-none pointer-events-none"
+              style={{ fontSize: 'clamp(5rem, 14vw, 12rem)', color: 'rgba(0,0,0,0.08)', top: '-1.5rem', left: '-0.5rem' }}>
+              "
+            </span>
+
+            <div className="relative z-10 pt-8 pb-6">
+              <p className="font-black text-black leading-snug mb-8"
+                style={{ fontSize: 'clamp(1.15rem, 3vw, 2rem)', lineHeight: 1.35 }}>
+                {TESTIMONIALS[testi].quote}
+              </p>
+
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <div className="font-black text-black text-sm sm:text-base">{TESTIMONIALS[testi].name}</div>
+                  <div className="text-black/55 text-xs mt-0.5">{TESTIMONIALS[testi].role}</div>
+                  <div className="text-black/40 text-[10px] mt-0.5">{TESTIMONIALS[testi].company}</div>
+                </div>
+                {/* closing quote bottom-right */}
+                <span className="font-black select-none leading-none pointer-events-none flex-shrink-0"
+                  style={{ fontSize: 'clamp(4rem, 10vw, 8rem)', color: 'rgba(0,0,0,0.08)', lineHeight: 0.8 }}>
+                  "
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* dot pagination */}
+          <div className="flex items-center gap-2.5 mt-4">
+            {TESTIMONIALS.map((_, i) => (
+              <button key={i} onClick={() => changeTesti(i)}
+                className="rounded-full transition-all duration-400"
+                style={{
+                  width: i === testi ? 28 : 9,
+                  height: 9,
+                  background: i === testi ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.22)',
+                }} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 9. FAQ ═══════════════════════════════════════════════ */}
+      <section className="bg-[#0a0a0a] py-16 sm:py-24 px-5 sm:px-8">
+        <div className="max-w-5xl mx-auto">
+          {/* Mobile: stacked. Desktop: strict 2-col grid with overflow-hidden on left */}
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-10 lg:gap-14 items-start">
+
+            {/* LEFT — title capped at 340px, never overflows into right col */}
+            <div ref={faqTitleRef} className="lg:sticky lg:top-24 overflow-hidden">
+              <h2 className="font-black text-white uppercase leading-[0.88] tracking-tighter break-words"
+                style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', wordBreak: 'break-word' }}>
+                FREQUENTLY<br />ASKED<br />QUESTIONS?
+              </h2>
+              <p className="text-white/25 text-xs leading-relaxed mt-5">
+                Everything you need to know about working with SecondWave.
+              </p>
+              <Link to="/contact"
+                className="inline-flex items-center gap-2 mt-6 bg-[#c8f731] text-black font-black rounded-full px-6 py-2.5 text-xs tracking-widest uppercase hover:bg-[#dbff3f] transition-all hover:scale-105">
+                Ask Us <FiArrowRight size={11} />
+              </Link>
+            </div>
+
+            {/* RIGHT — accordion */}
+            <div ref={faqAccRef} className="divide-y divide-white/8">
+              {FAQS.map((f, i) => (
+                <div key={i} className="py-5 sm:py-6">
+                  <button
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    className="w-full flex items-start justify-between gap-5 text-left group">
+                    <span className={`text-sm sm:text-base font-semibold leading-snug transition-colors duration-200 ${openFaq === i ? 'text-[#c8f731]' : 'text-white/65 group-hover:text-white'}`}>
+                      {f.q}
+                    </span>
+                    <span className="flex-shrink-0 mt-0.5 text-white/25 group-hover:text-white/50 transition-colors">
+                      {openFaq === i ? <FiMinus size={18} /> : <FiPlus size={18} />}
+                    </span>
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-300"
+                    style={{ maxHeight: openFaq === i ? 240 : 0, opacity: openFaq === i ? 1 : 0 }}>
+                    <p className="text-white/35 text-sm leading-relaxed pt-4">{f.a}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 10. READY TO WORK WITH US ════════════════════════════ */}
+      <section ref={ctaRef} className="bg-[#0a0a0a] py-16 sm:py-28 px-5 sm:px-8">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="overflow-hidden mb-4">
+            <h2 className="cta-title font-black text-white uppercase leading-[0.88] tracking-tighter"
+              style={{ fontSize: 'clamp(3rem, 11vw, 9rem)' }}>
+              READY TO<br />WORK<br />WITH US ?
             </h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-            {stats.map((stat, index) => (
-              <div key={index} className="stat-item text-center p-4 sm:p-6 md:p-8 bg-white/2 border border-white/6 rounded-xl sm:rounded-2xl md:rounded-3xl hover:border-white/15 transition-all group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-xl" style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
-                <div className="text-lg sm:text-xl md:text-2xl text-white/30 mb-2 sm:mb-3 flex justify-center group-hover:scale-125 transition-transform duration-300 relative z-10">{stat.icon}</div>
-                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-0.5 sm:mb-1.5 relative z-10" data-count={stat.count} data-suffix={stat.suffix}>
-                  {stat.count}{stat.suffix}
-                </div>
-                <div className="text-gray-600 text-[9px] sm:text-xs md:text-sm relative z-10">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <p className="cta-form text-white/28 text-xs sm:text-sm leading-relaxed max-w-sm mx-auto mb-10">
+            Go beyond typical with SecondWave. You're not just choosing a campaign — you're selecting a partner who understands your vision.
+          </p>
 
-      <section ref={ctaRef} className="py-14 sm:py-18 md:py-22 bg-black">
-        <div className="container-custom px-3 sm:px-4 md:px-6">
-          <div className="cta-content relative overflow-hidden rounded-2xl sm:rounded-3xl">
-            <div className="absolute inset-0">
-              <img
-                src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1800&q=90"
-                alt="CTA"
-                className="w-full h-full object-cover"
+          <form onSubmit={onSubmit} className="cta-form max-w-xs mx-auto flex flex-col gap-3">
+            <input
+              type="text" placeholder="Name" required
+              value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
+              className="w-full bg-[#111] border border-white/10 rounded-full px-5 py-3.5 text-white text-sm placeholder-white/18 focus:outline-none focus:border-[#c8f731]/45 transition-colors"
+            />
+            <div className="flex items-center bg-[#111] border border-white/10 rounded-full px-5 py-3.5 gap-2 focus-within:border-[#c8f731]/45 transition-colors">
+              <span className="text-white/22 text-sm font-bold flex-shrink-0">🇦🇪 +971</span>
+              <input
+                type="tel" placeholder="Phone Number"
+                value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
+                className="flex-1 bg-transparent text-white text-sm placeholder-white/18 focus:outline-none"
               />
-              <div className="absolute inset-0 bg-black/72" />
-              <div className="absolute inset-0 backdrop-blur-[1px]" />
             </div>
-            <div className="absolute top-0 left-0 right-0 h-px bg-white/8" />
-            <div className="relative z-10 text-center text-white p-7 sm:p-12 md:p-16 lg:p-20">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-white/8 rounded-full text-[10px] sm:text-xs md:text-sm mb-4 sm:mb-6 md:mb-7 backdrop-blur-sm border border-white/8">
-                <FiGlobe className="text-white/60" />
-                <span className="text-white/60">Ready when you are</span>
-              </div>
-              <h2 className="font-black mb-3 sm:mb-4 md:mb-5 leading-tight text-white" style={{ fontSize: 'clamp(1.8rem, 5.4vw, 3rem)' }}>
-                Ready to Ride the Wave?
-              </h2>
-              <p className="text-xs sm:text-sm md:text-lg mb-6 sm:mb-8 md:mb-9 max-w-xl md:max-w-2xl mx-auto text-white/50 leading-relaxed">
-                Let's create something amazing together and take your brand to new heights. Our team is ready to transform your digital presence.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center">
-                <Link to="/contact" className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-9 py-3 sm:py-3.5 md:py-4 bg-white text-black rounded-full font-black hover:shadow-[0_0_42px_rgba(255,255,255,0.15)] transition-all group text-xs sm:text-sm md:text-base">
-                  <span>Start Your Project</span>
-                  <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-                </Link>
-                <Link to="/works" className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 md:px-9 py-3 sm:py-3.5 md:py-4 border border-white/20 rounded-full font-bold hover:bg-white/8 hover:border-white/35 transition-all text-xs sm:text-sm md:text-base backdrop-blur-sm text-white">
-                  View Portfolio
-                </Link>
-              </div>
-            </div>
-          </div>
+            <button type="submit"
+              className="w-full bg-[#c8f731] text-black font-black rounded-full py-3.5 text-sm tracking-widest uppercase hover:bg-[#dbff3f] transition-all hover:shadow-[0_0_50px_rgba(200,247,49,0.45)] hover:scale-[1.025]">
+              Get Started
+            </button>
+          </form>
         </div>
       </section>
 
-      <style jsx>{`
-        .services-grid-dark {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          grid-template-rows: auto auto;
-          gap: 12px;
+      <style>{`
+        @keyframes rotateSlow {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
-        .services-grid-dark .service-card-new:nth-child(1) {
-          min-height: 380px;
-        }
-        .services-grid-dark .service-card-new:nth-child(2) {
-          min-height: 380px;
-        }
-        .services-grid-dark .service-card-new:nth-child(3) {
-          min-height: 380px;
-        }
-        .services-grid-dark .service-card-new:nth-child(4) {
-          grid-column: span 1;
-          min-height: 300px;
-        }
-        .services-grid-dark .service-card-new:nth-child(5) {
-          grid-column: span 1;
-          min-height: 300px;
-        }
-        @media (min-width: 1024px) {
-          .services-grid-dark {
-            gap: 16px;
-          }
-          .services-grid-dark .service-card-new:nth-child(1),
-          .services-grid-dark .service-card-new:nth-child(2),
-          .services-grid-dark .service-card-new:nth-child(3) {
-            min-height: 420px;
-          }
-          .services-grid-dark .service-card-new:nth-child(4),
-          .services-grid-dark .service-card-new:nth-child(5) {
-            min-height: 340px;
-          }
-        }
-        @keyframes marqueeRev {
-          0% { transform: translateX(-33.333%); }
-          100% { transform: translateX(0%); }
-        }
-        .animate-marquee-reverse {
-          animation: marqueeRev 18s linear infinite;
-        }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        .will-change-transform { will-change: transform; }
+        .hover\\:scale-106:hover { transform: scale(1.06); }
+        .hover\\:scale-102:hover { transform: scale(1.02); }
       `}</style>
-      
     </div>
   );
 }
-
-export default Home;
