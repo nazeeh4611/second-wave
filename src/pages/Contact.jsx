@@ -1,300 +1,155 @@
-// src/pages/Contact.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { FiSend, FiMapPin, FiDollarSign, FiMail, FiTarget, FiArrowRight } from 'react-icons/fi';
-import Spline from '@splinetool/react-spline';
-import SilkWave from '../components/ParticlesWave';
+import { FiSend, FiMapPin, FiMail, FiPhone, FiArrowRight, FiInstagram, FiLinkedin } from 'react-icons/fi';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function Contact() {
-  const sectionRef = useRef(null);
-  const formRef = useRef(null);
-  const [splineError, setSplineError] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    company: '',
-    message: ''
-  });
+const ACCENT = '#4F8EF7';
 
-  const onSplineLoad = (spline) => {
-    console.log('Spline loaded');
-    setSplineError(false);
-  };
-
-  const onSplineError = () => {
-    setSplineError(true);
-    console.warn('Spline scene failed to load');
-  };
+export default function Contact() {
+  const pageRef = useRef(null);
+  const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
-    // Kill any existing ScrollTrigger instances
-    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    
+    ScrollTrigger.getAll().forEach(t => t.kill());
     const ctx = gsap.context(() => {
-      // Hero animations - matching Services page
-      gsap.fromTo('.contact-hero-title span',
-        { y: 120, opacity: 0, rotationX: -90 },
-        { y: 0, opacity: 1, rotationX: 0, duration: 1.1, ease: 'power4.out', stagger: { amount: 0.5 }, delay: 0.2 }
-      );
-
-      gsap.fromTo('.contact-hero-subtitle',
-        { y: 40, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.1, delay: 1, ease: 'power3.out' }
-      );
-
-      // Form card animation
-      gsap.fromTo('.contact-card',
-        { y: 50, opacity: 0, scale: 0.95 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          scale: 1, 
-          duration: 0.9,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.contact-card',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-
-      // Form fields animation
-      gsap.fromTo('.contact-field',
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: formRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-
-      // Contact info animation
-      gsap.fromTo('.contact-info-item',
-        { x: -20, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.contact-info',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-
-      // Process steps animations
-      gsap.fromTo('.process-step',
-        { y: 60, opacity: 0, scale: 0.9 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'back.out(1.4)',
-          scrollTrigger: {
-            trigger: '.process-section',
-            start: 'top 75%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-
-    }, sectionRef);
-
-    return () => {
-      ctx.revert();
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
+      gsap.fromTo('.hero-word', { y: '108%', skewY: 2 }, { y: '0%', skewY: 0, duration: 1.1, stagger: 0.08, delay: 0.2, ease: 'power4.out' });
+      gsap.fromTo('.hero-sub', { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.9, ease: 'power3.out' });
+      gsap.fromTo('.contact-card', { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: '.contact-card', start: 'top 82%' } });
+      gsap.fromTo('.contact-field', { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, stagger: 0.09, ease: 'power3.out', scrollTrigger: { trigger: '.contact-form', start: 'top 80%' } });
+      gsap.fromTo('.info-item', { x: -25, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out', scrollTrigger: { trigger: '.contact-info', start: 'top 82%' } });
+      gsap.fromTo('.process-card', { y: 45, opacity: 0, scale: 0.93 }, { y: 0, opacity: 1, scale: 1, duration: 0.75, stagger: 0.1, ease: 'back.out(1.5)', scrollTrigger: { trigger: '.process-grid', start: 'top 80%' } });
+    }, pageRef);
+    return () => { ctx.revert(); ScrollTrigger.getAll().forEach(t => t.kill()); };
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const handleChange = (e) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your form submission logic here
+    setSending(true);
+    await new Promise(r => setTimeout(r, 1200));
+    setSending(false);
+    setSent(true);
+    setFormData({ name: '', email: '', company: '', message: '' });
+    setTimeout(() => setSent(false), 4000);
   };
-
-  // Spline scene URL - matching Services page
-  const splineSceneUrl = "https://prod.spline.design/6WqtzBLlcF7kYt9W/scene.splinecode";
 
   return (
-    <div ref={sectionRef} className="relative overflow-x-hidden bg-white min-h-screen">
-      {/* Spline Background - EXACT same placement as Services page */}
-      <div className="absolute inset-0 z-0">
-  <SilkWave speed={0.0006} waveCount={6} opacity={0.75} />
+    <div ref={pageRef} className="bg-[#0a0a0a] overflow-x-hidden">
 
-</div>
-
-      {/* Hero Section - matching Services page structure */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-100/30 to-transparent" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gray-200 rounded-full blur-3xl opacity-20" />
-        
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-gray-100 border border-gray-200 rounded-full text-xs text-gray-700">
-            <span className="w-2 h-2 rounded-full bg-gray-800 animate-pulse" />
-            Get In Touch
-            <FiSend className="text-gray-800" />
+      <section className="relative min-h-[70vh] flex flex-col items-center justify-center overflow-hidden bg-black">
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(79,142,247,0.06) 0%, transparent 70%)' }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-[#0a0a0a]" />
+        <div className="relative z-10 text-center px-4 pt-24">
+          <span className="inline-block text-[10px] tracking-[0.45em] uppercase font-bold mb-5 px-4 py-1.5 rounded-full border" style={{ color: ACCENT, borderColor: `${ACCENT}30` }}>Get In Touch</span>
+          <div className="overflow-hidden mb-5">
+            <h1 className="font-black text-white leading'none tracking-tighter" style={{ fontSize: 'clamp(3rem, 12vw, 10rem)' }}>
+              {"Let's Create".split(' ').map((w, i) => (
+                <span key={i} className="hero-word inline-block mr-[0.18em] last:mr-0">{w}</span>
+              ))}
+            </h1>
           </div>
-          
-          <h1 className="contact-hero-title font-black text-gray-900 mb-6" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>
-            <span className="inline-block">Let's</span>{' '}
-            <span className="inline-block text-gray-800">Create</span>
-          </h1>
-          
-          <p className="contact-hero-subtitle text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="hero-sub text-white/40 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
             Share a little about your brand and goals. We'll respond within one business day with next steps.
           </p>
         </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <span className="text-[10px] text-gray-400 tracking-[0.3em] uppercase">CONNECT</span>
-          <div className="w-px h-12 bg-gradient-to-b from-gray-800 to-transparent" />
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
+          <span className="text-white/18 text-[9px] tracking-[0.35em] uppercase">Connect</span>
+          <div className="w-px h-10 bg-gradient-to-b from-white/25 to-transparent" />
         </div>
       </section>
 
-      {/* Contact Form Section */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="container-custom max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="contact-card max-w-5xl mx-auto">
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 md:p-10 hover:border-gray-800 transition-all duration-300 hover:shadow-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-                {/* Form Fields */}
-                <div className="md:col-span-2 space-y-6" ref={formRef}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="contact-field text-left">
-                      <label className="block text-xs font-bold tracking-[0.2em] text-gray-700 uppercase mb-2">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-gray-400 focus:bg-white transition-all duration-300 placeholder:text-gray-400"
-                        placeholder="Your full name"
-                      />
-                    </div>
-                    <div className="contact-field text-left">
-                      <label className="block text-xs font-bold tracking-[0.2em] text-gray-700 uppercase mb-2">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-gray-400 focus:bg-white transition-all duration-300 placeholder:text-gray-400"
-                        placeholder="you@company.com"
-                      />
-                    </div>
-                  </div>
+      <section className="bg-white py-14 sm:py-20 px-4 sm:px-6 md:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="contact-card grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
 
-                  <div className="contact-field text-left">
-                    <label className="block text-xs font-bold tracking-[0.2em] text-gray-700 uppercase mb-2">
-                      Company
-                    </label>
-                    <input
-                      type="text"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleInputChange}
-                      className="w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-gray-400 focus:bg-white transition-all duration-300 placeholder:text-gray-400"
-                      placeholder="Brand or company name"
-                    />
-                  </div>
+            <form onSubmit={handleSubmit} className="contact-form space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="contact-field">
+                  <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">Name</label>
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} required
+                    placeholder="Your full name"
+                    className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all placeholder-black/25"
+                    onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
+                    onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+                </div>
+                <div className="contact-field">
+                  <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">Email</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} required
+                    placeholder="you@company.com"
+                    className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all placeholder-black/25"
+                    onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
+                    onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+                </div>
+              </div>
+              <div className="contact-field">
+                <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">Company</label>
+                <input type="text" name="company" value={formData.company} onChange={handleChange}
+                  placeholder="Brand or company name"
+                  className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all placeholder-black/25"
+                  onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+              </div>
+              <div className="contact-field">
+                <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">What do you need help with?</label>
+                <textarea name="message" rows={5} value={formData.message} onChange={handleChange}
+                  placeholder="Tell us about your project, timelines and success metrics."
+                  className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all resize-none placeholder-black/25"
+                  onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+              </div>
+              <div className="contact-field flex items-center gap-4">
+                <button type="submit" disabled={sending}
+                  className="inline-flex items-center gap-2.5 text-white font-black rounded-full px-8 py-4 text-xs tracking-widest uppercase transition-all hover:opacity-90 hover:scale-105 disabled:opacity-60 disabled:scale-100"
+                  style={{ background: ACCENT }}>
+                  {sending ? 'Sending...' : sent ? 'Sent!' : 'Submit Brief'}
+                  <FiSend size={13} />
+                </button>
+                <p className="text-black/30 text-xs">We'll respond within 24 hours</p>
+              </div>
+            </form>
 
-                  <div className="contact-field text-left">
-                    <label className="block text-xs font-bold tracking-[0.2em] text-gray-700 uppercase mb-2">
-                      What do you need help with?
-                    </label>
-                    <textarea
-                      name="message"
-                      rows="4"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      className="w-full rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-gray-900 text-sm focus:outline-none focus:border-gray-400 focus:bg-white transition-all duration-300 placeholder:text-gray-400 resize-none"
-                      placeholder="Tell us about your project, timelines and success metrics."
-                    />
+            <div className="contact-info space-y-8 pt-2">
+              {[
+                { Icon: FiMail, label: 'Email Us', val: 'info@secondwave.in', href: 'mailto:info@secondwave.in' },
+                { Icon: FiPhone, label: 'Call Us', val: '+91 90725 32221', href: 'tel:+919072532221' },
+                { Icon: FiMapPin, label: 'Location', val: 'Kochi, Kerala, India', href: null },
+              ].map(({ Icon, label, val, href }, i) => (
+                <div key={i} className="info-item flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border border-black/8" style={{ background: `${ACCENT}12` }}>
+                    <Icon size={16} style={{ color: ACCENT }} />
                   </div>
-
-                  <div className="contact-field flex flex-col sm:flex-row gap-4 items-center justify-start">
-                    <button
-                      onClick={handleSubmit}
-                      className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-gray-800 transition-all duration-300 hover:shadow-lg w-full sm:w-auto"
-                    >
-                      <span>Submit Brief</span>
-                      <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <p className="text-xs text-gray-500">
-                      We'll get back to you within 24 hours
-                    </p>
+                  <div>
+                    <p className="text-[10px] font-black tracking-[0.25em] text-black/35 uppercase mb-0.5">{label}</p>
+                    {href ? (
+                      <a href={href} className="text-black font-semibold text-sm hover:underline">{val}</a>
+                    ) : (
+                      <p className="text-black font-semibold text-sm">{val}</p>
+                    )}
                   </div>
                 </div>
+              ))}
 
-                {/* Contact Information */}
-                <div className="contact-info space-y-8 text-left">
-                  <div className="contact-info-item">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800">
-                        <FiMail />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 tracking-[0.2em] uppercase">
-                        Direct Line
-                      </h3>
-                    </div>
-                    <p className="text-gray-600 text-sm pl-13">hello@secondwave.studio</p>
-                  </div>
-
-                  <div className="contact-info-item">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800">
-                        <FiDollarSign />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 tracking-[0.2em] uppercase">
-                        Typical Budgets
-                      </h3>
-                    </div>
-                    <p className="text-gray-600 text-sm pl-13">Retainers from $4k / month</p>
-                    <p className="text-gray-500 text-xs pl-13 mt-1">
-                      Project-based work available
-                    </p>
-                  </div>
-
-                  <div className="contact-info-item">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800">
-                        <FiMapPin />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 tracking-[0.2em] uppercase">
-                        Location
-                      </h3>
-                    </div>
-                    <p className="text-gray-600 text-sm pl-13">Dubai, Remote-friendly</p>
-                  </div>
+              <div className="info-item pt-2 border-t border-black/8">
+                <p className="text-[10px] font-black tracking-[0.25em] text-black/35 uppercase mb-4">Follow Us</p>
+                <div className="flex gap-3">
+                  {[
+                    { Icon: FiInstagram, href: 'https://www.instagram.com/secondwave.ads', label: 'Instagram' },
+                    { Icon: FiLinkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+                  ].map(({ Icon, href, label }, i) => (
+                    <a key={i} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                      className="w-10 h-10 rounded-xl border border-black/8 flex items-center justify-center text-black/35 hover:text-white hover:border-transparent transition-all"
+                      style={{ '--hover-bg': ACCENT }}
+                      onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.color = 'white'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(0,0,0,0.35)'; }}>
+                      <Icon size={15} />
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>
@@ -302,76 +157,47 @@ function Contact() {
         </div>
       </section>
 
-      {/* Process Section - matching Services page */}
-      <section className="process-section py-20 md:py-24 bg-gray-50">
-        <div className="container-custom max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="inline-block text-xs font-bold tracking-[0.3em] text-gray-800 uppercase mb-3">
-              Our Process
-            </span>
-            <h2 className="font-black text-gray-900 text-3xl sm:text-4xl md:text-5xl">
-              How We <span className="text-gray-800">Collaborate</span>
-            </h2>
+      <section className="bg-[#0a0a0a] py-14 sm:py-20 px-4 sm:px-6 md:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <span className="text-[10px] tracking-[0.4em] text-white/22 uppercase font-bold mb-2 block">Our Process</span>
+            <h2 className="font-black text-white uppercase leading-none" style={{ fontSize: 'clamp(2rem, 6vw, 5rem)' }}>How We Collaborate</h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="process-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { number: '01', title: 'Discovery Call', desc: 'We discuss your goals, challenges, and vision for the project.' },
-              { number: '02', title: 'Strategy', desc: 'We develop a tailored strategy based on your specific needs.' },
-              { number: '03', title: 'Execution', desc: 'Our team brings the strategy to life with precision and creativity.' },
-              { number: '04', title: 'Growth', desc: 'We measure results and optimize for continuous improvement.' }
-            ].map((item, index) => (
-              <div key={index} className="process-step text-center group">
-                <div className="text-5xl font-black text-gray-300 mb-4 group-hover:text-gray-400 transition-colors">
-                  {item.number}
-                </div>
-                <div className="w-12 h-0.5 bg-gray-300 mx-auto mb-4 group-hover:w-16 transition-all duration-300" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+              { num: '01', title: 'Discovery Call', desc: 'We discuss your goals, challenges, and vision for the project in detail.' },
+              { num: '02', title: 'Strategy', desc: 'We develop a tailored strategy based on your specific needs and market.' },
+              { num: '03', title: 'Execution', desc: 'Our team brings the strategy to life with precision and creativity.' },
+              { num: '04', title: 'Growth', desc: 'We measure results and optimize for continuous improvement and scaling.' },
+            ].map((item, i) => (
+              <div key={i} className="process-card rounded-2xl p-6 sm:p-7 border border-white/8 hover:border-white/18 transition-all group">
+                <div className="font-black text-white/6 leading-none mb-4 select-none" style={{ fontSize: '3.5rem' }}>{item.num}</div>
+                <div className="w-7 h-0.5 mb-4 transition-all duration-300 group-hover:w-12" style={{ background: ACCENT }} />
+                <h3 className="font-black text-white text-base mb-2">{item.title}</h3>
+                <p className="text-white/28 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section - matching Services page */}
-      <section className="py-20 md:py-24 bg-white">
-        <div className="container-custom max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative p-12 md:p-16 rounded-3xl overflow-hidden bg-gray-900">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black" />
-            <div className="absolute inset-0 opacity-20" style={{
-              backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(0,0,0,0.2) 0%, transparent 50%)'
-            }} />
-            
-            <div className="relative z-10 text-center text-white">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm mb-6 backdrop-blur-sm">
-                <FiTarget />
-                Not Ready to Talk?
-              </div>
-              
-              <h2 className="font-black mb-4 text-white" style={{ fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
-                Explore Our Work First
-              </h2>
-              
-              <p className="text-gray-300 mb-8 max-w-2xl mx-auto text-lg leading-relaxed">
-                Take a look at our portfolio to see how we've helped other brands achieve remarkable results.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  to="/works"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-900 rounded-full font-bold hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all group"
-                >
-                  <span>View Portfolio</span>
-                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/services"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/30 rounded-full font-bold hover:bg-white/10 hover:border-white transition-all text-white"
-                >
-                  Explore Services
-                </Link>
-              </div>
+      <section className="bg-white py-14 sm:py-20 px-4 sm:px-6 md:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-black/8 p-10 sm:p-14 text-center" style={{ background: '#0a0a0a' }}>
+            <span className="text-[10px] tracking-[0.4em] uppercase font-bold mb-4 block" style={{ color: ACCENT }}>Not Ready Yet?</span>
+            <h2 className="font-black text-white uppercase leading-tight mb-4" style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}>
+              Explore Our<br />Work First
+            </h2>
+            <p className="text-white/30 text-sm sm:text-base leading-relaxed max-w-sm mx-auto mb-8">
+              See how we've helped brands across Kerala achieve remarkable results.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link to="/works" className="inline-flex items-center justify-center gap-2.5 text-white font-black rounded-full px-8 py-4 text-sm tracking-widest uppercase transition-all hover:opacity-90 hover:scale-105 group" style={{ background: ACCENT }}>
+                View Portfolio <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link to="/services" className="inline-flex items-center justify-center gap-2.5 border border-white/15 text-white/55 font-black rounded-full px-8 py-4 text-sm tracking-widest uppercase hover:border-white/30 hover:text-white transition-all">
+                Our Services
+              </Link>
             </div>
           </div>
         </div>
@@ -379,5 +205,3 @@ function Contact() {
     </div>
   );
 }
-
-export default Contact;
