@@ -30,8 +30,7 @@ export default function Navbar() {
 
   return (
     <nav className={`navbar fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[#0a0a0a]/98 backdrop-blur-xl border-b border-white/6 h-[58px]' : 'bg-black/30 backdrop-blur-md h-[64px]'}`}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center justify-between relative">
-
+<div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 h-full flex items-center justify-between">
         <div className="hidden md:flex items-center gap-0.5">
           {[['/', 'Home'], ['/services', 'Services']].map(([to, label]) => (
             <NavLink key={to} to={to}
