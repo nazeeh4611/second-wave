@@ -21,20 +21,20 @@ import Creative from './pages/Creative';
 import Production from './pages/Production';
 import DigitalPR from './pages/DigitalPR';
 import Contact from './pages/Contact';
+import Careers from './pages/Careers';
+import JobDetail from './pages/Jobdetail';
 
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminWorkForm from './pages/admin/WorkForm';
+import AdminCareers from './pages/admin/Admincareers';
 import ProtectedRoute from './pages/admin/ProtectedRoute';
+import BrandSolutions from './pages/BrandSolutions';
 
 function App() {
   useEffect(() => {
     const style = document.createElement('style');
-    style.innerHTML = `
-      body {
-        scroll-behavior: auto !important;
-      }
-    `;
+    style.innerHTML = `body { scroll-behavior: auto !important; }`;
     document.head.appendChild(style);
 
     const lenis = new Lenis({
@@ -53,19 +53,13 @@ function App() {
     }
 
     requestAnimationFrame(raf);
-
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
 
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true, duration: 0 });
-    }
+    if (lenis) lenis.scrollTo(0, { immediate: true, duration: 0 });
 
-    return () => {
-      lenis.destroy();
-      style.remove();
-    };
+    return () => { lenis.destroy(); style.remove(); };
   }, []);
 
   return (
@@ -93,6 +87,8 @@ function App() {
                     <Route path="/production" element={<Production />} />
                     <Route path="/digital-pr" element={<DigitalPR />} />
                     <Route path="/contact" element={<Contact />} />
+                    <Route path="/careers" element={<Careers />} />
+                    <Route path="/careers/:id" element={<JobDetail />} />
                   </Routes>
                 </main>
                 <Footer />
@@ -106,6 +102,7 @@ function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="works/new" element={<AdminWorkForm />} />
             <Route path="works/:id" element={<AdminWorkForm />} />
+            <Route path="careers" element={<AdminCareers />} />
           </Route>
         </Routes>
 

@@ -14,13 +14,14 @@ import {
   FiAward,
   FiUsers,
   FiGlobe,
-  FiDroplet,
   FiLayout,
   FiBookOpen,
   FiCommand
 } from 'react-icons/fi';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const ACCENT = '#4F8EF7';
 
 function Branding() {
   const pageRef = useRef(null);
@@ -29,7 +30,6 @@ function Branding() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero title animation
       gsap.fromTo('.brand-hero-title span',
         { y: 120, opacity: 0, rotationX: -90 },
         { y: 0, opacity: 1, rotationX: 0, duration: 1.1, ease: 'power4.out', stagger: { amount: 0.5 }, delay: 0.2 }
@@ -40,7 +40,6 @@ function Branding() {
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.1, delay: 1, ease: 'power3.out' }
       );
 
-      // Hero image parallax
       if (heroImgRef.current && heroSectionRef.current) {
         gsap.to(heroImgRef.current, {
           scale: 1.5,
@@ -54,7 +53,6 @@ function Branding() {
         });
       }
 
-      // Feature cards animations
       gsap.fromTo('.feature-card',
         { y: 60, opacity: 0, scale: 0.9 },
         {
@@ -66,7 +64,6 @@ function Branding() {
         }
       );
 
-      // Process steps animations
       gsap.fromTo('.process-step',
         { y: 60, opacity: 0, scale: 0.9 },
         {
@@ -78,7 +75,6 @@ function Branding() {
         }
       );
 
-      // Stats animation
       document.querySelectorAll('[data-count]').forEach(el => {
         const target = parseInt(el.getAttribute('data-count') || '0', 10);
         const obj = { val: 0 };
@@ -99,7 +95,6 @@ function Branding() {
         });
       });
 
-      // Floating animation for icons
       gsap.utils.toArray('.feature-icon').forEach((icon, i) => {
         gsap.to(icon, {
           y: -5,
@@ -170,8 +165,7 @@ function Branding() {
   ];
 
   return (
-    <div ref={pageRef} className="relative overflow-x-hidden bg-black pt-16 sm:pt-20">
-      {/* Hero Section */}
+    <div ref={pageRef} className="relative overflow-x-hidden bg-[#0a0a0a] pt-16 sm:pt-20">
       <section
         ref={heroSectionRef}
         className="relative overflow-hidden"
@@ -189,19 +183,25 @@ function Branding() {
             style={{ objectPosition: '50% 30%' }}
             loading="eager"
           />
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:px-6">
-          <div className="brand-hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white/10 border border-white/20 rounded-full text-[10px] sm:text-xs text-white/70 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white animate-pulse" />
+          <div 
+            className="brand-hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 rounded-full text-[10px] sm:text-xs backdrop-blur-md"
+            style={{ background: `${ACCENT}15`, border: `1px solid ${ACCENT}30`, color: ACCENT }}
+          >
+            <span 
+              className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full"
+              style={{ background: ACCENT, animation: 'pulse 2s infinite' }}
+            />
             Brand Identity
-            <FiZap className="text-white/70 text-xs sm:text-sm" />
+            <FiZap style={{ color: ACCENT }} className="text-xs sm:text-sm" />
           </div>
           
           <h1 className="brand-hero-title font-black text-white mb-4 sm:mb-6 leading-none px-2" style={{ fontSize: 'clamp(2rem, 12vw, 6rem)', perspective: '1000px' }}>
             <span className="inline-block">Brand</span>{' '}
-            <span className="inline-block text-white/70">Identity</span>
+            <span className="inline-block" style={{ color: ACCENT }}>Identity</span>
           </h1>
           
           <p className="brand-hero-subtitle text-white/60 text-sm sm:text-base md:text-xl max-w-2xl mx-auto leading-relaxed px-4">
@@ -219,15 +219,14 @@ function Branding() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="features-section py-20 sm:py-24 md:py-28 bg-black">
+      <section className="features-section py-20 sm:py-24 md:py-28 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-white/40 uppercase mb-3 sm:mb-4">
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase mb-3 sm:mb-4" style={{ color: `${ACCENT}99` }}>
               What We Deliver
             </span>
             <h2 className="font-black text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4">
-              Comprehensive <span className="text-white/40">Branding</span>
+              Comprehensive <span style={{ color: ACCENT }}>Branding</span>
             </h2>
             <p className="text-white/60 text-sm sm:text-base max-w-2xl mx-auto">
               We build brands that leave lasting impressions and create emotional connections
@@ -241,25 +240,29 @@ function Branding() {
                 className="feature-card group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-6 sm:p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm hover:border-white/20 transition-all duration-500">
-                  <div className="feature-icon text-3xl sm:text-4xl mb-4 w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-xl flex items-center justify-center text-white/80 group-hover:scale-110 group-hover:bg-white/20 transition-all duration-300">
+                <div 
+                  className="relative p-6 sm:p-8 rounded-2xl backdrop-blur-sm transition-all duration-500"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <div 
+                    className="feature-icon text-3xl sm:text-4xl mb-4 w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center transition-all duration-300"
+                    style={{ background: `${ACCENT}15`, color: ACCENT }}
+                  >
                     {feature.icon}
                   </div>
                   
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{feature.title}</h3>
                   <p className="text-white/50 text-xs sm:text-sm mb-4 leading-relaxed">{feature.desc}</p>
                   
-                  {/* Features list */}
                   <div className="space-y-1.5">
                     {feature.features.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-xs text-white/40">
-                        <span className="w-1 h-1 rounded-full bg-white/40" />
+                        <span className="w-1 h-1 rounded-full" style={{ background: ACCENT }} />
                         {item}
                       </div>
                     ))}
                   </div>
                   
-                  {/* Hover indicator */}
                   <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <FiArrowRight className="text-white/40 text-lg" />
                   </div>
@@ -270,9 +273,7 @@ function Branding() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 sm:py-20 bg-[#0a0a0a] relative overflow-hidden">
-        {/* Background pattern */}
+      <section className="py-16 sm:py-20 bg-black relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
             backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
@@ -289,28 +290,27 @@ function Branding() {
               { count: 12, suffix: 'x', label: 'Avg Brand Lift', icon: <FiTrendingUp /> }
             ].map((stat, index) => (
               <div key={index} className="group text-center">
-                <div className="text-2xl sm:text-3xl text-white/20 mb-2 group-hover:text-white/30 transition-colors">
+                <div className="text-2xl sm:text-3xl mb-2 transition-colors" style={{ color: `${ACCENT}55` }}>
                   {stat.icon}
                 </div>
                 <div className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1">
                   <span data-count={stat.count}>{stat.count}</span>{stat.suffix}
                 </div>
-                <div className="text-[10px] sm:text-xs text-white/40 uppercase tracking-wider">{stat.label}</div>
+                <div className="text-[10px] sm:text-xs uppercase tracking-wider" style={{ color: `${ACCENT}99` }}>{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Process Section */}
-      <section className="process-section py-20 sm:py-24 md:py-28 bg-black">
+      <section className="process-section py-20 sm:py-24 md:py-28 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-white/40 uppercase mb-3 sm:mb-4">
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase mb-3 sm:mb-4" style={{ color: `${ACCENT}99` }}>
               Our Process
             </span>
             <h2 className="font-black text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4">
-              How We Build <span className="text-white/40">Brands</span>
+              How We Build <span style={{ color: ACCENT }}>Brands</span>
             </h2>
             <p className="text-white/60 text-sm sm:text-base max-w-2xl mx-auto">
               A systematic approach to creating powerful brand identities
@@ -320,22 +320,22 @@ function Branding() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {process.map((item, index) => (
               <div key={index} className="process-step group">
-                <div className="relative p-6 sm:p-8 bg-white/5 border border-white/10 rounded-2xl hover:border-white/20 transition-all duration-500">
-                  {/* Step number */}
-                  <div className="text-5xl sm:text-6xl font-black text-white/10 mb-4 group-hover:text-white/20 transition-colors">
+                <div 
+                  className="relative p-6 sm:p-8 rounded-2xl transition-all duration-500"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <div className="text-5xl sm:text-6xl font-black mb-4 transition-colors" style={{ color: `${ACCENT}20` }}>
                     {item.step}
                   </div>
                   
-                  {/* Icon */}
-                  <div className="text-2xl sm:text-3xl text-white/40 mb-4 group-hover:text-white/60 transition-colors">
+                  <div className="text-2xl sm:text-3xl mb-4 transition-colors" style={{ color: ACCENT }}>
                     {item.icon}
                   </div>
                   
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{item.title}</h3>
                   <p className="text-white/40 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
                   
-                  {/* Decorative line */}
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-12 h-px bg-white/30 transition-all duration-300" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-12 h-px transition-all duration-300" style={{ background: ACCENT }} />
                 </div>
               </div>
             ))}
@@ -343,25 +343,30 @@ function Branding() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 sm:py-24 bg-[#0a0a0a]">
+      <section className="py-20 sm:py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative p-8 sm:p-12 md:p-16 rounded-3xl overflow-hidden">
-            <div className="absolute inset-0">
+          <div 
+            className="relative p-8 sm:p-12 md:p-16 rounded-3xl overflow-hidden"
+            style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            <div className="absolute inset-0 opacity-20">
               <img
                 src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=2000&q=90"
                 alt="CTA"
                 className="w-full h-full object-cover"
                 style={{ objectPosition: '50% 50%' }}
               />
-              <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px]" />
+              <div className="absolute inset-0 bg-black/60" />
             </div>
             
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
             <div className="relative z-10 text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-xs text-white/70 backdrop-blur-sm border border-white/10 mb-6">
-                <FiAward className="text-white/70" />
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs backdrop-blur-sm mb-6"
+                style={{ background: `${ACCENT}15`, border: `1px solid ${ACCENT}30`, color: ACCENT }}
+              >
+                <FiAward style={{ color: ACCENT }} />
                 <span>Let's Build Your Brand</span>
               </div>
               
@@ -376,14 +381,16 @@ function Branding() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-black rounded-full font-bold text-sm sm:text-base hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all group"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all group"
+                  style={{ background: ACCENT, color: 'white' }}
                 >
                   <span>Start Your Brand Journey</span>
                   <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/works"
-                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 border border-white/30 rounded-full font-bold text-sm sm:text-base hover:bg-white/10 hover:border-white/50 transition-all text-white backdrop-blur-sm"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all text-white backdrop-blur-sm"
+                  style={{ border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.03)' }}
                 >
                   View Case Studies
                 </Link>
@@ -392,6 +399,11 @@ function Branding() {
           </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes spinA { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+      `}</style>
     </div>
   );
 }

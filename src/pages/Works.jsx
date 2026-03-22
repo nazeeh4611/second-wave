@@ -84,7 +84,7 @@ export default function Works() {
         </div>
       </section>
 
-      <section className="bg-white py-8 px-4 sm:px-6 md:px-8 sticky top-[56px] z-40 border-b border-black/8">
+      {/* <section className="bg-white py-8 px-4 sm:px-6 md:px-8 sticky top-[56px] z-40 border-b border-black/8">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-wrap justify-center gap-2">
             {categories.map((cat) => (
@@ -100,7 +100,7 @@ export default function Works() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="bg-[#0a0a0a] py-12 sm:py-16 px-4 sm:px-6 md:px-8">
         <div className="max-w-5xl mx-auto">
@@ -160,7 +160,7 @@ export default function Works() {
 
           {works.length === 0 && (
             <div className="text-center py-24">
-              <p className="text-white/25 text-sm tracking-widest uppercase">No works found in this category</p>
+              <p className="text-white/25 text-sm tracking-widest uppercase">No works found</p>
             </div>
           )}
         </div>

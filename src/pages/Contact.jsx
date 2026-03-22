@@ -43,12 +43,12 @@ export default function Contact() {
     <div ref={pageRef} className="bg-[#0a0a0a] overflow-x-hidden">
 
       <section className="relative min-h-[70vh] flex flex-col items-center justify-center overflow-hidden bg-black">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(79,142,247,0.06) 0%, transparent 70%)' }} />
+        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 70% 60% at 50% 50%, ${ACCENT}0f 0%, transparent 70%)` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-[#0a0a0a]" />
         <div className="relative z-10 text-center px-4 pt-24">
           <span className="inline-block text-[10px] tracking-[0.45em] uppercase font-bold mb-5 px-4 py-1.5 rounded-full border" style={{ color: ACCENT, borderColor: `${ACCENT}30` }}>Get In Touch</span>
           <div className="overflow-hidden mb-5">
-            <h1 className="font-black text-white leading'none tracking-tighter" style={{ fontSize: 'clamp(3rem, 12vw, 10rem)' }}>
+            <h1 className="font-black text-white leading-none tracking-tighter" style={{ fontSize: 'clamp(3rem, 12vw, 10rem)' }}>
               {"Let's Create".split(' ').map((w, i) => (
                 <span key={i} className="hero-word inline-block mr-[0.18em] last:mr-0">{w}</span>
               ))}
@@ -64,44 +64,48 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="bg-white py-14 sm:py-20 px-4 sm:px-6 md:px-8">
+      <section className="bg-[#0f0f0f] py-14 sm:py-20 px-4 sm:px-6 md:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="contact-card grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
 
             <form onSubmit={handleSubmit} className="contact-form space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="contact-field">
-                  <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">Name</label>
+                  <label className="block text-[10px] font-black tracking-[0.25em] uppercase mb-2" style={{ color: `${ACCENT}99` }}>Name</label>
                   <input type="text" name="name" value={formData.name} onChange={handleChange} required
                     placeholder="Your full name"
-                    className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all placeholder-black/25"
-                    onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
-                    onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+                    className="w-full rounded-xl border px-4 py-3.5 text-white text-sm focus:outline-none transition-all placeholder-white/20"
+                    style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}
+                    onFocus={e => e.target.style.borderColor = ACCENT}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
                 </div>
                 <div className="contact-field">
-                  <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">Email</label>
+                  <label className="block text-[10px] font-black tracking-[0.25em] uppercase mb-2" style={{ color: `${ACCENT}99` }}>Email</label>
                   <input type="email" name="email" value={formData.email} onChange={handleChange} required
                     placeholder="you@company.com"
-                    className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all placeholder-black/25"
-                    onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
-                    onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+                    className="w-full rounded-xl border px-4 py-3.5 text-white text-sm focus:outline-none transition-all placeholder-white/20"
+                    style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}
+                    onFocus={e => e.target.style.borderColor = ACCENT}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
                 </div>
               </div>
               <div className="contact-field">
-                <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">Company</label>
+                <label className="block text-[10px] font-black tracking-[0.25em] uppercase mb-2" style={{ color: `${ACCENT}99` }}>Company</label>
                 <input type="text" name="company" value={formData.company} onChange={handleChange}
                   placeholder="Brand or company name"
-                  className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all placeholder-black/25"
-                  onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
-                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+                  className="w-full rounded-xl border px-4 py-3.5 text-white text-sm focus:outline-none transition-all placeholder-white/20"
+                  style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}
+                  onFocus={e => e.target.style.borderColor = ACCENT}
+                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
               </div>
               <div className="contact-field">
-                <label className="block text-[10px] font-black tracking-[0.25em] text-black/40 uppercase mb-2">What do you need help with?</label>
+                <label className="block text-[10px] font-black tracking-[0.25em] uppercase mb-2" style={{ color: `${ACCENT}99` }}>What do you need help with?</label>
                 <textarea name="message" rows={5} value={formData.message} onChange={handleChange}
                   placeholder="Tell us about your project, timelines and success metrics."
-                  className="w-full rounded-xl bg-black/3 border border-black/10 px-4 py-3.5 text-black text-sm focus:outline-none transition-all resize-none placeholder-black/25"
-                  onFocus={e => e.target.style.borderColor = `${ACCENT}60`}
-                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.1)'} />
+                  className="w-full rounded-xl border px-4 py-3.5 text-white text-sm focus:outline-none transition-all resize-none placeholder-white/20"
+                  style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}
+                  onFocus={e => e.target.style.borderColor = ACCENT}
+                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
               </div>
               <div className="contact-field flex items-center gap-4">
                 <button type="submit" disabled={sending}
@@ -110,7 +114,7 @@ export default function Contact() {
                   {sending ? 'Sending...' : sent ? 'Sent!' : 'Submit Brief'}
                   <FiSend size={13} />
                 </button>
-                <p className="text-black/30 text-xs">We'll respond within 24 hours</p>
+                <p className="text-white/30 text-xs">We'll respond within 24 hours</p>
               </div>
             </form>
 
@@ -121,32 +125,32 @@ export default function Contact() {
                 { Icon: FiMapPin, label: 'Location', val: 'Kochi, Kerala, India', href: null },
               ].map(({ Icon, label, val, href }, i) => (
                 <div key={i} className="info-item flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border border-black/8" style={{ background: `${ACCENT}12` }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border" style={{ background: `${ACCENT}15`, borderColor: 'rgba(255,255,255,0.08)' }}>
                     <Icon size={16} style={{ color: ACCENT }} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black tracking-[0.25em] text-black/35 uppercase mb-0.5">{label}</p>
+                    <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-0.5" style={{ color: `${ACCENT}99` }}>{label}</p>
                     {href ? (
-                      <a href={href} className="text-black font-semibold text-sm hover:underline">{val}</a>
+                      <a href={href} className="text-white/70 font-semibold text-sm hover:text-white transition-colors">{val}</a>
                     ) : (
-                      <p className="text-black font-semibold text-sm">{val}</p>
+                      <p className="text-white/70 font-semibold text-sm">{val}</p>
                     )}
                   </div>
                 </div>
               ))}
 
-              <div className="info-item pt-2 border-t border-black/8">
-                <p className="text-[10px] font-black tracking-[0.25em] text-black/35 uppercase mb-4">Follow Us</p>
+              <div className="info-item pt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                <p className="text-[10px] font-black tracking-[0.25em] uppercase mb-4" style={{ color: `${ACCENT}99` }}>Follow Us</p>
                 <div className="flex gap-3">
                   {[
                     { Icon: FiInstagram, href: 'https://www.instagram.com/secondwave.ads', label: 'Instagram' },
                     { Icon: FiLinkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
                   ].map(({ Icon, href, label }, i) => (
                     <a key={i} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                      className="w-10 h-10 rounded-xl border border-black/8 flex items-center justify-center text-black/35 hover:text-white hover:border-transparent transition-all"
-                      style={{ '--hover-bg': ACCENT }}
-                      onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.color = 'white'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(0,0,0,0.35)'; }}>
+                      className="w-10 h-10 rounded-xl border flex items-center justify-center transition-all"
+                      style={{ borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.borderColor = ACCENT; e.currentTarget.style.color = 'white'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}>
                       <Icon size={15} />
                     </a>
                   ))}
@@ -170,8 +174,8 @@ export default function Contact() {
               { num: '03', title: 'Execution', desc: 'Our team brings the strategy to life with precision and creativity.' },
               { num: '04', title: 'Growth', desc: 'We measure results and optimize for continuous improvement and scaling.' },
             ].map((item, i) => (
-              <div key={i} className="process-card rounded-2xl p-6 sm:p-7 border border-white/8 hover:border-white/18 transition-all group">
-                <div className="font-black text-white/6 leading-none mb-4 select-none" style={{ fontSize: '3.5rem' }}>{item.num}</div>
+              <div key={i} className="process-card rounded-2xl p-6 sm:p-7 border transition-all group" style={{ background: '#141414', borderColor: 'rgba(255,255,255,0.08)' }}>
+                <div className="font-black leading-none mb-4 select-none" style={{ fontSize: '3.5rem', color: `${ACCENT}20` }}>{item.num}</div>
                 <div className="w-7 h-0.5 mb-4 transition-all duration-300 group-hover:w-12" style={{ background: ACCENT }} />
                 <h3 className="font-black text-white text-base mb-2">{item.title}</h3>
                 <p className="text-white/28 text-xs sm:text-sm leading-relaxed">{item.desc}</p>
@@ -181,9 +185,9 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="bg-white py-14 sm:py-20 px-4 sm:px-6 md:px-8">
+      <section className="bg-[#0a0a0a] py-14 sm:py-20 px-4 sm:px-6 md:px-8">
         <div className="max-w-5xl mx-auto">
-          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-black/8 p-10 sm:p-14 text-center" style={{ background: '#0a0a0a' }}>
+          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border p-10 sm:p-14 text-center" style={{ background: '#0f0f0f', borderColor: 'rgba(255,255,255,0.07)' }}>
             <span className="text-[10px] tracking-[0.4em] uppercase font-bold mb-4 block" style={{ color: ACCENT }}>Not Ready Yet?</span>
             <h2 className="font-black text-white uppercase leading-tight mb-4" style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}>
               Explore Our<br />Work First
@@ -195,13 +199,18 @@ export default function Contact() {
               <Link to="/works" className="inline-flex items-center justify-center gap-2.5 text-white font-black rounded-full px-8 py-4 text-sm tracking-widest uppercase transition-all hover:opacity-90 hover:scale-105 group" style={{ background: ACCENT }}>
                 View Portfolio <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link to="/services" className="inline-flex items-center justify-center gap-2.5 border border-white/15 text-white/55 font-black rounded-full px-8 py-4 text-sm tracking-widest uppercase hover:border-white/30 hover:text-white transition-all">
+              <Link to="/services" className="inline-flex items-center justify-center gap-2.5 rounded-full px-8 py-4 text-sm tracking-widest uppercase transition-all" style={{ border: `1px solid ${ACCENT}30`, color: ACCENT, background: 'transparent' }}>
                 Our Services
               </Link>
             </div>
           </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes spinA { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+      `}</style>
     </div>
   );
 }

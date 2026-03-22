@@ -16,6 +16,8 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
+const ACCENT = '#4F8EF7';
+
 function Creative() {
   const pageRef = useRef(null);
   const heroImgRef = useRef(null);
@@ -23,7 +25,6 @@ function Creative() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero title animation
       gsap.fromTo('.creative-hero-title span',
         { y: 120, opacity: 0, rotationX: -90 },
         { y: 0, opacity: 1, rotationX: 0, duration: 1.1, ease: 'power4.out', stagger: { amount: 0.5 }, delay: 0.2 }
@@ -34,7 +35,6 @@ function Creative() {
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.1, delay: 1, ease: 'power3.out' }
       );
 
-      // Hero image parallax
       if (heroImgRef.current && heroSectionRef.current) {
         gsap.to(heroImgRef.current, {
           scale: 1.5,
@@ -48,7 +48,6 @@ function Creative() {
         });
       }
 
-      // Feature cards animations
       gsap.fromTo('.creative-card',
         { y: 60, opacity: 0, scale: 0.9 },
         {
@@ -60,7 +59,6 @@ function Creative() {
         }
       );
 
-      // Process steps animations
       gsap.fromTo('.creative-process',
         { y: 50, opacity: 0 },
         {
@@ -105,8 +103,7 @@ function Creative() {
   ];
 
   return (
-    <div ref={pageRef} className="relative overflow-x-hidden bg-black pt-16 sm:pt-20">
-      {/* Hero Section */}
+    <div ref={pageRef} className="relative overflow-x-hidden bg-[#0a0a0a] pt-16 sm:pt-20">
       <section
         ref={heroSectionRef}
         className="relative overflow-hidden"
@@ -124,19 +121,22 @@ function Creative() {
             style={{ objectPosition: '50% 30%' }}
             loading="eager"
           />
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
         
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 bg-white/10 border border-white/20 rounded-full text-[10px] sm:text-xs text-white/70 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white animate-pulse" />
+          <div 
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6 rounded-full text-[10px] sm:text-xs backdrop-blur-md"
+            style={{ background: `${ACCENT}15`, border: `1px solid ${ACCENT}30`, color: ACCENT }}
+          >
+            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ background: ACCENT, animation: 'pulse 2s infinite' }} />
             Creative Studio
-            <FiZap className="text-white/70 text-xs sm:text-sm" />
+            <FiZap style={{ color: ACCENT }} className="text-xs sm:text-sm" />
           </div>
           
           <h1 className="creative-hero-title font-black text-white mb-4 sm:mb-6 leading-none px-2" style={{ fontSize: 'clamp(2rem, 12vw, 6rem)', perspective: '1000px' }}>
             <span className="inline-block">Creative</span>{' '}
-            <span className="inline-block text-white/70">Excellence</span>
+            <span className="inline-block" style={{ color: ACCENT }}>Excellence</span>
           </h1>
           
           <p className="creative-hero-subtitle text-white/60 text-sm sm:text-base md:text-xl max-w-2xl mx-auto leading-relaxed px-4">
@@ -154,15 +154,14 @@ function Creative() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="features-section py-20 sm:py-24 md:py-28 bg-black">
+      <section className="features-section py-20 sm:py-24 md:py-28 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-white/40 uppercase mb-3 sm:mb-4">
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase mb-3 sm:mb-4" style={{ color: `${ACCENT}99` }}>
               What We Create
             </span>
             <h2 className="font-black text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4">
-              Creative <span className="text-white/40">Capabilities</span>
+              Creative <span style={{ color: ACCENT }}>Capabilities</span>
             </h2>
           </div>
 
@@ -173,8 +172,14 @@ function Creative() {
                 className="creative-card group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative p-6 sm:p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm hover:border-white/20 transition-all duration-500">
-                  <div className="text-3xl sm:text-4xl mb-4 w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-xl flex items-center justify-center text-white/80 group-hover:scale-110 group-hover:bg-white/20 transition-all duration-300">
+                <div 
+                  className="relative p-6 sm:p-8 rounded-2xl backdrop-blur-sm transition-all duration-500"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <div 
+                    className="text-3xl sm:text-4xl mb-4 w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center transition-all duration-300"
+                    style={{ background: `${ACCENT}15`, color: ACCENT }}
+                  >
                     {feature.icon}
                   </div>
                   
@@ -184,7 +189,7 @@ function Creative() {
                   <div className="space-y-1.5">
                     {feature.features.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-xs text-white/40">
-                        <span className="w-1 h-1 rounded-full bg-white/40" />
+                        <span className="w-1 h-1 rounded-full" style={{ background: ACCENT }} />
                         {item}
                       </div>
                     ))}
@@ -200,25 +205,24 @@ function Creative() {
         </div>
       </section>
 
-      {/* Process Section */}
-      <section className="process-section py-20 sm:py-24 bg-[#0a0a0a]">
+      <section className="process-section py-20 sm:py-24 bg-[#0f0f0f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] text-white/40 uppercase mb-3 sm:mb-4">
+            <span className="inline-block text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase mb-3 sm:mb-4" style={{ color: `${ACCENT}99` }}>
               Our Process
             </span>
             <h2 className="font-black text-white text-3xl sm:text-4xl md:text-5xl mb-4">
-              From Concept to <span className="text-white/40">Creation</span>
+              From Concept to <span style={{ color: ACCENT }}>Creation</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {['Ideation', 'Concept', 'Creation', 'Iteration'].map((step, index) => (
               <div key={index} className="creative-process text-center group">
-                <div className="text-5xl font-black text-white/10 mb-4 group-hover:text-white/20 transition-colors">
+                <div className="text-5xl font-black mb-4 transition-colors" style={{ color: `${ACCENT}20` }}>
                   0{index + 1}
                 </div>
-                <div className="w-12 h-0.5 bg-white/20 mx-auto mb-4 group-hover:w-16 group-hover:bg-white/40 transition-all duration-300" />
+                <div className="w-12 h-0.5 mx-auto mb-4 transition-all duration-300 group-hover:w-16" style={{ background: `${ACCENT}40` }} />
                 <h3 className="text-xl font-bold text-white mb-2">{step}</h3>
                 <p className="text-sm text-white/40">
                   {index === 0 && 'Brainstorming and creative exploration'}
@@ -232,17 +236,22 @@ function Creative() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 sm:py-24 bg-black">
+      <section className="py-20 sm:py-24 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative p-8 sm:p-12 md:p-16 rounded-3xl overflow-hidden bg-gradient-to-br from-gray-900 to-black">
-            <div className="absolute inset-0 opacity-20" style={{
-              backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)'
+          <div 
+            className="relative p-8 sm:p-12 md:p-16 rounded-3xl overflow-hidden"
+            style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: `radial-gradient(circle at 20% 50%, ${ACCENT} 0%, transparent 50%)`
             }} />
             
             <div className="relative z-10 text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-xs text-white/70 backdrop-blur-sm border border-white/10 mb-6">
-                <FiCamera />
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs backdrop-blur-sm mb-6"
+                style={{ background: `${ACCENT}15`, border: `1px solid ${ACCENT}30`, color: ACCENT }}
+              >
+                <FiCamera style={{ color: ACCENT }} />
                 Let's Create Together
               </div>
               
@@ -257,14 +266,16 @@ function Creative() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-black rounded-full font-bold text-sm sm:text-base hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all group"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all group"
+                  style={{ background: ACCENT, color: 'white' }}
                 >
                   <span>Start Creating</span>
                   <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/works"
-                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 border border-white/30 rounded-full font-bold text-sm sm:text-base hover:bg-white/10 hover:border-white/50 transition-all text-white backdrop-blur-sm"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base transition-all text-white backdrop-blur-sm"
+                  style={{ border: `1px solid ${ACCENT}30`, background: 'transparent' }}
                 >
                   View Creative Work
                 </Link>
@@ -273,6 +284,11 @@ function Creative() {
           </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes spinA { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+      `}</style>
     </div>
   );
 }
